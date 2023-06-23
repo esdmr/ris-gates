@@ -26,10 +26,12 @@ export default defineConfig({
 					/* eslint-disable @typescript-eslint/naming-convention */
 					Literal(n: acorn.Node) {
 						if ('bigint' in n) {
+							// Cast safety: acorn.Node is insufficiently typed.
 							s.update(n.start, n.end, n.bigint as string);
 						}
 					},
 					Identifier(n: acorn.Node) {
+						// Cast safety: acorn.Node is insufficiently typed.
 						if ((n as any).name === 'BigInt') {
 							s.update(n.start, n.end, 'Number');
 						}

@@ -7,8 +7,8 @@ export class Point {
 	}
 }
 
-/** Index for partitions of {@link QuadTreeNode} */
-export type PartitionIndex = 0 | 1 | 2 | 3;
+/** Index for child nodes of {@link QuadTreeNode} */
+export type QuadTreeChildIndex = 0 | 1 | 2 | 3;
 
 /**
  * Represents an axis-aligned area of screen consisting of the
@@ -41,8 +41,8 @@ export class AxisAlignedBoundingBox {
 		return (
 			x <= targetX &&
 			y <= targetY &&
-			x + width > targetX &&
-			y + height > targetY
+			targetX < x + width &&
+			targetY < y + height
 		);
 	}
 
@@ -110,34 +110,35 @@ export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 	}
 
 	/**
-	 * Shrinks the bounding box to initialize some child partition.
+	 * Shrinks the bounding box to initialize some child node.
 	 *
-	 * @param partitionIndex Index of that child partition.
+	 * @param childIndex Index of that child node.
 	 */
-	narrow(partitionIndex: PartitionIndex) {
+	narrow(childIndex: QuadTreeChildIndex) {
 		const {_subWidth} = this;
 
 		return new QuadTreeBoundingBox(
 			new Point(
-				this.topLeft.x + _subWidth * BigInt(partitionIndex % 2),
-				this.topLeft.y + _subWidth * BigInt(Math.trunc(partitionIndex / 2)),
+				this.topLeft.x + _subWidth * BigInt(childIndex % 2),
+				this.topLeft.y + _subWidth * BigInt(Math.trunc(childIndex / 2)),
 			),
 			_subWidth,
 		);
 	}
 
 	/**
-	 * Which partition contains some point. Assumes that the point is inside
-	 * this bounding box.
+	 * Which child contains some point. Assumes that the point is inside this
+	 * bounding box.
 	 */
-	partitionIndex(point: Point) {
+	childIndex(point: Point) {
 		const {_subWidth} = this;
 		const dx = point.x - this.topLeft.x;
 		const dy = point.y - this.topLeft.y;
 		const xi = dx < _subWidth ? 0 : 1;
 		const yi = dy < _subWidth ? 0 : 2;
 
-		return (xi + yi) as PartitionIndex;
+		// Cast safety: Adding {0, 1} and {0, 2} will always be between 0 and 3.
+		return (xi + yi) as QuadTreeChildIndex;
 	}
 }
 
@@ -154,13 +155,13 @@ export class QuadTreeNode {
 	type: QuadTreeNodeType | undefined;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
-	/** Top left partition */
+	/** Top left child */
 	0: QuadTreeNode | undefined;
-	/** Top right partition */
+	/** Top right child */
 	1: QuadTreeNode | undefined;
-	/** Bottom left partition */
+	/** Bottom left child */
 	2: QuadTreeNode | undefined;
-	/** Bottom right partition */
+	/** Bottom right child */
 	3: QuadTreeNode | undefined;
 	/* eslint-enable @typescript-eslint/naming-convention */
 
@@ -177,54 +178,71 @@ export class QuadTreeNode {
 	 * {@link AxisAlignedBoundingBox}. `undefined` if
 	 * {@link AxisAlignedBoundingBox} is out-of-bounds.
 	 */
-	getContainingNode(aabb: AxisAlignedBoundingBox) {
+	getContainingNode(aabb: AxisAlignedBoundingBox, mode: 'make' | 'find') {
 		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
 		let node: QuadTreeNode = this;
 		let previousNode: QuadTreeNode | undefined;
 
 		while (node.bounds.contains(aabb)) {
 			if (node.type !== undefined) {
+				// Tile contains the bounding box. Since we cannot go any
+				// deeper, we stop.
 				return node;
 			}
 
-			const index = node.bounds.partitionIndex(aabb.topLeft);
+			// Try to see if some child node contains the AABB.
+			const index = node.bounds.childIndex(aabb.topLeft);
 
 			if (node[index]) {
 				previousNode = node;
+				// Cast safety: We checked for this already.
 				node = node[index]!;
+			} else if (mode === 'find') {
+				// Child node is not initialized. We will exit early.
+				return node;
 			} else {
+				// Child node is not initialized. We will keep initializing
+				// until we get a tight fit.
 				const bound = node.bounds.narrow(index);
 				const newNode = new QuadTreeNode(bound, !node.parity);
 				node[index] = newNode;
-				previousNode = node;
 				node = newNode;
 			}
 		}
 
+		// Child node did not contain the AABB. Since the parent did, return
+		// that.
 		return previousNode;
 	}
 
 	/**
 	 * Walks down the tree to find a tile at some point. `undefined` if point is
 	 * out-of-bounds. Also `undefined` if trying to find a tile and failing.
+	 *
+	 * @param mode `make` tries to create a tile if uninitialized. `find` will
+	 * just return `undefined`.
 	 */
 	getTileData(point: Point, mode: 'make' | 'find') {
 		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
 		let node: QuadTreeNode = this;
 
+		// `childIndex` requires an explicit bound check.
 		if (!node.bounds.has(point)) {
 			return undefined;
 		}
 
 		while (!node.bounds.isTile) {
-			assert(node.type === undefined);
-			const index = node.bounds.partitionIndex(point);
+			const index = node.bounds.childIndex(point);
 
 			if (node[index]) {
+				// Cast safety: We already checked for this.
 				node = node[index]!;
 			} else if (mode === 'find') {
+				// Child node is not initialized. We will exit early.
 				return undefined;
 			} else {
+				// Child node is not initialized. We will keep initializing
+				// until we get a tight fit.
 				const bound = node.bounds.narrow(index);
 				const newNode = new QuadTreeNode(bound, !node.parity);
 				node[index] = newNode;
@@ -232,7 +250,8 @@ export class QuadTreeNode {
 			}
 		}
 
-		assert(node.type !== undefined);
+		// Found a tile node. We need not check its bounds, the initial bounds
+		// check and childIndex is enough to guarantee that.
 		return node;
 	}
 }
@@ -245,18 +264,21 @@ export function assert(condition: unknown): asserts condition {
 
 /**
  * Partitions space in four parts equally. If a partition does not contain any
- * data, it will be `undefined`. This implementation is also expandable. It
- * starts at the origin and expands outwards as necessary, which lets us
- * partition a unbounded space.
+ * data, it will be `undefined`.
+ *
+ * This implementation is also expandable. It starts at the origin and expands
+ * outwards as necessary, which lets us partition an unbounded space.
  */
 export class QuadTree {
 	root = new QuadTreeNode(new QuadTreeBoundingBox(new Point(0n, 0n), 1n), true);
 
 	/** @see {@link QuadTreeNode.getContainingNode} */
-	getContainingNode(aabb: AxisAlignedBoundingBox) {
+	getContainingNode(aabb: AxisAlignedBoundingBox, mode: 'make' | 'find') {
 		this.expandToFit(aabb.topLeft);
 		this.expandToFit(aabb.bottomRight);
-		return this.root.getContainingNode(aabb)!;
+		// Cast safety: We expanded the QuadTree to fit the AABB.
+		// `getContainingNode` is only nullish if the AABB does not fit.
+		return this.root.getContainingNode(aabb, mode)!;
 	}
 
 	/** @see {@link QuadTreeNode.getTileData} */

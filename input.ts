@@ -20,6 +20,7 @@ export function handleTouch(element: HTMLElement) {
 		eventCache[index] = event;
 
 		if (eventCache.length === 2) {
+			// Cast safety: length is two, so elements 0 and 1 always exist.
 			const diff = Math.hypot(
 				eventCache[1]!.clientX - eventCache[0]!.clientX,
 				eventCache[1]!.clientY - eventCache[0]!.clientY,
@@ -38,11 +39,15 @@ export function handleTouch(element: HTMLElement) {
 
 		if (eventCache.length > 0) {
 			if (!firstDelta) {
+				// Cast safety: length is at least one, so element 0 always exist.
 				deltaX += eventCache[0]!.clientX - oldX;
+				// Cast safety: length is at least one, so element 0 always exist.
 				deltaY += eventCache[0]!.clientY - oldY;
 			}
 
+			// Cast safety: length is at least one, so element 0 always exist.
 			oldX = eventCache[0]!.clientX;
+			// Cast safety: length is at least one, so element 0 always exist.
 			oldY = eventCache[0]!.clientY;
 			firstDelta = false;
 		}

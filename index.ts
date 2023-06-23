@@ -5,21 +5,29 @@ import {
 	Point,
 	type QuadTreeNodeType,
 	type QuadTreeNode,
-	type PartitionIndex,
+	type QuadTreeChildIndex,
 	assert,
 } from './lib.js';
 
+declare global {
+	/** @internal For debug purposes only. */
+	// eslint-disable-next-line no-var
+	var tree: QuadTree;
+}
+
 const tree = new QuadTree();
+globalThis.tree = tree;
 
 tree.getTileData(new Point(1n, 1n), 'make').type = 'source';
 tree.getTileData(new Point(2n, 1n), 'make').type = 'conjoin';
 tree.getTileData(new Point(3n, 1n), 'make').type = 'disjoin';
 tree.getTileData(new Point(1000n, 1n), 'make').type = 'disjoin';
 
-(globalThis as any).tree = tree;
-
+// Cast safety: We assert afterwards.
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 assert(canvas);
+
+// Cast safety: We assert afterwards.
 const context = canvas.getContext('2d')!;
 assert(context);
 
@@ -98,22 +106,27 @@ function draw(ms: DOMHighResTimeStamp) {
 		BigInt(columns),
 		BigInt(rows),
 	);
-	const subtree = tree.getContainingNode(display);
+	const subtree = tree.getContainingNode(display, 'find');
 
 	const progress: Array<{
 		node: QuadTreeNode | undefined;
-		index: PartitionIndex | 4;
+		index: QuadTreeChildIndex | 4;
 	}> = [{node: subtree, index: 0 as const}];
+
 	let lastType: QuadTreeNodeType = 'empty';
 	context.fillStyle = 'transparent';
 
 	while (progress.length > 0) {
+		// Cast safety: length is at least one, so there is always a last
+		// element.
 		const {node, index} = progress.at(-1)!;
 
 		if (node === undefined || index === 4 || !display.colliding(node.bounds)) {
 			progress.pop();
 
 			if (progress.length > 0) {
+				// Cast safety: length is at least one, so there is always a
+				// last element.
 				progress.at(-1)!.index++;
 			}
 
@@ -162,6 +175,8 @@ function draw(ms: DOMHighResTimeStamp) {
 		progress.pop();
 
 		if (progress.length > 0) {
+			// Cast safety: length is at least one, so there is always a last
+			// element.
 			progress.at(-1)!.index++;
 		}
 	}
