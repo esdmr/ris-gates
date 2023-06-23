@@ -1,16 +1,31 @@
 {
-  "name": "infinite-spt",
-  "version": "1.0.0",
-  "description": "",
+  "private": true,
   "type": "module",
-  "main": "build/main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.1.3"
+    "acorn-walk": "^8.2.0",
+    "magic-string": "^0.30.0",
+    "typescript": "^5.1.3",
+    "vite": "^4.3.9",
+    "xo": "^0.54.2"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "eslint-import-resolver-webpack": {
+        "peerDependenciesMeta": {
+          "webpack": {
+            "optional": true
+          }
+        }
+      },
+      "xo": {
+        "dependencies": {
+          "typescript": null
+        },
+        "peerDependencies": {
+          "typescript": "*"
+        }
+      }
+    }
   }
 }
