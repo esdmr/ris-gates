@@ -3,6 +3,9 @@ lockfileVersion: '6.0'
 packageExtensionsChecksum: 119843541e5de0faa8c89f50fa62a06d
 
 devDependencies:
+  '@internal/eslint-plugin':
+    specifier: link:lint
+    version: link:lint
   acorn-walk:
     specifier: ^8.2.0
     version: 8.2.0
