@@ -1,15 +1,15 @@
 import {handleTouch, handleWheel} from './input.js';
 import {
-	SpacePartitioningTree,
-	Rect,
+	QuadTree,
+	AxisAlignedBoundingBox,
 	Point,
-	type NodeType,
-	type TreeNode,
+	type QuadTreeNodeType,
+	type QuadTreeNode,
 	type PartitionIndex,
 	assert,
 } from './lib.js';
 
-const tree = new SpacePartitioningTree();
+const tree = new QuadTree();
 
 tree.getTileData(new Point(1n, 1n), 'make').type = 'source';
 tree.getTileData(new Point(2n, 1n), 'make').type = 'conjoin';
@@ -93,24 +93,24 @@ function draw(ms: DOMHighResTimeStamp) {
 	context.lineWidth = dip;
 
 	const point = new Point(scrollX.bigint, scrollY.bigint);
-	const display = new Rect(point, BigInt(columns), BigInt(rows));
+	const display = new AxisAlignedBoundingBox(
+		point,
+		BigInt(columns),
+		BigInt(rows),
+	);
 	const subtree = tree.getContainingNode(display);
 
 	const progress: Array<{
-		node: TreeNode | undefined;
+		node: QuadTreeNode | undefined;
 		index: PartitionIndex | 4;
 	}> = [{node: subtree, index: 0 as const}];
-	let lastType: NodeType = 'empty';
+	let lastType: QuadTreeNodeType = 'empty';
 	context.fillStyle = 'transparent';
 
 	while (progress.length > 0) {
 		const {node, index} = progress.at(-1)!;
 
-		if (
-			node === undefined ||
-			index === 4 ||
-			!display.colliding(node.square)
-		) {
+		if (node === undefined || index === 4 || !display.colliding(node.bounds)) {
 			progress.pop();
 
 			if (progress.length > 0) {
@@ -125,8 +125,8 @@ function draw(ms: DOMHighResTimeStamp) {
 			continue;
 		}
 
-		const i = Number(node.square.topLeft.x - scrollX.bigint);
-		const j = Number(node.square.topLeft.y - scrollY.bigint);
+		const i = Number(node.bounds.topLeft.x - scrollX.bigint);
+		const j = Number(node.bounds.topLeft.y - scrollY.bigint);
 
 		const {type} = node;
 		if (type !== lastType) {

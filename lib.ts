@@ -1,3 +1,4 @@
+/** Coordinate in 2D space */
 export class Point {
 	constructor(readonly x: bigint, readonly y: bigint) {}
 
@@ -6,11 +7,15 @@ export class Point {
 	}
 }
 
+/** Index for partitions of {@link QuadTreeNode} */
 export type PartitionIndex = 0 | 1 | 2 | 3;
 
-const cachedPowersOfTwo = new Set([1n]);
-
-export class Rect {
+/**
+ * Represents an axis-aligned area of screen consisting of the
+ * {@link topLeft top left} point, {@link width}, and {@link height}. The right
+ * and bottom edge are not part of it.
+ */
+export class AxisAlignedBoundingBox {
 	get bottomRight() {
 		return new Point(
 			this.topLeft.x + this.width - 1n,
@@ -24,6 +29,7 @@ export class Rect {
 		readonly height: bigint,
 	) {}
 
+	/** Is some {@link Point} inside this? */
 	has(target: Point) {
 		const {
 			topLeft: {x, y},
@@ -40,117 +46,155 @@ export class Rect {
 		);
 	}
 
-	contains(rect: Rect) {
+	/** Is some {@link AxisAlignedBoundingBox} inside this? */
+	contains(aabb: AxisAlignedBoundingBox) {
 		const {x, y} = this.topLeft;
-		const {x: targetX, y: targetY} = rect.topLeft;
+		const {x: targetX, y: targetY} = aabb.topLeft;
 
 		return (
 			x <= targetX &&
 			y <= targetY &&
-			targetX + rect.width <= x + this.width &&
-			targetY + rect.height <= y + this.height
+			targetX + aabb.width <= x + this.width &&
+			targetY + aabb.height <= y + this.height
 		);
 	}
 
-	colliding(rect: Rect) {
+	/** Are two {@link AxisAlignedBoundingBox} overlapping? (Order does not matter.) */
+	colliding(aabb: AxisAlignedBoundingBox) {
 		const {x, y} = this.topLeft;
-		const {x: targetX, y: targetY} = rect.topLeft;
+		const {x: targetX, y: targetY} = aabb.topLeft;
 
 		return (
-			x < targetX + rect.width &&
-			y < targetY + rect.height &&
+			x < targetX + aabb.width &&
+			y < targetY + aabb.height &&
 			targetX < x + this.width &&
 			targetY < y + this.height
 		);
 	}
 }
 
-export class Square extends Rect {
+/** A square {@link AxisAlignedBoundingBox} with a power of two {@link width} */
+export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 	get isTile() {
 		return this.width === 1n;
 	}
 
-	get subWidth() {
+	private get _subWidth() {
 		return this.width / 2n;
 	}
 
-	constructor(readonly topLeft: Point, readonly width: bigint) {
-		assert(width >= 1 && cachedPowersOfTwo.has(width));
+	constructor(topLeft: Point, width: bigint) {
+		assert(width >= 1);
 		super(topLeft, width, width);
 	}
 
-	widen(even: boolean) {
+	/**
+	 * Expands the bounding box for the root {@link QuadTreeNode}. To keep the
+	 * {@link QuadTree} somewhat centered, we will grow it either down-right or
+	 * up-left depending on its parity.
+	 *
+	 * @param parity Equal to `Math.log2(Number(this.width)) % 2 === 0`. Since
+	 * we cannot use {@link Math.log2} directly on a {@link BigInt}, we will
+	 * just start at `false` for the origin and invert at each step.
+	 */
+	widen(parity: boolean) {
 		const {
 			topLeft: {x, y},
 			width,
 		} = this;
 
-		cachedPowersOfTwo.add(2n * width);
-		return new Square(
-			new Point(x - (even ? 0n : width), y - (even ? 0n : width)),
+		return new QuadTreeBoundingBox(
+			new Point(x - (parity ? 0n : width), y - (parity ? 0n : width)),
 			2n * width,
 		);
 	}
 
+	/**
+	 * Shrinks the bounding box to initialize some child partition.
+	 *
+	 * @param partitionIndex Index of that child partition.
+	 */
 	narrow(partitionIndex: PartitionIndex) {
-		const {subWidth} = this;
+		const {_subWidth} = this;
 
-		cachedPowersOfTwo.add(subWidth);
-		return new Square(
+		return new QuadTreeBoundingBox(
 			new Point(
-				this.topLeft.x + subWidth * BigInt(partitionIndex % 2),
-				this.topLeft.y +
-					subWidth * BigInt(Math.trunc(partitionIndex / 2)),
+				this.topLeft.x + _subWidth * BigInt(partitionIndex % 2),
+				this.topLeft.y + _subWidth * BigInt(Math.trunc(partitionIndex / 2)),
 			),
-			subWidth,
+			_subWidth,
 		);
 	}
 
+	/**
+	 * Which partition contains some point. Assumes that the point is inside
+	 * this bounding box.
+	 */
 	partitionIndex(point: Point) {
-		const {subWidth} = this;
+		const {_subWidth} = this;
 		const dx = point.x - this.topLeft.x;
 		const dy = point.y - this.topLeft.y;
-		const xi = dx < subWidth ? 0 : 1;
-		const yi = dy < subWidth ? 0 : 2;
+		const xi = dx < _subWidth ? 0 : 1;
+		const yi = dy < _subWidth ? 0 : 2;
 
 		return (xi + yi) as PartitionIndex;
 	}
 }
 
-export type NodeType = 'source' | 'negate' | 'conjoin' | 'disjoin' | 'empty';
+export type QuadTreeNodeType =
+	| 'source'
+	| 'negate'
+	| 'conjoin'
+	| 'disjoin'
+	| 'empty';
 
-export class TreeNode {
-	type: NodeType | undefined;
+/** Items inside the {@link QuadTree}. Could be a branch or a leaf */
+export class QuadTreeNode {
+	/** `undefined` if this node is a branch */
+	type: QuadTreeNodeType | undefined;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
-	0: TreeNode | undefined;
-	1: TreeNode | undefined;
-	2: TreeNode | undefined;
-	3: TreeNode | undefined;
+	/** Top left partition */
+	0: QuadTreeNode | undefined;
+	/** Top right partition */
+	1: QuadTreeNode | undefined;
+	/** Bottom left partition */
+	2: QuadTreeNode | undefined;
+	/** Bottom right partition */
+	3: QuadTreeNode | undefined;
 	/* eslint-enable @typescript-eslint/naming-convention */
 
-	constructor(readonly square: Square, readonly even: boolean) {
-		this.type = square.isTile ? 'empty' : undefined;
+	constructor(
+		readonly bounds: QuadTreeBoundingBox,
+		/** @see {@link QuadTreeBoundingBox.widen} */
+		readonly parity: boolean,
+	) {
+		this.type = bounds.isTile ? 'empty' : undefined;
 	}
 
-	getContainingNode(rect: Rect) {
+	/**
+	 * Chooses the smallest node which fully contains the
+	 * {@link AxisAlignedBoundingBox}. `undefined` if
+	 * {@link AxisAlignedBoundingBox} is out-of-bounds.
+	 */
+	getContainingNode(aabb: AxisAlignedBoundingBox) {
 		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
-		let node: TreeNode = this;
-		let previousNode = node;
+		let node: QuadTreeNode = this;
+		let previousNode: QuadTreeNode | undefined;
 
-		while (node.square.contains(rect)) {
+		while (node.bounds.contains(aabb)) {
 			if (node.type !== undefined) {
 				return node;
 			}
 
-			const index = node.square.partitionIndex(rect.topLeft);
+			const index = node.bounds.partitionIndex(aabb.topLeft);
 
 			if (node[index]) {
 				previousNode = node;
 				node = node[index]!;
 			} else {
-				const square = node.square.narrow(index);
-				const newNode = new TreeNode(square, !node.even);
+				const bound = node.bounds.narrow(index);
+				const newNode = new QuadTreeNode(bound, !node.parity);
 				node[index] = newNode;
 				previousNode = node;
 				node = newNode;
@@ -160,25 +204,29 @@ export class TreeNode {
 		return previousNode;
 	}
 
+	/**
+	 * Walks down the tree to find a tile at some point. `undefined` if point is
+	 * out-of-bounds. Also `undefined` if trying to find a tile and failing.
+	 */
 	getTileData(point: Point, mode: 'make' | 'find') {
 		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
-		let node: TreeNode = this;
+		let node: QuadTreeNode = this;
 
-		if (!node.square.has(point)) {
+		if (!node.bounds.has(point)) {
 			return undefined;
 		}
 
-		while (!node.square.isTile) {
+		while (!node.bounds.isTile) {
 			assert(node.type === undefined);
-			const index = node.square.partitionIndex(point);
+			const index = node.bounds.partitionIndex(point);
 
 			if (node[index]) {
 				node = node[index]!;
 			} else if (mode === 'find') {
 				return undefined;
 			} else {
-				const square = node.square.narrow(index);
-				const newNode = new TreeNode(square, !node.even);
+				const bound = node.bounds.narrow(index);
+				const newNode = new QuadTreeNode(bound, !node.parity);
 				node[index] = newNode;
 				node = newNode;
 			}
@@ -195,17 +243,26 @@ export function assert(condition: unknown): asserts condition {
 	}
 }
 
-export class SpacePartitioningTree {
-	root = new TreeNode(new Square(new Point(0n, 0n), 1n), false);
+/**
+ * Partitions space in four parts equally. If a partition does not contain any
+ * data, it will be `undefined`. This implementation is also expandable. It
+ * starts at the origin and expands outwards as necessary, which lets us
+ * partition a unbounded space.
+ */
+export class QuadTree {
+	root = new QuadTreeNode(new QuadTreeBoundingBox(new Point(0n, 0n), 1n), true);
 
-	getContainingNode(rect: Rect) {
-		this.expandToFit(rect.topLeft);
-		this.expandToFit(rect.bottomRight);
-		return this.root.getContainingNode(rect);
+	/** @see {@link QuadTreeNode.getContainingNode} */
+	getContainingNode(aabb: AxisAlignedBoundingBox) {
+		this.expandToFit(aabb.topLeft);
+		this.expandToFit(aabb.bottomRight);
+		return this.root.getContainingNode(aabb)!;
 	}
 
-	getTileData(point: Point, mode: 'make'): TreeNode;
-	getTileData(point: Point, mode: 'find'): TreeNode | undefined;
+	/** @see {@link QuadTreeNode.getTileData} */
+	getTileData(point: Point, mode: 'make'): QuadTreeNode;
+	/** @see {@link QuadTreeNode.getTileData} */
+	getTileData(point: Point, mode: 'find'): QuadTreeNode | undefined;
 
 	getTileData(point: Point, mode: 'make' | 'find') {
 		this.expandToFit(point);
@@ -213,10 +270,10 @@ export class SpacePartitioningTree {
 	}
 
 	private expandToFit(point: Point) {
-		while (!this.root.square.has(point)) {
-			const even = !this.root.even;
-			const node = new TreeNode(this.root.square.widen(even), even);
-			node[even ? 0 : 3] = this.root;
+		while (!this.root.bounds.has(point)) {
+			const parity = !this.root.parity;
+			const node = new QuadTreeNode(this.root.bounds.widen(parity), parity);
+			node[parity ? 0 : 3] = this.root;
 			this.root = node;
 		}
 	}
