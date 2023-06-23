@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "checkJs": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "Node16",
+    "newLine": "lf",
+    // "outDir": "build",
+    "pretty": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "stripInternal": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "target": "ES2022"
+  },
+  "exclude": [
+    "node_modules",
+    "build"
+  ],
+  "ts-node": {
+    "swc": true
+  }
+}
