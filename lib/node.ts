@@ -8,6 +8,13 @@ export type QuadTreeNodeType =
 	| 'disjoin'
 	| 'empty';
 
+/** If node was not found, stop early. */
+export const searchModeFind = 'find';
+/** If node was not found, create it. */
+export const searchModeMake = 'make';
+
+export type SearchMode = typeof searchModeFind | typeof searchModeMake;
+
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
 	/** `undefined` if this node is a branch */
@@ -37,7 +44,7 @@ export class QuadTreeNode {
 	 * {@link AxisAlignedBoundingBox}. `undefined` if
 	 * {@link AxisAlignedBoundingBox} is out-of-bounds.
 	 */
-	getContainingNode(aabb: AxisAlignedBoundingBox, mode: 'make' | 'find') {
+	getContainingNode(aabb: AxisAlignedBoundingBox, searchMode: SearchMode) {
 		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
 		let node: QuadTreeNode = this;
 		let previousNode: QuadTreeNode | undefined;
@@ -56,7 +63,7 @@ export class QuadTreeNode {
 				previousNode = node;
 				// Cast safety: We checked for this already.
 				node = node[index]!;
-			} else if (mode === 'find') {
+			} else if (searchMode === searchModeFind) {
 				// Child node is not initialized. We will exit early.
 				return node;
 			} else {
@@ -78,10 +85,10 @@ export class QuadTreeNode {
 	 * Walks down the tree to find a tile at some point. `undefined` if point is
 	 * out-of-bounds. Also `undefined` if trying to find a tile and failing.
 	 *
-	 * @param mode `make` tries to create a tile if uninitialized. `find` will
+	 * @param searchMode `make` tries to create a tile if uninitialized. `find` will
 	 * just return `undefined`.
 	 */
-	getTileData(point: Point, mode: 'make' | 'find') {
+	getTileData(point: Point, searchMode: SearchMode) {
 		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
 		let node: QuadTreeNode = this;
 
@@ -96,7 +103,7 @@ export class QuadTreeNode {
 			if (node[index]) {
 				// Cast safety: We already checked for this.
 				node = node[index]!;
-			} else if (mode === 'find') {
+			} else if (searchMode === searchModeFind) {
 				// Child node is not initialized. We will exit early.
 				return undefined;
 			} else {

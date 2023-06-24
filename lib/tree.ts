@@ -1,5 +1,10 @@
 import {QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
-import {QuadTreeNode} from './node.js';
+import {
+	QuadTreeNode,
+	type searchModeFind,
+	type SearchMode,
+	type searchModeMake,
+} from './node.js';
 import {Point} from './point.js';
 
 /**
@@ -13,22 +18,25 @@ export class QuadTree {
 	root = new QuadTreeNode(new QuadTreeBoundingBox(new Point(0n, 0n), 1n), true);
 
 	/** @see {@link QuadTreeNode.getContainingNode} */
-	getContainingNode(aabb: AxisAlignedBoundingBox, mode: 'make' | 'find') {
+	getContainingNode(aabb: AxisAlignedBoundingBox, searchMode: SearchMode) {
 		this.expandToFit(aabb.topLeft);
 		this.expandToFit(aabb.getBottomRight());
 		// Cast safety: We expanded the QuadTree to fit the AABB.
 		// `getContainingNode` is only nullish if the AABB does not fit.
-		return this.root.getContainingNode(aabb, mode)!;
+		return this.root.getContainingNode(aabb, searchMode)!;
 	}
 
 	/** @see {@link QuadTreeNode.getTileData} */
-	getTileData(point: Point, mode: 'make'): QuadTreeNode;
+	getTileData(point: Point, searchMode: typeof searchModeMake): QuadTreeNode;
 	/** @see {@link QuadTreeNode.getTileData} */
-	getTileData(point: Point, mode: 'find'): QuadTreeNode | undefined;
+	getTileData(
+		point: Point,
+		searchMode: typeof searchModeFind,
+	): QuadTreeNode | undefined;
 
-	getTileData(point: Point, mode: 'make' | 'find') {
+	getTileData(point: Point, searchMode: SearchMode) {
 		this.expandToFit(point);
-		return this.root.getTileData(point, mode);
+		return this.root.getTileData(point, searchMode);
 	}
 
 	private expandToFit(point: Point) {

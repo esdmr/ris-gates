@@ -1,7 +1,12 @@
 import {Point} from './lib/point.js';
 import {canvas, context} from './canvas.js';
 import {AxisAlignedBoundingBox, type QuadTreeChildIndex} from './lib/aabb.js';
-import {type QuadTreeNode, type QuadTreeNodeType} from './lib/node.js';
+import {
+	searchModeFind,
+	type QuadTreeNode,
+	type QuadTreeNodeType,
+	searchModeMake,
+} from './lib/node.js';
 import {QuadTree} from './lib/tree.js';
 import * as touchState from './input/touch.js';
 import * as wheelState from './input/wheel.js';
@@ -16,11 +21,11 @@ declare global {
 const tree = new QuadTree();
 globalThis.tree = tree;
 
-tree.getTileData(new Point(0n, 1n), 'make').type = 'negate';
-tree.getTileData(new Point(1n, 1n), 'make').type = 'io';
-tree.getTileData(new Point(2n, 1n), 'make').type = 'conjoin';
-tree.getTileData(new Point(3n, 1n), 'make').type = 'disjoin';
-tree.getTileData(new Point(1000n, 1n), 'make').type = 'disjoin';
+tree.getTileData(new Point(0n, 1n), searchModeMake).type = 'negate';
+tree.getTileData(new Point(1n, 1n), searchModeMake).type = 'io';
+tree.getTileData(new Point(2n, 1n), searchModeMake).type = 'conjoin';
+tree.getTileData(new Point(3n, 1n), searchModeMake).type = 'disjoin';
+tree.getTileData(new Point(1000n, 1n), searchModeMake).type = 'disjoin';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
@@ -72,7 +77,7 @@ function draw(ms: DOMHighResTimeStamp) {
 		BigInt(columns),
 		BigInt(rows),
 	);
-	const subtree = tree.getContainingNode(display, 'find');
+	const subtree = tree.getContainingNode(display, searchModeFind);
 
 	const progress: Array<{
 		node: QuadTreeNode | undefined;
