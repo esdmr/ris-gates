@@ -8,8 +8,8 @@ import {
 	searchModeMake,
 } from './lib/node.js';
 import {QuadTree} from './lib/tree.js';
-import * as touchState from './input/touch.js';
-import * as wheelState from './input/wheel.js';
+import * as pointer from './input/pointer.js';
+import * as wheel from './input/wheel.js';
 import {FloatingBigInt} from './lib/floating-bigint.js';
 
 declare global {
@@ -45,19 +45,19 @@ function draw(ms: DOMHighResTimeStamp) {
 		canvas.height = height;
 	}
 
-	scrollX.float -= touchState.deltaX / scale;
-	scrollY.float -= touchState.deltaY / scale;
-	scale += touchState.deltaScale;
+	scrollX.float -= pointer.deltaX / scale;
+	scrollY.float -= pointer.deltaY / scale;
+	scale += pointer.deltaScale;
 
-	if (wheelState.ctrl) {
-		scale -= (wheelState.deltaX + wheelState.deltaY) / wheelScaleMultiplier;
+	if (wheel.ctrl) {
+		scale -= (wheel.deltaX + wheel.deltaY) / wheelScaleMultiplier;
 	} else {
-		scrollX.float += wheelState.deltaX / scale;
-		scrollY.float += wheelState.deltaY / scale;
+		scrollX.float += wheel.deltaX / scale;
+		scrollY.float += wheel.deltaY / scale;
 	}
 
-	touchState.reset();
-	wheelState.reset();
+	pointer.reset();
+	wheel.reset();
 	scrollX.normalize();
 	scrollY.normalize();
 
