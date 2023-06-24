@@ -1,13 +1,11 @@
-import {handleTouch, handleWheel} from './input.js';
-import {
-	QuadTree,
-	AxisAlignedBoundingBox,
-	Point,
-	type QuadTreeNodeType,
-	type QuadTreeNode,
-	type QuadTreeChildIndex,
-	assert,
-} from './lib.js';
+import {Point} from './lib/point.js';
+import {canvas, context} from './canvas.js';
+import {AxisAlignedBoundingBox, type QuadTreeChildIndex} from './lib/aabb.js';
+import {type QuadTreeNode, type QuadTreeNodeType} from './lib/node.js';
+import {QuadTree} from './lib/tree.js';
+import * as touchState from './input/touch.js';
+import * as wheelState from './input/wheel.js';
+import {FloatingBigInt} from './lib/floating-bigint.js';
 
 declare global {
 	/** @internal For debug purposes only. */
@@ -18,43 +16,11 @@ declare global {
 const tree = new QuadTree();
 globalThis.tree = tree;
 
-tree.getTileData(new Point(1n, 1n), 'make').type = 'source';
+tree.getTileData(new Point(0n, 1n), 'make').type = 'negate';
+tree.getTileData(new Point(1n, 1n), 'make').type = 'io';
 tree.getTileData(new Point(2n, 1n), 'make').type = 'conjoin';
 tree.getTileData(new Point(3n, 1n), 'make').type = 'disjoin';
 tree.getTileData(new Point(1000n, 1n), 'make').type = 'disjoin';
-
-// Cast safety: We assert afterwards.
-const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
-assert(canvas);
-
-// Cast safety: We assert afterwards.
-const context = canvas.getContext('2d')!;
-assert(context);
-
-class FloatingBigInt {
-	bigint = 0n;
-	float = 0;
-
-	normalize() {
-		if (this.float < 0 || this.float >= 1) {
-			this.bigint += BigInt(Math.trunc(this.float));
-			this.float %= 1;
-
-			if (this.float < 0) {
-				this.bigint -= 1n;
-				this.float += 1;
-			}
-		}
-	}
-
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	toJSON() {
-		return {
-			bigint: this.bigint.toString(),
-			float: this.float.toString(),
-		};
-	}
-}
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
@@ -146,7 +112,7 @@ function draw(ms: DOMHighResTimeStamp) {
 			context.fillStyle =
 				type === 'empty'
 					? 'transparent'
-					: type === 'source'
+					: type === 'io'
 					? '#00f'
 					: type === 'negate'
 					? '#f00'
@@ -184,8 +150,5 @@ function draw(ms: DOMHighResTimeStamp) {
 	currentTime = ms;
 	requestAnimationFrame(draw);
 }
-
-const touchState = handleTouch(canvas);
-const wheelState = handleWheel(canvas);
 
 draw(currentTime);
