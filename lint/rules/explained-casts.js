@@ -16,30 +16,15 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 				return;
 			}
 
-			/** @type {TSESTree.Node} */
-			let anyNode = node;
-
-			do {
-				/** @type {TSESTree.Node | undefined} */
-				const parent = anyNode.parent;
-
-				if (!parent) {
-					context.report({
-						messageId: 'noParent',
-						node,
-					});
-					return;
-				}
-
-				anyNode = parent;
-			} while (
-				!anyNode.type.endsWith('Statement') &&
-				anyNode.type !== 'VariableDeclaration'
-			);
-
-			for (const item of context.getSourceCode().getCommentsBefore(anyNode)) {
-				if (/^cast safety: .{3}/i.test(item.value.trim())) {
-					return;
+			for (
+				let i = /** @type {TSESTree.Node | undefined} */ (node);
+				i;
+				i = i.parent
+			) {
+				for (const item of context.getSourceCode().getCommentsBefore(i)) {
+					if (/^cast safety: .{3}/i.test(item.value.trim())) {
+						return;
+					}
 				}
 			}
 

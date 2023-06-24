@@ -17,6 +17,9 @@
     "stripInternal": true,
     "noUncheckedIndexedAccess": true,
     "isolatedModules": true,
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": true,
+    "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "incremental": true,
     "target": "ES2022"

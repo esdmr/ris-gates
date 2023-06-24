@@ -4,6 +4,7 @@
     "@internal"
   ],
   "rules": {
-    "@internal/explained-casts": "error"
+    "@internal/explained-casts": "error",
+    "import/no-mutable-exports": "off"
   }
 }
