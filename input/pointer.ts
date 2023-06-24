@@ -74,7 +74,7 @@ canvas.addEventListener('pointercancel', pointerupHandler);
 canvas.addEventListener('pointerout', pointerupHandler);
 canvas.addEventListener('pointerleave', pointerupHandler);
 
-export function reset() {
+export function commit() {
 	deltaX = 0;
 	deltaY = 0;
 	deltaScale = 0;

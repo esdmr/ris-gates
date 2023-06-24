@@ -56,8 +56,8 @@ function draw(ms: DOMHighResTimeStamp) {
 		scrollY.float += wheel.deltaY / scale;
 	}
 
-	pointer.reset();
-	wheel.reset();
+	pointer.commit();
+	wheel.commit();
 	scrollX.normalize();
 	scrollY.normalize();
 
