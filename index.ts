@@ -1,17 +1,21 @@
-import {Point} from './lib/point.js';
 import {canvas, context} from './input/canvas.js';
-import {AxisAlignedBoundingBox, type QuadTreeChildIndex} from './lib/aabb.js';
-import {
-	searchModeFind,
-	type QuadTreeNode,
-	type QuadTreeNodeType,
-	searchModeMake,
-} from './lib/node.js';
-import {QuadTree} from './lib/tree.js';
+import {showNodes} from './input/controls.js';
 import * as pointer from './input/pointer.js';
 import * as wheel from './input/wheel.js';
+import {AxisAlignedBoundingBox} from './lib/aabb.js';
 import {FloatingBigInt} from './lib/floating-bigint.js';
-import {showNodes} from './input/controls.js';
+import {
+	modeFind,
+	modeMake,
+	typeConjoin,
+	typeDisjoin,
+	typeEmpty,
+	typeIo,
+	typeNegate,
+	type QuadTreeTileType,
+} from './lib/node.js';
+import {Point} from './lib/point.js';
+import {QuadTree} from './lib/tree.js';
 import {WalkStep} from './lib/walk.js';
 
 declare global {
@@ -23,10 +27,14 @@ declare global {
 const tree = new QuadTree();
 globalThis.tree = tree;
 
-tree.getTileData(new Point(0n, 0n), searchModeMake).type = 'negate';
-tree.getTileData(new Point(1n, 1n), searchModeMake).type = 'io';
-tree.getTileData(new Point(2n, 1n), searchModeMake).type = 'conjoin';
-tree.getTileData(new Point(3n, 1n), searchModeMake).type = 'disjoin';
+// SR Nor Latch
+tree.getTileData(new Point(0n, 0n), modeMake).type = typeConjoin;
+tree.getTileData(new Point(1n, 0n), modeMake).type = typeDisjoin;
+tree.getTileData(new Point(0n, 1n), modeMake).type = typeConjoin;
+tree.getTileData(new Point(1n, 1n), modeMake).type = typeNegate;
+tree.getTileData(new Point(2n, 1n), modeMake).type = typeDisjoin;
+tree.getTileData(new Point(1n, 2n), modeMake).type = typeConjoin;
+tree.getTileData(new Point(2n, 2n), modeMake).type = typeConjoin;
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
@@ -102,12 +110,12 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	);
 
 	const progress: WalkStep[] = [
-		new WalkStep(tree.getContainingNode(display, searchModeFind)),
+		new WalkStep(tree.getContainingNode(display, modeFind)),
 	];
 
 	const shouldShowNodes = showNodes.checked;
 
-	let lastType: QuadTreeNodeType = 'empty';
+	let lastType: QuadTreeTileType = typeEmpty;
 	context.fillStyle = 'transparent';
 
 	while (progress.length > 0) {
@@ -147,13 +155,13 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		const {type} = node;
 		if (type !== lastType) {
 			context.fillStyle =
-				type === 'empty'
+				type === typeEmpty
 					? 'transparent'
-					: type === 'io'
+					: type === typeIo
 					? '#00f'
-					: type === 'negate'
+					: type === typeNegate
 					? '#f00'
-					: type === 'conjoin'
+					: type === typeConjoin
 					? '#0f8'
 					: '#8f0';
 			lastType = type;
@@ -166,7 +174,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			Math.ceil(realScale),
 		);
 
-		if (lastType !== 'empty') {
+		if (lastType !== typeEmpty) {
 			context.strokeRect(
 				i * realScale - offsetX,
 				j * realScale - offsetY,

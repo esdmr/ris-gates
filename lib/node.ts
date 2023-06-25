@@ -1,24 +1,30 @@
 import {type Point} from './point.js';
 import {type QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
 
-export type QuadTreeNodeType =
-	| 'io'
-	| 'negate'
-	| 'conjoin'
-	| 'disjoin'
-	| 'empty';
+export const typeIo = 'io';
+export const typeNegate = 'negate';
+export const typeConjoin = 'conjoin';
+export const typeDisjoin = 'disjoin';
+export const typeEmpty = 'empty';
+
+export type QuadTreeTileType =
+	| typeof typeIo
+	| typeof typeNegate
+	| typeof typeConjoin
+	| typeof typeDisjoin
+	| typeof typeEmpty;
 
 /** If node was not found, stop early. */
-export const searchModeFind = 'find';
+export const modeFind = 'find';
 /** If node was not found, create it. */
-export const searchModeMake = 'make';
+export const modeMake = 'make';
 
-export type SearchMode = typeof searchModeFind | typeof searchModeMake;
+export type Mode = typeof modeFind | typeof modeMake;
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
 	/** `undefined` if this node is a branch */
-	type: QuadTreeNodeType | undefined;
+	type: QuadTreeTileType | undefined;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
 	/** Top left child */
@@ -36,7 +42,7 @@ export class QuadTreeNode {
 		/** @see {@link QuadTreeBoundingBox.widen} */
 		readonly parity: boolean,
 	) {
-		this.type = bounds.isTile() ? 'empty' : undefined;
+		this.type = bounds.isTile() ? typeEmpty : undefined;
 	}
 
 	/**
@@ -44,7 +50,7 @@ export class QuadTreeNode {
 	 * {@link AxisAlignedBoundingBox}. `undefined` if
 	 * {@link AxisAlignedBoundingBox} is out-of-bounds.
 	 */
-	getContainingNode(aabb: AxisAlignedBoundingBox, searchMode: SearchMode) {
+	getContainingNode(aabb: AxisAlignedBoundingBox, mode: Mode) {
 		let node: QuadTreeNode = this;
 		let previousNode: QuadTreeNode | undefined;
 
@@ -62,7 +68,7 @@ export class QuadTreeNode {
 				previousNode = node;
 				// Cast safety: We checked for this already.
 				node = node[index]!;
-			} else if (searchMode === searchModeFind) {
+			} else if (mode === modeFind) {
 				// Child node is not initialized. We will exit early.
 				return node;
 			} else {
@@ -84,10 +90,10 @@ export class QuadTreeNode {
 	 * Walks down the tree to find a tile at some point. `undefined` if point is
 	 * out-of-bounds. Also `undefined` if trying to find a tile and failing.
 	 *
-	 * @param searchMode `make` tries to create a tile if uninitialized. `find` will
+	 * @param mode `make` tries to create a tile if uninitialized. `find` will
 	 * just return `undefined`.
 	 */
-	getTileData(point: Point, searchMode: SearchMode) {
+	getTileData(point: Point, mode: Mode) {
 		let node: QuadTreeNode = this;
 
 		// `childIndex` requires an explicit bound check.
@@ -101,7 +107,7 @@ export class QuadTreeNode {
 			if (node[index]) {
 				// Cast safety: We already checked for this.
 				node = node[index]!;
-			} else if (searchMode === searchModeFind) {
+			} else if (mode === modeFind) {
 				// Child node is not initialized. We will exit early.
 				return undefined;
 			} else {
