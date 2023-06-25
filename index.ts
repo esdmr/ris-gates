@@ -1,5 +1,5 @@
 import {Point} from './lib/point.js';
-import {canvas, context} from './canvas.js';
+import {canvas, context} from './input/canvas.js';
 import {AxisAlignedBoundingBox, type QuadTreeChildIndex} from './lib/aabb.js';
 import {
 	searchModeFind,
@@ -11,6 +11,8 @@ import {QuadTree} from './lib/tree.js';
 import * as pointer from './input/pointer.js';
 import * as wheel from './input/wheel.js';
 import {FloatingBigInt} from './lib/floating-bigint.js';
+import {showNodes} from './input/controls.js';
+import {WalkStep} from './lib/walk.js';
 
 declare global {
 	/** @internal For debug purposes only. */
@@ -21,7 +23,7 @@ declare global {
 const tree = new QuadTree();
 globalThis.tree = tree;
 
-tree.getTileData(new Point(0n, 1n), searchModeMake).type = 'negate';
+tree.getTileData(new Point(0n, 0n), searchModeMake).type = 'negate';
 tree.getTileData(new Point(1n, 1n), searchModeMake).type = 'io';
 tree.getTileData(new Point(2n, 1n), searchModeMake).type = 'conjoin';
 tree.getTileData(new Point(3n, 1n), searchModeMake).type = 'disjoin';
@@ -35,6 +37,8 @@ const minimumScale = 4;
 let scale = 50;
 let currentTime = performance.now();
 
+onFrame(currentTime);
+
 function getScaleIntOffset(point: number, oldScale: number) {
 	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / scale));
 }
@@ -43,19 +47,7 @@ function getScaleFloatOffset(point: number, oldScale: number) {
 	return ((point / oldScale) % 1) - ((point / scale) % 1);
 }
 
-// eslint-disable-next-line complexity
-function draw(ms: DOMHighResTimeStamp) {
-	const dip = devicePixelRatio;
-	const width = canvas.clientWidth * dip;
-	const height = canvas.clientHeight * dip;
-
-	if (canvas.width === width && canvas.height === height) {
-		context.clearRect(0, 0, width, height);
-	} else {
-		canvas.width = width;
-		canvas.height = height;
-	}
-
+function commitInputs() {
 	let deltaScale = pointer.deltaScale * pointerScaleMultiplier;
 
 	if (wheel.ctrl) {
@@ -82,29 +74,39 @@ function draw(ms: DOMHighResTimeStamp) {
 	wheel.commit();
 	scrollX.normalize();
 	scrollY.normalize();
+}
+
+function onFrame(ms: DOMHighResTimeStamp) {
+	const dip = devicePixelRatio;
+	const width = canvas.clientWidth * dip;
+	const height = canvas.clientHeight * dip;
+
+	if (canvas.width === width && canvas.height === height) {
+		context.clearRect(0, 0, width, height);
+	} else {
+		canvas.width = width;
+		canvas.height = height;
+	}
+
+	commitInputs();
 
 	const realScale = scale * dip;
+	context.lineWidth = dip;
 
 	const offsetX = Math.trunc(scrollX.float * realScale);
 	const offsetY = Math.trunc(scrollY.float * realScale);
 
-	const columns = Math.ceil(canvas.width / realScale) + 1;
-	const rows = Math.ceil(canvas.height / realScale) + 1;
-
-	context.lineWidth = dip;
-
-	const point = new Point(scrollX.bigint, scrollY.bigint);
 	const display = new AxisAlignedBoundingBox(
-		point,
-		BigInt(columns),
-		BigInt(rows),
+		new Point(scrollX.bigint, scrollY.bigint),
+		BigInt(Math.ceil(width / realScale) + 1),
+		BigInt(Math.ceil(height / realScale) + 1),
 	);
-	const subtree = tree.getContainingNode(display, searchModeFind);
 
-	const progress: Array<{
-		node: QuadTreeNode | undefined;
-		index: QuadTreeChildIndex | 4;
-	}> = [{node: subtree, index: 0 as const}];
+	const progress: WalkStep[] = [
+		new WalkStep(tree.getContainingNode(display, searchModeFind)),
+	];
+
+	const shouldShowNodes = showNodes.checked;
 
 	let lastType: QuadTreeNodeType = 'empty';
 	context.fillStyle = 'transparent';
@@ -126,13 +128,22 @@ function draw(ms: DOMHighResTimeStamp) {
 			continue;
 		}
 
-		if (node.type === undefined) {
-			progress.push({node: node[index], index: 0});
-			continue;
-		}
-
 		const i = Number(node.bounds.topLeft.x - scrollX.bigint);
 		const j = Number(node.bounds.topLeft.y - scrollY.bigint);
+
+		if (shouldShowNodes) {
+			context.strokeRect(
+				i * realScale - offsetX,
+				j * realScale - offsetY,
+				Math.ceil(Number(node.bounds.width) * realScale),
+				Math.ceil(Number(node.bounds.height) * realScale),
+			);
+		}
+
+		if (node.type === undefined) {
+			progress.push(new WalkStep(node[index]));
+			continue;
+		}
 
 		const {type} = node;
 		if (type !== lastType) {
@@ -175,7 +186,5 @@ function draw(ms: DOMHighResTimeStamp) {
 	}
 
 	currentTime = ms;
-	requestAnimationFrame(draw);
+	requestAnimationFrame(onFrame);
 }
-
-draw(currentTime);

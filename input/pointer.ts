@@ -1,4 +1,4 @@
-import {canvas} from '../canvas.js';
+import {canvas} from './canvas.js';
 
 const eventCache: PointerEvent[] = [];
 let oldX = 0;

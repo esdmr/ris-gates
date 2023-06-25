@@ -1,4 +1,4 @@
-import {assert} from './lib/assert.js';
+import {assert} from '../lib/assert.js';
 
 // Cast safety: We assert afterwards.
 export const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;

@@ -45,7 +45,6 @@ export class QuadTreeNode {
 	 * {@link AxisAlignedBoundingBox} is out-of-bounds.
 	 */
 	getContainingNode(aabb: AxisAlignedBoundingBox, searchMode: SearchMode) {
-		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
 		let node: QuadTreeNode = this;
 		let previousNode: QuadTreeNode | undefined;
 
@@ -89,7 +88,6 @@ export class QuadTreeNode {
 	 * just return `undefined`.
 	 */
 	getTileData(point: Point, searchMode: SearchMode) {
-		// eslint-disable-next-line unicorn/no-this-assignment, @typescript-eslint/no-this-alias
 		let node: QuadTreeNode = this;
 
 		// `childIndex` requires an explicit bound check.
