@@ -2,6 +2,9 @@
   "private": true,
   "type": "module",
   "license": "MIT",
+  "scripts": {
+    "tsc": "tsc --noEmit -p ."
+  },
   "devDependencies": {
     "@internal/eslint-plugin": "link:lint",
     "acorn-walk": "^8.2.0",
