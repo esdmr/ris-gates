@@ -1,10 +1,13 @@
 import {canvas} from './canvas.js';
 
 const eventCache: PointerEvent[] = [];
+const draggingThreshold = 1;
 let oldX = 0;
 let oldY = 0;
 let oldDiff = -1;
 let firstDelta = true;
+export let isDragging = false;
+export let hasClicked = false;
 export let deltaX = 0;
 export let deltaY = 0;
 export let centerX = 0;
@@ -59,6 +62,9 @@ const pointermoveHandler = (event: PointerEvent) => {
 		}
 
 		oldDiff = diff;
+		isDragging = true;
+	} else if (!isDragging && Math.abs(deltaX + deltaY) >= draggingThreshold) {
+		isDragging = true;
 	}
 };
 
@@ -69,9 +75,17 @@ const pointerupHandler = (event: PointerEvent) => {
 
 	eventCache.splice(index, 1);
 
-	if (eventCache.length < 2) {
+	if (eventCache.length !== 2) {
 		oldDiff = -1;
 		firstDelta = true;
+	}
+
+	if (eventCache.length === 0 && index !== -1) {
+		if (isDragging) {
+			isDragging = false;
+		} else {
+			hasClicked = true;
+		}
 	}
 };
 
@@ -87,4 +101,5 @@ export function commit() {
 	deltaX = 0;
 	deltaY = 0;
 	deltaScale = 0;
+	hasClicked = false;
 }

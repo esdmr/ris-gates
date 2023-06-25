@@ -85,8 +85,14 @@ function commitInputs() {
 		scrollY.float += getScaleFloatOffset(pointer.centerY, oldScale);
 	}
 
+	if (pointer.isDragging) {
 	scrollX.float -= pointer.deltaX / scale;
 	scrollY.float -= pointer.deltaY / scale;
+	}
+
+	if (pointer.hasClicked) {
+		console.debug('Clicked');
+	}
 
 	pointer.commit();
 	wheel.commit();
