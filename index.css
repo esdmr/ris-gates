@@ -1,0 +1,31 @@
+:root {
+	--background: #e8e8e8;
+	--foreground: black;
+	--controls-border: gray;
+}
+
+:root,
+body,
+canvas {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	touch-action: none;
+	overflow: hidden;
+	background: var(--background);
+}
+
+.controls {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+	border: 0.1em var(--controls-border) solid;
+	border-bottom: none;
+	--border-radius: 0.5em;
+	border-radius: var(--border-radius) var(--border-radius) 0 0;
+	padding: 0.1em 1em;
+	background: var(--background);
+	color: var(--foreground);
+	touch-action: none;
+}
