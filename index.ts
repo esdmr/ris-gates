@@ -27,7 +27,6 @@ tree.getTileData(new Point(0n, 0n), searchModeMake).type = 'negate';
 tree.getTileData(new Point(1n, 1n), searchModeMake).type = 'io';
 tree.getTileData(new Point(2n, 1n), searchModeMake).type = 'conjoin';
 tree.getTileData(new Point(3n, 1n), searchModeMake).type = 'disjoin';
-tree.getTileData(new Point(1000n, 1n), searchModeMake).type = 'disjoin';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
