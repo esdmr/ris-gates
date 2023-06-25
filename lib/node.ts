@@ -1,25 +1,7 @@
 import {type Point} from './point.js';
 import {type QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
-
-export const typeIo = 'io';
-export const typeNegate = 'negate';
-export const typeConjoin = 'conjoin';
-export const typeDisjoin = 'disjoin';
-export const typeEmpty = 'empty';
-
-export type QuadTreeTileType =
-	| typeof typeIo
-	| typeof typeNegate
-	| typeof typeConjoin
-	| typeof typeDisjoin
-	| typeof typeEmpty;
-
-/** If node was not found, stop early. */
-export const modeFind = 'find';
-/** If node was not found, create it. */
-export const modeMake = 'make';
-
-export type Mode = typeof modeFind | typeof modeMake;
+import {type QuadTreeTileType, empty} from './tile-type.js';
+import {type Mode, find} from './search-mode.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
@@ -42,7 +24,7 @@ export class QuadTreeNode {
 		/** @see {@link QuadTreeBoundingBox.widen} */
 		readonly parity: boolean,
 	) {
-		this.type = bounds.isTile() ? typeEmpty : undefined;
+		this.type = bounds.isTile() ? empty : undefined;
 	}
 
 	/**
@@ -68,7 +50,7 @@ export class QuadTreeNode {
 				previousNode = node;
 				// Cast safety: We checked for this already.
 				node = node[index]!;
-			} else if (mode === modeFind) {
+			} else if (mode === find) {
 				// Child node is not initialized. We will exit early.
 				return node;
 			} else {
@@ -107,7 +89,7 @@ export class QuadTreeNode {
 			if (node[index]) {
 				// Cast safety: We already checked for this.
 				node = node[index]!;
-			} else if (mode === modeFind) {
+			} else if (mode === find) {
 				// Child node is not initialized. We will exit early.
 				return undefined;
 			} else {
