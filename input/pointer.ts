@@ -3,10 +3,12 @@ import {canvas} from '../canvas.js';
 const eventCache: PointerEvent[] = [];
 let oldX = 0;
 let oldY = 0;
+let oldDiff = -1;
 let firstDelta = true;
 export let deltaX = 0;
 export let deltaY = 0;
-let oldDiff = -1;
+export let centerX = 0;
+export let centerY = 0;
 export let deltaScale = 0;
 
 const pointerdownHandler = (event: PointerEvent) => {
@@ -20,37 +22,43 @@ const pointermoveHandler = (event: PointerEvent) => {
 
 	eventCache[index] = event;
 
+	if (eventCache.length === 0) {
+		centerX = event.clientX;
+		centerY = event.clientY;
+		return;
+	}
+
+	// Cast safety: length is at least one, so canvas 0 always exist.
+	const first = eventCache[0]!;
+
+	if (!firstDelta) {
+		deltaX += first.clientX - oldX;
+		deltaY += first.clientY - oldY;
+	}
+
+	oldX = first.clientX;
+	oldY = first.clientY;
+	centerX = oldX;
+	centerY = oldY;
+	firstDelta = false;
+
 	if (eventCache.length === 2) {
-		// Cast safety: length is two, so canvass 0 and 1 always exist.
+		// Cast safety: length is two, so elements 1 always exist.
+		const second = eventCache[1]!;
+
+		centerX = (second.clientX + first.clientX) / 2;
+		centerY = (second.clientY + first.clientY) / 2;
+
 		const diff = Math.hypot(
-			eventCache[1]!.clientX - eventCache[0]!.clientX,
-			eventCache[1]!.clientY - eventCache[0]!.clientY,
+			second.clientX - first.clientX,
+			second.clientY - first.clientY,
 		);
 
 		if (oldDiff > 0) {
-			if (diff > oldDiff) {
-				deltaScale += diff - oldDiff;
-			} else if (diff < oldDiff) {
-				deltaScale += diff - oldDiff;
-			}
+			deltaScale += diff - oldDiff;
 		}
 
 		oldDiff = diff;
-	}
-
-	if (eventCache.length > 0) {
-		if (!firstDelta) {
-			// Cast safety: length is at least one, so canvas 0 always exist.
-			deltaX += eventCache[0]!.clientX - oldX;
-			// Cast safety: length is at least one, so canvas 0 always exist.
-			deltaY += eventCache[0]!.clientY - oldY;
-		}
-
-		// Cast safety: length is at least one, so canvas 0 always exist.
-		oldX = eventCache[0]!.clientX;
-		// Cast safety: length is at least one, so canvas 0 always exist.
-		oldY = eventCache[0]!.clientY;
-		firstDelta = false;
 	}
 };
 
@@ -69,6 +77,7 @@ const pointerupHandler = (event: PointerEvent) => {
 
 canvas.addEventListener('pointerdown', pointerdownHandler);
 canvas.addEventListener('pointermove', pointermoveHandler);
+canvas.addEventListener('pointerover', pointermoveHandler);
 canvas.addEventListener('pointerup', pointerupHandler);
 canvas.addEventListener('pointercancel', pointerupHandler);
 canvas.addEventListener('pointerout', pointerupHandler);

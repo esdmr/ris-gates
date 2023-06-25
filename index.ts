@@ -29,10 +29,21 @@ tree.getTileData(new Point(1000n, 1n), searchModeMake).type = 'disjoin';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
-const wheelScaleMultiplier = 16;
+const pointerScaleMultiplier = 0.75;
+const wheelScaleMultiplier = 0.2;
+const minimumScale = 4;
 let scale = 50;
 let currentTime = performance.now();
 
+function getScaleIntOffset(point: number, oldScale: number) {
+	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / scale));
+}
+
+function getScaleFloatOffset(point: number, oldScale: number) {
+	return ((point / oldScale) % 1) - ((point / scale) % 1);
+}
+
+// eslint-disable-next-line complexity
 function draw(ms: DOMHighResTimeStamp) {
 	const dip = devicePixelRatio;
 	const width = canvas.clientWidth * dip;
@@ -45,16 +56,27 @@ function draw(ms: DOMHighResTimeStamp) {
 		canvas.height = height;
 	}
 
-	scrollX.float -= pointer.deltaX / scale;
-	scrollY.float -= pointer.deltaY / scale;
-	scale += pointer.deltaScale;
+	let deltaScale = pointer.deltaScale * pointerScaleMultiplier;
 
 	if (wheel.ctrl) {
-		scale -= (wheel.deltaX + wheel.deltaY) / wheelScaleMultiplier;
+		deltaScale -= (wheel.deltaX + wheel.deltaY) * wheelScaleMultiplier;
 	} else {
 		scrollX.float += wheel.deltaX / scale;
 		scrollY.float += wheel.deltaY / scale;
 	}
+
+	if (deltaScale) {
+		const oldScale = scale;
+		scale += deltaScale;
+		if (scale < minimumScale) scale = minimumScale;
+		scrollX.bigint += getScaleIntOffset(pointer.centerX, oldScale);
+		scrollY.bigint += getScaleIntOffset(pointer.centerY, oldScale);
+		scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
+		scrollY.float += getScaleFloatOffset(pointer.centerY, oldScale);
+	}
+
+	scrollX.float -= pointer.deltaX / scale;
+	scrollY.float -= pointer.deltaY / scale;
 
 	pointer.commit();
 	wheel.commit();
