@@ -20,13 +20,17 @@ const tree = new QuadTree();
 globalThis.tree = tree;
 
 // SR Nor Latch
-tree.getTileData(new Point(0n, 0n), searchMode.make).type = tileType.conjoinS;
-tree.getTileData(new Point(1n, 0n), searchMode.make).type = tileType.disjoinN;
-tree.getTileData(new Point(0n, 1n), searchMode.make).type = tileType.conjoinE;
-tree.getTileData(new Point(1n, 1n), searchMode.make).type = tileType.negate;
-tree.getTileData(new Point(2n, 1n), searchMode.make).type = tileType.disjoinE;
-tree.getTileData(new Point(1n, 2n), searchMode.make).type = tileType.conjoinW;
-tree.getTileData(new Point(2n, 2n), searchMode.make).type = tileType.conjoinN;
+tree.getTileData(new Point(0n, 2n), searchMode.make).type = tileType.io;
+tree.getTileData(new Point(1n, 1n), searchMode.make).type = tileType.conjoinS;
+tree.getTileData(new Point(1n, 2n), searchMode.make).type = tileType.conjoinE;
+tree.getTileData(new Point(2n, 0n), searchMode.make).type = tileType.io;
+tree.getTileData(new Point(2n, 1n), searchMode.make).type = tileType.disjoinN;
+tree.getTileData(new Point(2n, 2n), searchMode.make).type = tileType.negate;
+tree.getTileData(new Point(2n, 3n), searchMode.make).type = tileType.conjoinW;
+tree.getTileData(new Point(2n, 4n), searchMode.make).type = tileType.io;
+tree.getTileData(new Point(3n, 2n), searchMode.make).type = tileType.disjoinE;
+tree.getTileData(new Point(3n, 3n), searchMode.make).type = tileType.conjoinN;
+tree.getTileData(new Point(4n, 2n), searchMode.make).type = tileType.io;
 
 // eslint-disable-next-line @internal/no-object-literals
 const fillStyles: Record<tileType.QuadTreeTileType, string> = {
