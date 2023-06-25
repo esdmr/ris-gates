@@ -5,6 +5,19 @@
   ],
   "rules": {
     "@internal/explained-casts": "error",
-    "import/no-mutable-exports": "off"
-  }
+    "@internal/no-object-literals": "error",
+    "import/no-mutable-exports": "off",
+    "unicorn/no-this-assignment": "off",
+    "@typescript-eslint/no-this-alias": "off"
+  },
+  "overrides": [
+    {
+      "files": "lint/**/*",
+      "rules": {
+        "unicorn/prefer-module": "off",
+        "@internal/no-object-literals": "off",
+        "no-unused-vars": "off"
+      }
+    }
+  ]
 }

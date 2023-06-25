@@ -1,3 +1,4 @@
+/* eslint-disable @internal/no-object-literals */
 import {defineConfig} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';

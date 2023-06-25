@@ -1,8 +1,5 @@
-/* eslint-disable unicorn/prefer-module */
-// eslint-disable-next-line no-unused-vars
 const {ESLintUtils, TSESTree} = require('@typescript-eslint/utils');
 
-// Type: RuleModule<"uppercase", ...>
 module.exports = ESLintUtils.RuleCreator.withoutDocs({
 	create(context) {
 		/** @param {TSESTree.TSNonNullExpression | TSESTree.TSAsExpression} node */
@@ -47,7 +44,6 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 		},
 		messages: {
 			cast: 'Unexplained cast',
-			noParent: 'Expression is not in a statement somehow',
 		},
 		type: 'suggestion',
 		schema: [],
