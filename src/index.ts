@@ -1,5 +1,5 @@
 import {canvas, context} from './input/canvas.js';
-import {showNodes} from './input/controls.js';
+import {getSelectedTileType} from './input/controls.js';
 import * as pointer from './input/pointer.js';
 import * as wheel from './input/wheel.js';
 import {AxisAlignedBoundingBox} from './lib/aabb.js';
@@ -94,7 +94,15 @@ function commitInputs() {
 	}
 
 	if (pointer.hasClicked) {
-		console.debug('Clicked');
+		tree.getTileData(
+			new Point(
+				scrollX.bigint +
+					BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+				scrollY.bigint +
+					BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+			),
+			'make',
+		).type = getSelectedTileType();
 	}
 
 	pointer.commit();
@@ -134,8 +142,6 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		new WalkStep(tree.getContainingNode(display, searchMode.find)),
 	];
 
-	const shouldShowNodes = showNodes.checked;
-
 	let lastType: tileType.QuadTreeTileType = tileType.empty;
 	context.fillStyle = 'transparent';
 
@@ -158,15 +164,6 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 		const i = Number(node.bounds.topLeft.x - scrollX.bigint);
 		const j = Number(node.bounds.topLeft.y - scrollY.bigint);
-
-		if (shouldShowNodes) {
-			context.strokeRect(
-				i * realScale - offsetX,
-				j * realScale - offsetY,
-				Math.ceil(Number(node.bounds.width) * realScale),
-				Math.ceil(Number(node.bounds.height) * realScale),
-			);
-		}
 
 		if (node.type === undefined) {
 			progress.push(new WalkStep(node[index]));

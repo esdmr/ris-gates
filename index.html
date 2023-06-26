@@ -5,14 +5,48 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>RIS Gates</title>
 		<link rel="stylesheet" href="index.css">
-		<script type="module" src="./index.ts"></script>
+		<script type="module" src="./src/index.ts"></script>
 	</head>
 	<body>
 		<canvas id="canvas"></canvas>
 		<div class="controls">
-			<label>Show nodes
-				<input id="show-nodes" type="checkbox" />
-			</label>
+			<button id="ctrl-empty">
+				<svg viewBox="0 0 1 1">
+					<title>Empty</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<button id="ctrl-io">
+				<svg viewBox="0 0 1 1">
+					<title>IO</title>
+					<rect width="1" height="1" fill="#0072B2"></rect>
+				</svg>
+			</button>
+			<button id="ctrl-negate">
+				<svg viewBox="0 0 1 1">
+					<title>Negate</title>
+					<rect width="1" height="1" fill="#D55E00"></rect>
+				</svg>
+			</button>
+			<button id="ctrl-conjoin">
+				<svg viewBox="0 0 1 1">
+					<title>Conjoin</title>
+					<rect width="1" height="1" fill="#009E73"></rect>
+				</svg>
+			</button>
+			<button id="ctrl-disjoin">
+				<svg viewBox="0 0 1 1">
+					<title>Disjoin</title>
+					<rect width="1" height="1" fill="#E69F00"></rect>
+				</svg>
+			</button>
+			<button id="ctrl-dir">
+				<svg viewBox="0 0 1 1">
+					<title>Direction: up</title>
+					<polygon points="0,1 0.5,0 1,1" />
+				</svg>
+			</button>
 		</div>
 	</body>
 </html>

@@ -24,8 +24,38 @@ canvas {
 	border-bottom: none;
 	--border-radius: 0.5em;
 	border-radius: var(--border-radius) var(--border-radius) 0 0;
-	padding: 0.1em 1em;
+	padding: 0.2em 1em;
 	background: var(--background);
 	color: var(--foreground);
 	touch-action: none;
+	display: flex;
+	gap: 1em;
+}
+
+.controls button {
+	padding: 0;
+	border: none;
+	background: transparent;
+	width: 1em;
+	height: 1em;
+}
+
+.controls svg {
+	width: 1em;
+	height: 1em;
+}
+
+.controls polygon {
+	transform-origin: center;
+}
+
+.controls line {
+	stroke-width: 0.01em;
+	stroke: var(--foreground);
+}
+
+@media (pointer: coarse) {
+	.controls {
+		font-size: 1.5rem;
+	}
 }
