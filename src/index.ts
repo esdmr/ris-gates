@@ -24,11 +24,11 @@ tree.getTileData(new Point(0n, 2n), searchMode.make).type = tileType.io;
 tree.getTileData(new Point(1n, 1n), searchMode.make).type = tileType.conjoinS;
 tree.getTileData(new Point(1n, 2n), searchMode.make).type = tileType.conjoinE;
 tree.getTileData(new Point(2n, 0n), searchMode.make).type = tileType.io;
-tree.getTileData(new Point(2n, 1n), searchMode.make).type = tileType.disjoinN;
+tree.getTileData(new Point(2n, 1n), searchMode.make).type = tileType.disjoinS;
 tree.getTileData(new Point(2n, 2n), searchMode.make).type = tileType.negate;
 tree.getTileData(new Point(2n, 3n), searchMode.make).type = tileType.conjoinN;
 tree.getTileData(new Point(2n, 4n), searchMode.make).type = tileType.io;
-tree.getTileData(new Point(3n, 2n), searchMode.make).type = tileType.disjoinE;
+tree.getTileData(new Point(3n, 2n), searchMode.make).type = tileType.disjoinW;
 tree.getTileData(new Point(3n, 3n), searchMode.make).type = tileType.conjoinW;
 tree.getTileData(new Point(4n, 2n), searchMode.make).type = tileType.io;
 
@@ -209,7 +209,7 @@ function drawTile(
 
 	switch (type) {
 		case tileType.conjoinN:
-		case tileType.disjoinS: {
+		case tileType.disjoinN: {
 			context.beginPath();
 			context.moveTo(i * realScale - offsetX, (j + 1) * realScale - offsetY);
 			context.lineTo((i + 0.5) * realScale - offsetX, j * realScale - offsetY);
@@ -222,7 +222,7 @@ function drawTile(
 		}
 
 		case tileType.conjoinS:
-		case tileType.disjoinN: {
+		case tileType.disjoinS: {
 			context.beginPath();
 			context.moveTo(i * realScale - offsetX, j * realScale - offsetY);
 			context.lineTo(
@@ -235,7 +235,7 @@ function drawTile(
 		}
 
 		case tileType.conjoinE:
-		case tileType.disjoinW: {
+		case tileType.disjoinE: {
 			context.beginPath();
 			context.moveTo(i * realScale - offsetX, j * realScale - offsetY);
 			context.lineTo(
@@ -248,7 +248,7 @@ function drawTile(
 		}
 
 		case tileType.conjoinW:
-		case tileType.disjoinE: {
+		case tileType.disjoinW: {
 			context.beginPath();
 			context.moveTo((i + 1) * realScale - offsetX, j * realScale - offsetY);
 			context.lineTo(i * realScale - offsetX, (j + 0.5) * realScale - offsetY);
