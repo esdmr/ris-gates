@@ -26,24 +26,24 @@ tree.getTileData(new Point(1n, 2n), searchMode.make).type = tileType.conjoinE;
 tree.getTileData(new Point(2n, 0n), searchMode.make).type = tileType.io;
 tree.getTileData(new Point(2n, 1n), searchMode.make).type = tileType.disjoinN;
 tree.getTileData(new Point(2n, 2n), searchMode.make).type = tileType.negate;
-tree.getTileData(new Point(2n, 3n), searchMode.make).type = tileType.conjoinW;
+tree.getTileData(new Point(2n, 3n), searchMode.make).type = tileType.conjoinN;
 tree.getTileData(new Point(2n, 4n), searchMode.make).type = tileType.io;
 tree.getTileData(new Point(3n, 2n), searchMode.make).type = tileType.disjoinE;
-tree.getTileData(new Point(3n, 3n), searchMode.make).type = tileType.conjoinN;
+tree.getTileData(new Point(3n, 3n), searchMode.make).type = tileType.conjoinW;
 tree.getTileData(new Point(4n, 2n), searchMode.make).type = tileType.io;
 
 // eslint-disable-next-line @internal/no-object-literals
 const fillStyles: Record<tileType.QuadTreeTileType, string> = {
-	[tileType.io]: '#00f',
-	[tileType.negate]: '#f00',
-	[tileType.conjoinN]: '#4f0',
-	[tileType.conjoinS]: '#4f4',
-	[tileType.conjoinE]: '#4f8',
-	[tileType.conjoinW]: '#4fc',
-	[tileType.disjoinN]: '#cf0',
-	[tileType.disjoinS]: '#cf4',
-	[tileType.disjoinE]: '#cf8',
-	[tileType.disjoinW]: '#cfc',
+	[tileType.io]: '#0072B2',
+	[tileType.negate]: '#D55E00',
+	[tileType.conjoinN]: '#009E73',
+	[tileType.conjoinS]: '#009E73',
+	[tileType.conjoinE]: '#009E73',
+	[tileType.conjoinW]: '#009E73',
+	[tileType.disjoinN]: '#E69F00',
+	[tileType.disjoinS]: '#E69F00',
+	[tileType.disjoinE]: '#E69F00',
+	[tileType.disjoinW]: '#E69F00',
 	[tileType.empty]: 'transparent',
 };
 
@@ -51,7 +51,9 @@ const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
 const pointerScaleMultiplier = 0.75;
 const wheelScaleMultiplier = 0.2;
-const minimumScale = 4;
+const minimumScale = 8;
+const maximumScale = 400;
+const strokeWidth = 1.5;
 let scale = 50;
 let currentTime = performance.now();
 
@@ -79,6 +81,7 @@ function commitInputs() {
 		const oldScale = scale;
 		scale += deltaScale;
 		if (scale < minimumScale) scale = minimumScale;
+		else if (scale > maximumScale) scale = maximumScale;
 		scrollX.bigint += getScaleIntOffset(pointer.centerX, oldScale);
 		scrollY.bigint += getScaleIntOffset(pointer.centerY, oldScale);
 		scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
@@ -86,8 +89,8 @@ function commitInputs() {
 	}
 
 	if (pointer.isDragging) {
-	scrollX.float -= pointer.deltaX / scale;
-	scrollY.float -= pointer.deltaY / scale;
+		scrollX.float -= pointer.deltaX / scale;
+		scrollY.float -= pointer.deltaY / scale;
 	}
 
 	if (pointer.hasClicked) {
@@ -115,7 +118,8 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	commitInputs();
 
 	const realScale = scale * dip;
-	context.lineWidth = dip;
+	context.lineWidth = strokeWidth * dip;
+	context.lineJoin = 'bevel';
 
 	const offsetX = Math.trunc(scrollX.float * realScale);
 	const offsetY = Math.trunc(scrollY.float * realScale);
@@ -175,21 +179,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			lastType = type;
 		}
 
-		context.fillRect(
-			i * realScale - offsetX,
-			j * realScale - offsetY,
-			Math.ceil(realScale),
-			Math.ceil(realScale),
-		);
-
-		if (lastType !== tileType.empty) {
-			context.strokeRect(
-				i * realScale - offsetX,
-				j * realScale - offsetY,
-				Math.ceil(realScale),
-				Math.ceil(realScale),
-			);
-		}
+		drawTile(realScale, offsetX, offsetY, i, j, lastType);
 
 		progress.pop();
 
@@ -202,4 +192,86 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 	currentTime = ms;
 	requestAnimationFrame(onFrame);
+}
+
+// eslint-disable-next-line max-params
+function drawTile(
+	realScale: number,
+	offsetX: number,
+	offsetY: number,
+	i: number,
+	j: number,
+	type: number,
+) {
+	context.fillRect(
+		i * realScale - offsetX,
+		j * realScale - offsetY,
+		Math.ceil(realScale),
+		Math.ceil(realScale),
+	);
+
+	switch (type) {
+		case tileType.conjoinN:
+		case tileType.disjoinS: {
+			context.beginPath();
+			context.moveTo(i * realScale - offsetX, (j + 1) * realScale - offsetY);
+			context.lineTo((i + 0.5) * realScale - offsetX, j * realScale - offsetY);
+			context.lineTo(
+				(i + 1) * realScale - offsetX,
+				(j + 1) * realScale - offsetY,
+			);
+			context.stroke();
+			break;
+		}
+
+		case tileType.conjoinS:
+		case tileType.disjoinN: {
+			context.beginPath();
+			context.moveTo(i * realScale - offsetX, j * realScale - offsetY);
+			context.lineTo(
+				(i + 0.5) * realScale - offsetX,
+				(j + 1) * realScale - offsetY,
+			);
+			context.lineTo((i + 1) * realScale - offsetX, j * realScale - offsetY);
+			context.stroke();
+			break;
+		}
+
+		case tileType.conjoinE:
+		case tileType.disjoinW: {
+			context.beginPath();
+			context.moveTo(i * realScale - offsetX, j * realScale - offsetY);
+			context.lineTo(
+				(i + 1) * realScale - offsetX,
+				(j + 0.5) * realScale - offsetY,
+			);
+			context.lineTo(i * realScale - offsetX, (j + 1) * realScale - offsetY);
+			context.stroke();
+			break;
+		}
+
+		case tileType.conjoinW:
+		case tileType.disjoinE: {
+			context.beginPath();
+			context.moveTo((i + 1) * realScale - offsetX, j * realScale - offsetY);
+			context.lineTo(i * realScale - offsetX, (j + 0.5) * realScale - offsetY);
+			context.lineTo(
+				(i + 1) * realScale - offsetX,
+				(j + 1) * realScale - offsetY,
+			);
+			context.stroke();
+			break;
+		}
+
+		// No default
+	}
+
+	if (type !== tileType.empty) {
+		context.strokeRect(
+			i * realScale - offsetX,
+			j * realScale - offsetY,
+			Math.ceil(realScale),
+			Math.ceil(realScale),
+		);
+	}
 }
