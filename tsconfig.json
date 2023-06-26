@@ -1,35 +1,24 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "checkJs": true,
-    "declaration": false,
-    "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
     "module": "es2022",
-    "moduleResolution": "Bundler",
-    "newLine": "lf",
-    // "outDir": "build",
-    "pretty": true,
+    "moduleResolution": "bundler",
     "rootDir": ".",
-    "sourceMap": true,
+    "target": "es2022",
     "strict": true,
-    "strictNullChecks": true,
-    "stripInternal": true,
-    "noUncheckedIndexedAccess": true,
-    "isolatedModules": true,
-    "useDefineForClassFields": true,
-    "useUnknownInCatchVariables": true,
-    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "exactOptionalPropertyTypes": true,
     "esModuleInterop": true,
-    "incremental": true,
-    "target": "ES2022"
+    "skipLibCheck": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true
   },
   "exclude": [
     "node_modules",
     "build",
     "lint/"
-  ],
-  "ts-node": {
-    "swc": true
-  }
+  ]
 }
