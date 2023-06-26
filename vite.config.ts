@@ -18,7 +18,13 @@ export default defineConfig({
 			name: 'bigint to number',
 			enforce: 'post',
 			transform(code, id) {
-				if (id.endsWith('.css') || id.includes('node_modules')) return null;
+				const url = new URL(`file://${id}`);
+
+				if (
+					url.pathname.endsWith('.css') ||
+					url.pathname.includes('node_modules')
+				)
+					return null;
 
 				const ast = this.parse(code);
 				const s = new MagicString(code);
