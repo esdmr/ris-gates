@@ -7,53 +7,19 @@ import {FloatingBigInt} from './lib/floating-bigint.js';
 import * as searchMode from './lib/search-mode.js';
 import * as tileType from './lib/tile-type.js';
 import {Point} from './lib/point.js';
-import {QuadTree} from './lib/tree.js';
 import {WalkStep} from './lib/walk.js';
-
-declare global {
-	/** @internal For debug purposes only. */
-	// eslint-disable-next-line no-var
-	var tree: QuadTree;
-}
-
-const tree = new QuadTree();
-globalThis.tree = tree;
-
-// SR Nor Latch
-tree.getTileData(new Point(0n, 2n), searchMode.make).type = tileType.io;
-tree.getTileData(new Point(1n, 1n), searchMode.make).type = tileType.conjoinS;
-tree.getTileData(new Point(1n, 2n), searchMode.make).type = tileType.conjoinE;
-tree.getTileData(new Point(2n, 0n), searchMode.make).type = tileType.io;
-tree.getTileData(new Point(2n, 1n), searchMode.make).type = tileType.disjoinS;
-tree.getTileData(new Point(2n, 2n), searchMode.make).type = tileType.negate;
-tree.getTileData(new Point(2n, 3n), searchMode.make).type = tileType.conjoinN;
-tree.getTileData(new Point(2n, 4n), searchMode.make).type = tileType.io;
-tree.getTileData(new Point(3n, 2n), searchMode.make).type = tileType.disjoinW;
-tree.getTileData(new Point(3n, 3n), searchMode.make).type = tileType.conjoinW;
-tree.getTileData(new Point(4n, 2n), searchMode.make).type = tileType.io;
-
-// eslint-disable-next-line @internal/no-object-literals
-const fillStyles: Record<tileType.QuadTreeTileType, string> = {
-	[tileType.io]: '#0072B2',
-	[tileType.negate]: '#D55E00',
-	[tileType.conjoinN]: '#009E73',
-	[tileType.conjoinS]: '#009E73',
-	[tileType.conjoinE]: '#009E73',
-	[tileType.conjoinW]: '#009E73',
-	[tileType.disjoinN]: '#E69F00',
-	[tileType.disjoinS]: '#E69F00',
-	[tileType.disjoinE]: '#E69F00',
-	[tileType.disjoinW]: '#E69F00',
-	[tileType.empty]: 'transparent',
-};
+import {tree} from './tree.js';
+import {activeFillStyles} from './colors.js';
+import {
+	pointerScaleMultiplier,
+	wheelScaleMultiplier,
+	minimumScale,
+	maximumScale,
+	strokeWidth,
+} from './constants.js';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
-const pointerScaleMultiplier = 0.75;
-const wheelScaleMultiplier = 0.2;
-const minimumScale = 8;
-const maximumScale = 400;
-const strokeWidth = 1.5;
 let scale = 50;
 let currentTime = performance.now();
 
@@ -172,7 +138,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 		const {type} = node;
 		if (type !== lastType) {
-			context.fillStyle = fillStyles[type];
+			context.fillStyle = activeFillStyles[type];
 			lastType = type;
 		}
 
