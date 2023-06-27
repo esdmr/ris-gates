@@ -1,10 +1,56 @@
-import {type AxisAlignedBoundingBox, type QuadTreeBoundingBox} from './aabb.js';
+import {
+	type AxisAlignedBoundingBox,
+	type QuadTreeBoundingBox,
+	type QuadTreeChildIndex,
+} from './aabb.js';
+import {assert, assertArray} from './assert.js';
 import {type Point} from './point.js';
 import {find, type Mode} from './search-mode.js';
-import {empty, type QuadTreeTileType} from './tile-type.js';
+import {serializedBranch, empty, type QuadTreeTileType} from './tile-type.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
+	static from(value: unknown, bounds: QuadTreeBoundingBox, parity: boolean) {
+		if (value === serializedBranch) return undefined;
+
+		const node = new QuadTreeNode(bounds, parity);
+
+		if (typeof value === 'number') {
+			assert(bounds.width === 1n);
+
+			// Cast safety: This is unsafe, actually.
+			//
+			// FIXME: Add assertion.
+			node.type = value as QuadTreeTileType;
+			return node;
+		}
+
+		assert(bounds.width > 1n);
+		assertArray(value);
+
+		if (value.length === 2) {
+			const [key, subValue] = value;
+			assert(key === 0 || key === 1 || key === 2 || key === 3);
+			node[key] = QuadTreeNode.from(subValue, bounds.narrow(key), !parity);
+			return node;
+		}
+
+		assert(value.length === 4);
+
+		for (let i = 0; i < 4; i++) {
+			// Cast safety: Value of i is between 0 and 3, exactly the same as
+			// QuadTreeChildIndex.
+			const index = i as QuadTreeChildIndex;
+			node[index] = QuadTreeNode.from(
+				value[index],
+				bounds.narrow(index),
+				!parity,
+			);
+		}
+
+		return node;
+	}
+
 	/** `undefined` if this node is a branch */
 	type: QuadTreeTileType | undefined;
 
@@ -105,5 +151,33 @@ export class QuadTreeNode {
 		// Found a tile node. We need not check its bounds, the initial bounds
 		// check and childIndex is enough to guarantee that.
 		return node;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	toJSON() {
+		if (this.type !== undefined) return this.type;
+
+		const emptyBranches =
+			Number(this[0] === undefined) +
+			Number(this[1] === undefined) +
+			Number(this[2] === undefined) +
+			Number(this[3] === undefined);
+
+		if (emptyBranches === 4) return serializedBranch;
+
+		if (emptyBranches < 3) {
+			return [
+				this[0] ?? serializedBranch,
+				this[1] ?? serializedBranch,
+				this[2] ?? serializedBranch,
+				this[3] ?? serializedBranch,
+			];
+		}
+
+		if (this[0] !== undefined) return [0, this[0]];
+		if (this[1] !== undefined) return [1, this[1]];
+		if (this[2] !== undefined) return [2, this[2]];
+		assert(this[3] !== undefined);
+		return [3, this[3]];
 	}
 }

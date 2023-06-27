@@ -1,4 +1,6 @@
 import {QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
+import {assertObject} from './assert.js';
+import {roundedSqrt} from './bigint.js';
 import {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
 import * as searchMode from './search-mode.js';
@@ -11,7 +13,37 @@ import * as searchMode from './search-mode.js';
  * outwards as necessary, which lets us partition an unbounded space.
  */
 export class QuadTree {
-	root = new QuadTreeNode(new QuadTreeBoundingBox(new Point(0n, 0n), 1n), true);
+	static from(json: unknown) {
+		try {
+			assertObject(json);
+
+			const bounds = QuadTreeBoundingBox.from(json.bounds);
+			const {root} = json;
+
+			// To avoid data manipulation/duplication errors, we manually
+			// calculate the parity. If the width was an odd power of two (odd
+			// parity), the result of sqrt would be rounded. Any errors caused
+			// by that rounding indicates that parity is odd or `true`.
+			const parity = roundedSqrt(bounds.width) ** 2n !== bounds.width;
+
+			const node = QuadTreeNode.from(root, bounds, parity);
+			const tree = new QuadTree();
+			if (node) tree._root = node;
+			return tree;
+		} catch (error) {
+			// eslint-disable-next-line @internal/no-object-literals
+			throw new TypeError('Could not deserialize', {cause: error});
+		}
+	}
+
+	private _root = new QuadTreeNode(
+		new QuadTreeBoundingBox(new Point(0n, 0n), 1n),
+		false,
+	);
+
+	get root() {
+		return this._root;
+	}
 
 	/** @see {@link QuadTreeNode.getContainingNode} */
 	getContainingNode(
@@ -48,6 +80,15 @@ export class QuadTree {
 		}
 
 		return this._root.getTileData(point, mode);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	toJSON() {
+		// eslint-disable-next-line @internal/no-object-literals
+		return {
+			root: this._root.toJSON(),
+			bounds: this._root.bounds.toJSON(),
+		};
 	}
 
 	private _expandToFit(point: Point) {

@@ -1,6 +1,7 @@
-export const empty = 0;
-export const io = 1;
-export const negate = 2;
+export const serializedBranch = 0;
+export const empty = 1;
+export const io = 2;
+export const negate = 3;
 export const conjoinN = 10;
 export const conjoinE = 11;
 export const conjoinS = 12;

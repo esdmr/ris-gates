@@ -1,4 +1,4 @@
-import {assert} from './assert.js';
+import {assert, assertObject} from './assert.js';
 import {Point} from './point.js';
 
 /**
@@ -69,6 +69,24 @@ export type QuadTreeChildIndex = 0 | 1 | 2 | 3;
 
 /** A square {@link AxisAlignedBoundingBox} with a power of two {@link width} */
 export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
+	static from(value: unknown) {
+		assertObject(value);
+		assert(typeof value.x === 'string');
+		assert(typeof value.y === 'string');
+		assert(typeof value.w === 'string');
+
+		const w = BigInt(value.w);
+
+		// Check if w is a power of two:
+		// eslint-disable-next-line no-bitwise
+		assert(w > 0n && (w & (w - 1n)) === 0n);
+
+		return new QuadTreeBoundingBox(
+			new Point(BigInt(value.x), BigInt(value.y)),
+			w,
+		);
+	}
+
 	constructor(topLeft: Point, width: bigint) {
 		assert(width >= 1);
 		super(topLeft, width, width);
@@ -130,5 +148,15 @@ export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 
 		// Cast safety: Adding {0, 1} and {0, 2} will always be between 0 and 3.
 		return (xi + yi) as QuadTreeChildIndex;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	toJSON() {
+		// eslint-disable-next-line @internal/no-object-literals
+		return {
+			x: String(this.topLeft.x),
+			y: String(this.topLeft.y),
+			w: String(this.width),
+		};
 	}
 }
