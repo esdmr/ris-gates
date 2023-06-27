@@ -1,4 +1,5 @@
 import {assert, assertObject} from './assert.js';
+import {isPowerOfTwo} from './bigint.js';
 import {Point} from './point.js';
 
 /**
@@ -76,10 +77,7 @@ export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 		assert(typeof value.w === 'string');
 
 		const w = BigInt(value.w);
-
-		// Check if w is a power of two:
-		// eslint-disable-next-line no-bitwise
-		assert(w > 0n && (w & (w - 1n)) === 0n);
+		assert(isPowerOfTwo(w));
 
 		return new QuadTreeBoundingBox(
 			new Point(BigInt(value.x), BigInt(value.y)),
