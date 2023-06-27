@@ -83,6 +83,13 @@ ctrlDir.addEventListener('click', rotateDirection);
 
 ctrlEval.addEventListener('click', () => {
 	ctrlEval.classList.toggle('enabled');
+
+	const title = ctrlEval.querySelector('title');
+	if (title) {
+		title.textContent = ctrlEval.classList.contains('enabled')
+			? 'Modify'
+			: 'Evaluate';
+	}
 });
 
 export function getSelectedTileType() {

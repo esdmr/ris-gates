@@ -94,6 +94,10 @@ dialog .body {
 	width: 100%;
 }
 
+svg.defs-only {
+	display: none;
+}
+
 @media (pointer: coarse) {
 	.controls {
 		font-size: 1.5rem;

@@ -8,61 +8,74 @@
 		<script type="module" src="./src/index.ts"></script>
 	</head>
 	<body>
+		<svg class="defs-only">
+			<defs>
+				<g id="cross">
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</g>
+				<rect id="tile" width="1" height="1" />
+				<g id="eval">
+					<path
+						d="M.0754.898.2814.6934M.8738.4491A.3466.3466 0 01.5272.7957.3466.3466 0 01.1807.4491.3466.3466 0 01.5272.1026.3466.3466 0 01.8738.4491Z" />
+					<path d="m.425.387.5.25-.5.25z" fill="var(--foreground)" />
+				</g>
+				<path id="menu"
+					d="M.5.45A.05.05 0 01.55.5.05.05 0 01.5.55.05.05 0 01.45.5.05.05 0 01.5.45ZM.8.45A.05.05 0 01.85.5.05.05 0 01.8.55.05.05 0 01.75.5.05.05 0 01.8.45ZM.2.45A.05.05 0 01.25.5.05.05 0 01.2.55.05.05 0 01.15.5.05.05 0 01.2.45Z" />
+			</defs>
+		</svg>
 		<canvas id="canvas"></canvas>
 		<div class="controls">
 			<button id="ctrl-empty">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Empty</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<button id="ctrl-io">
 				<svg viewBox="0 0 1 1" fill="var(--colors-io)">
 					<title>IO</title>
-					<rect width="1" height="1" />
+					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-negate">
 				<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
 					<title>Negate</title>
-					<rect width="1" height="1" />
+					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-conjoin">
 				<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
 					<title>Conjoin</title>
-					<rect width="1" height="1" />
+					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-disjoin">
 				<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
 					<title>Disjoin</title>
-					<rect width="1" height="1" />
+					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-dir">
 				<svg viewBox="0 0 1 1">
 					<title>Direction: up</title>
-					<path d="M0 1 .5 0 1 1Z" style="transform-origin: center" />
+					<path id="dir" d="M0 1 .5 0 1 1Z" style="transform-origin:
+					center" />
 				</svg>
 			</button>
 			<button id="ctrl-eval">
 				<svg viewBox="0 0 1 1" fill="var(--background)"
 					stroke-width="0.1" stroke="var(--foreground)">
-					<title>Direction: up</title>
-					<path
-						d="M.0754.898.2814.6934M.8738.4491A.3466.3466 0 01.5272.7957.3466.3466 0 01.1807.4491.3466.3466 0 01.5272.1026.3466.3466 0 01.8738.4491Z" />
-					<path d="m.425.387.5.25-.5.25z" fill="var(--foreground)" />
+					<title>Evaluate</title>
+					<use href="#eval" />
 				</svg>
 			</button>
 			<button id="ctrl-menu" data-open-dialog="menu">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Direction: up</title>
-					<path
-						d="M.5.45A.05.05 0 01.55.5.05.05 0 01.5.55.05.05 0 01.45.5.05.05 0 01.5.45ZM.8.45A.05.05 0 01.85.5.05.05 0 01.8.55.05.05 0 01.75.5.05.05 0 01.8.45ZM.2.45A.05.05 0 01.25.5.05.05 0 01.2.55.05.05 0 01.15.5.05.05 0 01.2.45Z" />
+					<title>Menu</title>
+					<use href="#menu" />
 				</svg>
 			</button>
 		</div>
@@ -71,8 +84,7 @@
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Menu</h1>
@@ -92,8 +104,7 @@
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Load</h1>
@@ -106,8 +117,7 @@
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Loading failed!</h1>
@@ -124,8 +134,7 @@
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Save</h1>
@@ -146,8 +155,7 @@
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Saving failed!</h1>
@@ -162,8 +170,7 @@
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
-					<line x2="1" y2="1" />
-					<line x1="1" y1="0" x2="0" y2="1" />
+					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Browse</h1>
