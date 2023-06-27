@@ -1,6 +1,8 @@
 /* eslint-disable @internal/explained-casts */
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
+import './dialogs.js';
+import '../storage.js';
 
 const ctrlEmpty = document.querySelector<HTMLButtonElement>('#ctrl-empty')!;
 assert(ctrlEmpty);
@@ -20,13 +22,15 @@ assert(ctrlDisjoin);
 const ctrlDir = document.querySelector<HTMLButtonElement>('#ctrl-dir')!;
 assert(ctrlDir);
 
-const ctrlDirPoly =
-	document.querySelector<SVGPolygonElement>('#ctrl-dir polygon')!;
-assert(ctrlDirPoly);
+const ctrlDirPath = document.querySelector<SVGPathElement>('#ctrl-dir path')!;
+assert(ctrlDirPath);
 
 const ctrlDirTitle =
 	document.querySelector<SVGTitleElement>('#ctrl-dir title')!;
 assert(ctrlDirTitle);
+
+const ctrlEval = document.querySelector<HTMLButtonElement>('#ctrl-eval')!;
+assert(ctrlEval);
 
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
@@ -45,7 +49,7 @@ const rotateDirection = () => {
 	const newDirection = directions[newIndex];
 	assert(newDirection);
 	selectedDirection = newDirection;
-	ctrlDirPoly.style.transform = `rotate(${newIndex / 4}turn)`;
+	ctrlDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
 	ctrlDirTitle.textContent = `Direction: ${newDirection}`;
 };
 
@@ -69,12 +73,17 @@ const keys = new Map<string, HTMLButtonElement>([
 ]);
 
 document.body.addEventListener('keydown', (event) => {
+	if (!keys.has(event.key)) return;
 	event.preventDefault();
 	if (event.repeat) return;
 	keys.get(event.key)?.click();
 });
 
 ctrlDir.addEventListener('click', rotateDirection);
+
+ctrlEval.addEventListener('click', () => {
+	ctrlEval.classList.toggle('enabled');
+});
 
 export function getSelectedTileType() {
 	const directionIndex = directions.indexOf(selectedDirection);

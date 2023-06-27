@@ -11,42 +11,165 @@
 		<canvas id="canvas"></canvas>
 		<div class="controls">
 			<button id="ctrl-empty">
-				<svg viewBox="0 0 1 1">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
 					<title>Empty</title>
 					<line x2="1" y2="1" />
 					<line x1="1" y1="0" x2="0" y2="1" />
 				</svg>
 			</button>
 			<button id="ctrl-io">
-				<svg viewBox="0 0 1 1">
+				<svg viewBox="0 0 1 1" fill="var(--colors-io)">
 					<title>IO</title>
-					<rect width="1" height="1" fill="#0072B2"></rect>
+					<rect width="1" height="1" />
 				</svg>
 			</button>
 			<button id="ctrl-negate">
-				<svg viewBox="0 0 1 1">
+				<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
 					<title>Negate</title>
-					<rect width="1" height="1" fill="#D55E00"></rect>
+					<rect width="1" height="1" />
 				</svg>
 			</button>
 			<button id="ctrl-conjoin">
-				<svg viewBox="0 0 1 1">
+				<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
 					<title>Conjoin</title>
-					<rect width="1" height="1" fill="#009E73"></rect>
+					<rect width="1" height="1" />
 				</svg>
 			</button>
 			<button id="ctrl-disjoin">
-				<svg viewBox="0 0 1 1">
+				<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
 					<title>Disjoin</title>
-					<rect width="1" height="1" fill="#E69F00"></rect>
+					<rect width="1" height="1" />
 				</svg>
 			</button>
 			<button id="ctrl-dir">
 				<svg viewBox="0 0 1 1">
 					<title>Direction: up</title>
-					<polygon points="0,1 0.5,0 1,1" />
+					<path d="M0 1 .5 0 1 1Z" style="transform-origin: center" />
+				</svg>
+			</button>
+			<button id="ctrl-eval">
+				<svg viewBox="0 0 1 1" fill="var(--background)"
+					stroke-width="0.1" stroke="var(--foreground)">
+					<title>Direction: up</title>
+					<path
+						d="M.0754.898.2814.6934M.8738.4491A.3466.3466 0 01.5272.7957.3466.3466 0 01.1807.4491.3466.3466 0 01.5272.1026.3466.3466 0 01.8738.4491Z" />
+					<path d="m.425.387.5.25-.5.25z" fill="var(--foreground)" />
+				</svg>
+			</button>
+			<button id="ctrl-menu" data-open-dialog="menu">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Direction: up</title>
+					<path
+						d="M.5.45A.05.05 0 01.55.5.05.05 0 01.5.55.05.05 0 01.45.5.05.05 0 01.5.45ZM.8.45A.05.05 0 01.85.5.05.05 0 01.8.55.05.05 0 01.75.5.05.05 0 01.8.45ZM.2.45A.05.05 0 01.25.5.05.05 0 01.2.55.05.05 0 01.15.5.05.05 0 01.2.45Z" />
 				</svg>
 			</button>
 		</div>
+		<dialog id="dialog-menu">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<h1 class="title">Menu</h1>
+			<section class="body">
+				<ul class="hide-list-bullets full-width">
+					<li><button class="full-width requires-local-storage"
+							data-open-dialog="load">Load</button></li>
+					<li><button class="full-width requires-local-storage"
+							data-open-dialog="save">Save</button></li>
+					<li><button class="full-width requires-local-storage"
+							data-open-dialog="browse">Browse</button></li>
+				</ul>
+			</section>
+		</dialog>
+		<dialog id="dialog-load">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<h1 class="title">Load</h1>
+			<section class="body">
+				<save-browser primary="load" />
+			</section>
+		</dialog>
+		<dialog id="dialog-load-failed">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<h1 class="title">Loading failed!</h1>
+			<section class="body">
+				<p>
+					This file is corrupted and cannot be loaded. See the console
+					for
+					more information.
+				</p>
+			</section>
+		</dialog>
+		<dialog id="dialog-save">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<h1 class="title">Save</h1>
+			<section class="body">
+				<form method="dialog">
+					<p>
+						<label>Name
+							<input type="text" name="name" autocomplete="off">
+						</label>
+					</p>
+				</form>
+				<h2>Other saves</h2>
+				<save-browser />
+			</section>
+		</dialog>
+		<dialog id="dialog-save-failed">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<h1 class="title">Saving failed!</h1>
+			<section class="body">
+				<p>
+					See the console for more information.
+				</p>
+			</section>
+		</dialog>
+		<dialog id="dialog-browse">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<line x2="1" y2="1" />
+					<line x1="1" y1="0" x2="0" y2="1" />
+				</svg>
+			</button>
+			<h1 class="title">Browse</h1>
+			<section class="body">
+				<save-browser primary="delete" />
+			</section>
+		</dialog>
 	</body>
 </html>
