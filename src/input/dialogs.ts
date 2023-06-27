@@ -68,6 +68,8 @@ dialogLoad
 		const {detail: key} = event as CustomEvent<string>;
 		try {
 			load(key);
+			dialogLoad.close();
+			dialogMenu.close();
 		} catch (error) {
 			dialogLoadFailed.showModal();
 			console.error(error);
@@ -79,6 +81,8 @@ dialogSave.querySelector('form')?.addEventListener('formdata', (event) => {
 	if (!name || typeof name !== 'string') return;
 	try {
 		save(name);
+		dialogSave.close();
+		dialogMenu.close();
 	} catch (error) {
 		dialogSaveFailed.showModal();
 		console.error(error);
