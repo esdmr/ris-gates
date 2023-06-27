@@ -6,12 +6,12 @@ import {
 import {assert, assertArray} from './assert.js';
 import {type Point} from './point.js';
 import {find, type Mode} from './search-mode.js';
-import {serializedBranch, empty, type QuadTreeTileType} from './tile-type.js';
+import {branch, empty, type QuadTreeTileType} from './tile-type.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
 	static from(value: unknown, bounds: QuadTreeBoundingBox, parity: boolean) {
-		if (value === serializedBranch) return undefined;
+		if (value === branch) return undefined;
 
 		const node = new QuadTreeNode(bounds, parity);
 
@@ -52,7 +52,7 @@ export class QuadTreeNode {
 	}
 
 	/** `undefined` if this node is a branch */
-	type: QuadTreeTileType | undefined;
+	type: QuadTreeTileType | typeof branch;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
 	/** Top left child */
@@ -70,7 +70,7 @@ export class QuadTreeNode {
 		/** @see {@link QuadTreeBoundingBox.widen} */
 		readonly parity: boolean,
 	) {
-		this.type = bounds.isTile() ? empty : undefined;
+		this.type = bounds.isTile() ? empty : branch;
 	}
 
 	/**
@@ -83,7 +83,7 @@ export class QuadTreeNode {
 		let previousNode: QuadTreeNode | undefined;
 
 		while (node.bounds.contains(aabb)) {
-			if (node.type !== undefined) {
+			if (node.type !== branch) {
 				// Tile contains the bounding box. Since we cannot go any
 				// deeper, we stop.
 				return node;
@@ -155,7 +155,7 @@ export class QuadTreeNode {
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	toJSON() {
-		if (this.type !== undefined) return this.type;
+		if (this.type !== branch) return this.type;
 
 		const emptyBranches =
 			Number(this[0] === undefined) +
@@ -163,14 +163,14 @@ export class QuadTreeNode {
 			Number(this[2] === undefined) +
 			Number(this[3] === undefined);
 
-		if (emptyBranches === 4) return serializedBranch;
+		if (emptyBranches === 4) return branch;
 
 		if (emptyBranches < 3) {
 			return [
-				this[0] ?? serializedBranch,
-				this[1] ?? serializedBranch,
-				this[2] ?? serializedBranch,
-				this[3] ?? serializedBranch,
+				this[0] ?? branch,
+				this[1] ?? branch,
+				this[2] ?? branch,
+				this[3] ?? branch,
 			];
 		}
 

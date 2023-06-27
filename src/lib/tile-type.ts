@@ -1,4 +1,4 @@
-export const serializedBranch = 0;
+export const branch = 0;
 export const empty = 1;
 export const io = 2;
 export const negate = 3;

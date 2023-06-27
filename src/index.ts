@@ -132,7 +132,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		const i = Number(node.bounds.topLeft.x - scrollX.bigint);
 		const j = Number(node.bounds.topLeft.y - scrollY.bigint);
 
-		if (node.type === undefined) {
+		if (node.type === tileType.branch) {
 			progress.push(new WalkStep(node[index]));
 			continue;
 		}

@@ -30,7 +30,7 @@ export class TilesMap {
 				continue;
 			}
 
-			if (node.type === undefined) {
+			if (node.type === tileType.branch) {
 				progress.push(new WalkStep(node[index]));
 				continue;
 			}
@@ -77,9 +77,11 @@ export class EvalGraph {
 				}
 
 				// Cast safety: Guaranteed to be a tile.
-				if (tileType.isConjoin(other.type!)) {
+				const type = other.type as tileType.QuadTreeTileType;
+
+				if (tileType.isConjoin(type)) {
 					this._processConjoin(tile, other, dir);
-				} else if (tileType.isDisjoin(other.type!)) {
+				} else if (tileType.isDisjoin(type)) {
 					this._processDisjoin(tile, other, dir);
 				}
 			}
@@ -92,11 +94,9 @@ export class EvalGraph {
 		other: QuadTreeNode,
 		dir: number,
 	) {
-		// Cast safety: Guaranteed to be a tile.
-		const tileIsUpwards = (4 + (tile.type! % 10) - dir) % 4 === 0;
-		// Cast safety: Guaranteed to be a tile.
+		const tileIsUpwards = (4 + (tile.type % 10) - dir) % 4 === 0;
 		const otherIsDownwards =
-			(4 + other.type! - tileType.conjoinN - dir) % 4 === 2;
+			(4 + other.type - tileType.conjoinN - dir) % 4 === 2;
 
 		switch (tile.type) {
 			case tileType.io: {
@@ -157,11 +157,9 @@ export class EvalGraph {
 		other: QuadTreeNode,
 		dir: number,
 	) {
-		// Cast safety: Guaranteed to be a tile.
-		const tileIsUpwards = (4 + (tile.type! % 10) - dir) % 4 === 0;
-		// Cast safety: Guaranteed to be a tile.
+		const tileIsUpwards = (4 + (tile.type % 10) - dir) % 4 === 0;
 		const otherIsDownwards =
-			(4 + other.type! - tileType.disjoinN - dir) % 4 === 2;
+			(4 + other.type - tileType.disjoinN - dir) % 4 === 2;
 
 		switch (tile.type) {
 			case tileType.io: {
