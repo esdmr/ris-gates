@@ -93,6 +93,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 	const realScale = scale * dip;
 	context.lineWidth = strokeWidth * dip;
+	context.lineCap = 'butt';
 	context.lineJoin = 'bevel';
 
 	const offsetX = Math.trunc(scrollX.float * realScale);
