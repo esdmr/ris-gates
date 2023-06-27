@@ -22,3 +22,11 @@ export type QuadTreeTileType =
 	| typeof disjoinE
 	| typeof disjoinS
 	| typeof disjoinW;
+
+export function isConjoin(type: QuadTreeTileType) {
+	return typeof type === 'number' && Math.trunc(type / 10) * 10 === conjoinN;
+}
+
+export function isDisjoin(type: QuadTreeTileType) {
+	return typeof type === 'number' && Math.trunc(type / 10) * 10 === disjoinN;
+}
