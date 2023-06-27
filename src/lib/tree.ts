@@ -27,11 +27,11 @@ export class QuadTree {
 	/** @see {@link QuadTreeNode.getContainingNode} */
 	getContainingNode(aabb: AxisAlignedBoundingBox, mode: searchMode.Mode) {
 		if (mode === searchMode.make) {
-			this.expandToFit(aabb.topLeft);
-			this.expandToFit(aabb.getBottomRight());
+			this._expandToFit(aabb.topLeft);
+			this._expandToFit(aabb.getBottomRight());
 		}
 
-		return this.root.getContainingNode(aabb, mode) ?? this.root;
+		return this._root.getContainingNode(aabb, mode) ?? this._root;
 	}
 
 	/** @see {@link QuadTreeNode.getTileData} */
@@ -44,18 +44,18 @@ export class QuadTree {
 
 	getTileData(point: Point, mode: searchMode.Mode) {
 		if (mode === searchMode.make) {
-			this.expandToFit(point);
+			this._expandToFit(point);
 		}
 
-		return this.root.getTileData(point, mode);
+		return this._root.getTileData(point, mode);
 	}
 
-	private expandToFit(point: Point) {
-		while (!this.root.bounds.has(point)) {
-			const parity = !this.root.parity;
-			const node = new QuadTreeNode(this.root.bounds.widen(parity), parity);
-			node[parity ? 0 : 3] = this.root;
-			this.root = node;
+	private _expandToFit(point: Point) {
+		while (!this._root.bounds.has(point)) {
+			const parity = !this._root.parity;
+			const node = new QuadTreeNode(this._root.bounds.widen(parity), parity);
+			node[parity ? 0 : 3] = this._root;
+			this._root = node;
 		}
 	}
 }

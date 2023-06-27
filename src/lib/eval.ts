@@ -78,16 +78,20 @@ export class EvalGraph {
 
 				// Cast safety: Guaranteed to be a tile.
 				if (tileType.isConjoin(other.type!)) {
-					this.processConjoin(tile, other, dir);
+					this._processConjoin(tile, other, dir);
 				} else if (tileType.isDisjoin(other.type!)) {
-					this.processDisjoin(tile, other, dir);
+					this._processDisjoin(tile, other, dir);
 				}
 			}
 		}
 	}
 
 	// eslint-disable-next-line complexity
-	private processConjoin(tile: QuadTreeNode, other: QuadTreeNode, dir: number) {
+	private _processConjoin(
+		tile: QuadTreeNode,
+		other: QuadTreeNode,
+		dir: number,
+	) {
 		// Cast safety: Guaranteed to be a tile.
 		const tileIsUpwards = (4 + (tile.type! % 10) - dir) % 4 === 0;
 		// Cast safety: Guaranteed to be a tile.
@@ -97,9 +101,9 @@ export class EvalGraph {
 		switch (tile.type) {
 			case tileType.io: {
 				if (otherIsDownwards) {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				} else {
-					this.addEdge(tile, other);
+					this._addEdge(tile, other);
 				}
 
 				break;
@@ -107,9 +111,9 @@ export class EvalGraph {
 
 			case tileType.negate: {
 				if (otherIsDownwards) {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				} else {
-					this.addEdge(tile, other, false);
+					this._addEdge(tile, other, false);
 				}
 
 				break;
@@ -120,9 +124,9 @@ export class EvalGraph {
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
 				if (!tileIsUpwards && otherIsDownwards) {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				} else if (tileIsUpwards && !otherIsDownwards) {
-					this.addEdge(tile, other);
+					this._addEdge(tile, other);
 				}
 
 				break;
@@ -133,9 +137,9 @@ export class EvalGraph {
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
 				if (tileIsUpwards && otherIsDownwards) {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				} else if (!tileIsUpwards && !otherIsDownwards) {
-					this.addEdge(tile, other);
+					this._addEdge(tile, other);
 				}
 
 				break;
@@ -148,7 +152,11 @@ export class EvalGraph {
 	}
 
 	// eslint-disable-next-line complexity
-	private processDisjoin(tile: QuadTreeNode, other: QuadTreeNode, dir: number) {
+	private _processDisjoin(
+		tile: QuadTreeNode,
+		other: QuadTreeNode,
+		dir: number,
+	) {
 		// Cast safety: Guaranteed to be a tile.
 		const tileIsUpwards = (4 + (tile.type! % 10) - dir) % 4 === 0;
 		// Cast safety: Guaranteed to be a tile.
@@ -158,9 +166,9 @@ export class EvalGraph {
 		switch (tile.type) {
 			case tileType.io: {
 				if (otherIsDownwards) {
-					this.addEdge(tile, other);
+					this._addEdge(tile, other);
 				} else {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				}
 
 				break;
@@ -168,9 +176,9 @@ export class EvalGraph {
 
 			case tileType.negate: {
 				if (otherIsDownwards) {
-					this.addEdge(tile, other, false);
+					this._addEdge(tile, other, false);
 				} else {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				}
 
 				break;
@@ -181,9 +189,9 @@ export class EvalGraph {
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
 				if (tileIsUpwards && otherIsDownwards) {
-					this.addEdge(tile, other);
+					this._addEdge(tile, other);
 				} else if (!otherIsDownwards && !otherIsDownwards) {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				}
 
 				break;
@@ -194,9 +202,9 @@ export class EvalGraph {
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
 				if (!tileIsUpwards && otherIsDownwards) {
-					this.addEdge(tile, other);
+					this._addEdge(tile, other);
 				} else if (tileIsUpwards && !otherIsDownwards) {
-					this.addEdge(other, tile);
+					this._addEdge(other, tile);
 				}
 
 				break;
@@ -208,7 +216,7 @@ export class EvalGraph {
 		}
 	}
 
-	private symbolFor(tile: QuadTreeNode, other: QuadTreeNode) {
+	private _symbolFor(tile: QuadTreeNode, other: QuadTreeNode) {
 		const symbol = mapGet(this.vertices, tile, () => {
 			const {x, y} = tile.bounds.topLeft;
 			return tile.type === tileType.negate
@@ -226,10 +234,10 @@ export class EvalGraph {
 			: symbol[1];
 	}
 
-	private addEdge(from: QuadTreeNode, to: QuadTreeNode, positive = true) {
+	private _addEdge(from: QuadTreeNode, to: QuadTreeNode, positive = true) {
 		const map = positive ? this.positiveEdges : this.negativeEdges;
-		const symbolTo = this.symbolFor(to, from);
-		mapGet(map, symbolTo, () => new Set()).add(this.symbolFor(from, to));
+		const symbolTo = this._symbolFor(to, from);
+		mapGet(map, symbolTo, () => new Set()).add(this._symbolFor(from, to));
 	}
 }
 
