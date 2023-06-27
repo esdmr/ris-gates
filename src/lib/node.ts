@@ -1,7 +1,7 @@
+import {type AxisAlignedBoundingBox, type QuadTreeBoundingBox} from './aabb.js';
 import {type Point} from './point.js';
-import {type QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
-import {type QuadTreeTileType, empty} from './tile-type.js';
-import {type Mode, find} from './search-mode.js';
+import {find, type Mode} from './search-mode.js';
+import {empty, type QuadTreeTileType} from './tile-type.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {

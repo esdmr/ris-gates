@@ -1,7 +1,7 @@
 import {QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
 import {QuadTreeNode} from './node.js';
-import * as searchMode from './search-mode.js';
 import {Point} from './point.js';
+import * as searchMode from './search-mode.js';
 
 /**
  * Partitions space in four parts equally. If a partition does not contain any
