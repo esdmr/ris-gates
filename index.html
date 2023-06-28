@@ -38,20 +38,20 @@
 				<svg viewBox="0 0 1 1" fill="var(--background)"
 					stroke-width="0.1" stroke="var(--foreground)"
 					class="enabled-if-eval">
-					<title>Evaluate</title>
+					<title>evaluate</title>
 					<use href="#eval" />
 				</svg>
 			</button>
 			<button id="ctrl-tick-bwd-stable" class="show-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>Previous stable tick</title>
+					<title>previous stable tick</title>
 					<use href="#tick-stable"
 						style="transform-origin: center; transform: rotate(180deg)" />
 				</svg>
 			</button>
 			<button id="ctrl-tick-bwd" class="show-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>Previous tick</title>
+					<title>previous tick</title>
 					<use href="#tick"
 						style="transform-origin: center; transform: rotate(180deg)" />
 				</svg>
@@ -59,20 +59,20 @@
 			<div id="ctrl-tick-no" class="tick-no show-if-eval">0</div>
 			<button id="ctrl-tick-fwd" class="show-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>Next tick</title>
+					<title>next tick</title>
 					<use href="#tick" />
 				</svg>
 			</button>
 			<button id="ctrl-tick-fwd-stable" class="show-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>Next stable tick</title>
+					<title>next stable tick</title>
 					<use href="#tick-stable" />
 				</svg>
 			</button>
 			<button id="ctrl-empty" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Empty</title>
+					<title>empty</title>
 					<use href="#cross" />
 				</svg>
 			</button>
@@ -84,25 +84,25 @@
 			</button>
 			<button id="ctrl-negate" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
-					<title>Negate</title>
+					<title>negate</title>
 					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-conjoin" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
-					<title>Conjoin</title>
+					<title>conjoin</title>
 					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-disjoin" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
-					<title>Disjoin</title>
+					<title>disjoin</title>
 					<use href="#tile" />
 				</svg>
 			</button>
 			<button id="ctrl-dir" class="hide-if-eval">
 				<svg viewBox="0 0 1 1">
-					<title>Direction: up</title>
+					<title>direction: up</title>
 					<path id="dir" d="M0 1 .5 0 1 1Z" style="transform-origin:
 					center" />
 				</svg>
@@ -119,21 +119,21 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Menu</h1>
 			<section class="body">
 				<ul class="hide-list-bullets full-width">
-					<li><button id="btn-clear" class="full-width">Clear</button>
+					<li><button id="btn-clear" class="full-width">clear</button>
 					</li>
 					<li><button class="full-width requires-local-storage"
-							data-open-dialog="load">Load</button></li>
+							data-open-dialog="load">load</button></li>
 					<li><button class="full-width requires-local-storage"
-							data-open-dialog="save">Save</button></li>
+							data-open-dialog="save">save</button></li>
 					<li><button class="full-width requires-local-storage"
-							data-open-dialog="browse">Browse</button></li>
+							data-open-dialog="browse">browse</button></li>
 				</ul>
 			</section>
 		</dialog>
@@ -141,13 +141,13 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Load</h1>
 			<section class="body">
-				<button id="btn-paste">Paste from clipboard</button>
+				<button id="btn-paste">paste from clipboard</button>
 				<save-browser primary="load" />
 			</section>
 		</dialog>
@@ -155,7 +155,7 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
@@ -163,8 +163,7 @@
 			<section class="body">
 				<p>
 					This file is corrupted and cannot be loaded. See the console
-					for
-					more information.
+					for more information.
 				</p>
 			</section>
 		</dialog>
@@ -172,7 +171,7 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
@@ -189,17 +188,18 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Save</h1>
 			<section class="body">
-				<button id="btn-copy">Copy to clipboard</button>
+				<button id="btn-copy">copy to clipboard</button>
 				<form method="dialog">
 					<p>
 						<label>Name
-							<input type="text" name="name" autocomplete="off">
+							<input type="text" name="name" autocomplete="off"
+								required>
 						</label>
 					</p>
 				</form>
@@ -211,7 +211,7 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
@@ -226,7 +226,7 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
@@ -243,13 +243,16 @@
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
-					<title>Close</title>
+					<title>close</title>
 					<use href="#cross" />
 				</svg>
 			</button>
 			<h1 class="title">Browse</h1>
 			<section class="body">
-				<save-browser primary="delete" />
+				<button id="btn-export">export to clipboard</button>
+				<button id="btn-import">import from clipboard</button>
+				<button id="btn-delete-all">delete all</button>
+				<save-browser primary="delete" secondary="copy to clipboard" />
 			</section>
 		</dialog>
 	</body>

@@ -26,18 +26,22 @@ if (!localStorageAvailable) {
 	}
 }
 
-const storagePrefix = 'risg/';
+export const storagePrefix = 'risg/';
 
 export function load(key: string) {
-	replaceTree(
-		QuadTree.from(
-			JSON.parse(localStorage.getItem(storagePrefix + key) ?? 'null'),
-		),
-	);
+	replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
+}
+
+export function getString(key: string) {
+	return localStorage.getItem(storagePrefix + key);
 }
 
 export function save(key: string) {
 	localStorage.setItem(storagePrefix + key, JSON.stringify(tree));
+}
+
+export function setString(key: string, string: string) {
+	localStorage.setItem(storagePrefix + key, string);
 }
 
 export function remove(key: string) {

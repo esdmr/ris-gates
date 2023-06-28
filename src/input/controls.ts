@@ -77,7 +77,7 @@ const rotateDirection = () => {
 	assert(newDirection);
 	selectedDirection = newDirection;
 	ctrlDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
-	ctrlDirTitle.textContent = `Direction: ${newDirection}`;
+	ctrlDirTitle.textContent = `direction: ${newDirection}`;
 };
 
 for (const [element, tool] of [
@@ -121,7 +121,7 @@ ctrlEval.addEventListener('click', () => {
 
 	const title = ctrlEval.querySelector('title');
 	if (title) {
-		title.textContent = isEval ? 'Modify' : 'Evaluate';
+		title.textContent = isEval ? 'modify' : 'evaluate';
 	}
 });
 

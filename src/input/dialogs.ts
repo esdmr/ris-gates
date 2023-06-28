@@ -1,7 +1,15 @@
 /* eslint-disable @internal/explained-casts */
 import {assert} from '../lib/assert.js';
 import {QuadTree} from '../lib/tree.js';
-import {load, remove, save, type SaveBrowserElement} from '../storage.js';
+import {
+	getString,
+	listStorage,
+	load,
+	remove,
+	save,
+	setString,
+	type SaveBrowserElement,
+} from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
 
 const dialogMenu = document.querySelector<HTMLDialogElement>('#dialog-menu')!;
@@ -94,6 +102,8 @@ dialogLoad
 		}
 	});
 
+let pasteKind: 'load' | 'import' = 'load';
+
 dialogLoad
 	.querySelector<HTMLButtonElement>('#btn-paste')
 	?.addEventListener('click', async () => {
@@ -123,6 +133,7 @@ dialogLoad
 		} catch (error) {
 			const textarea = dialogPasteFailed.querySelector('textarea');
 			if (textarea) textarea.value = '';
+			pasteKind = 'load';
 			dialogPasteFailed.showModal();
 			console.error(error);
 			return;
@@ -142,19 +153,35 @@ dialogPasteFailed
 	.querySelector('textarea')
 	?.addEventListener('paste', (event) => {
 		try {
-			replaceTree(
-				QuadTree.from(
-					JSON.parse(event.clipboardData?.getData('Text') ?? 'null'),
-				),
-			);
+			const text = event.clipboardData?.getData('Text') ?? 'null';
 
-			// Firefox is weird. It doesn’t like closing the dialogs in the
-			// paste event handler. So we do it in the next microtask.
-			queueMicrotask(() => {
-				dialogMenu.close();
-				dialogLoad.close();
-				dialogPasteFailed.close();
-			});
+			if (pasteKind === 'load') {
+				replaceTree(QuadTree.from(JSON.parse(text)));
+
+				// Firefox is weird. It doesn’t like closing the dialogs in the
+				// paste event handler. So we do it in the next microtask.
+				queueMicrotask(() => {
+					dialogMenu.close();
+					dialogLoad.close();
+					dialogPasteFailed.close();
+				});
+			} else {
+				for (const line of text.trim().split('\n')) {
+					const [key, value] = line.split('/');
+					assert(key);
+					assert(value);
+					QuadTree.from(JSON.parse(value));
+					setString(unescapeKey(key), value);
+				}
+
+				dialogBrowse
+					.querySelector<SaveBrowserElement>('save-browser')
+					?.update();
+
+				queueMicrotask(() => {
+					dialogPasteFailed.close();
+				});
+			}
 		} catch (error) {
 			dialogLoadFailed.showModal();
 			console.error(error);
@@ -197,6 +224,8 @@ dialogSave
 
 			try {
 				await navigator.clipboard.writeText(json);
+				dialogSave.close();
+				dialogMenu.close();
 			} catch (error) {
 				throw otherError ?? error;
 			}
@@ -220,6 +249,143 @@ dialogBrowse
 			console.error(error);
 		}
 	});
+
+dialogBrowse
+	.querySelector<SaveBrowserElement>('save-browser')
+	?.addEventListener('secondary', async (event) => {
+		const {detail: key} = event as CustomEvent<string>;
+		const json = getString(key)!;
+
+		try {
+			let otherError;
+
+			try {
+				// eslint-disable-next-line @internal/no-object-literals
+				const permission = await navigator.permissions.query({
+					name: 'clipboard-write' as never,
+				});
+
+				if (permission.state === 'denied') {
+					throw new Error('Not allowed to write to clipboard.');
+				}
+			} catch (error) {
+				otherError = error;
+			}
+
+			try {
+				await navigator.clipboard.writeText(json);
+			} catch (error) {
+				throw otherError ?? error;
+			}
+		} catch (error) {
+			const textarea = dialogCopyFailed.querySelector('textarea');
+			if (textarea) textarea.value = json;
+			dialogCopyFailed.showModal();
+			console.error(error);
+		}
+	});
+
+function escapeKey(key: string) {
+	return key.replaceAll('\\', '\\<').replaceAll('/', '\\>');
+}
+
+function unescapeKey(key: string) {
+	return key.replaceAll('\\>', '/').replaceAll('\\<', '\\');
+}
+
+dialogBrowse
+	.querySelector('#btn-export')
+	?.addEventListener('click', async () => {
+		let text = '';
+
+		for (const key of listStorage()) {
+			text += escapeKey(key) + '/' + getString(key)! + '\n';
+		}
+
+		try {
+			let otherError;
+
+			try {
+				// eslint-disable-next-line @internal/no-object-literals
+				const permission = await navigator.permissions.query({
+					name: 'clipboard-write' as never,
+				});
+
+				if (permission.state === 'denied') {
+					throw new Error('Not allowed to write to clipboard.');
+				}
+			} catch (error) {
+				otherError = error;
+			}
+
+			try {
+				await navigator.clipboard.writeText(text);
+			} catch (error) {
+				throw otherError ?? error;
+			}
+		} catch (error) {
+			const textarea = dialogCopyFailed.querySelector('textarea');
+			if (textarea) textarea.value = text;
+			dialogCopyFailed.showModal();
+			console.error(error);
+		}
+	});
+
+dialogBrowse
+	.querySelector('#btn-import')
+	?.addEventListener('click', async () => {
+		let text;
+
+		try {
+			let otherError;
+
+			try {
+				// eslint-disable-next-line @internal/no-object-literals
+				const permission = await navigator.permissions.query({
+					name: 'clipboard-read' as never,
+				});
+
+				if (permission.state === 'denied') {
+					throw new Error('Not allowed to read clipboard.');
+				}
+			} catch (error) {
+				otherError = error;
+			}
+
+			try {
+				text = await navigator.clipboard.readText();
+			} catch (error) {
+				throw otherError ?? error;
+			}
+		} catch (error) {
+			const textarea = dialogPasteFailed.querySelector('textarea');
+			if (textarea) textarea.value = '';
+			pasteKind = 'import';
+			dialogPasteFailed.showModal();
+			console.error(error);
+			return;
+		}
+
+		for (const line of text.trim().split('\n')) {
+			const [key, value] = line.split('/');
+			assert(key);
+			assert(value);
+			QuadTree.from(JSON.parse(value));
+			setString(unescapeKey(key), value);
+		}
+
+		dialogBrowse.querySelector<SaveBrowserElement>('save-browser')?.update();
+	});
+
+dialogBrowse.querySelector('#btn-delete-all')?.addEventListener('click', () => {
+	const keys = [...listStorage()];
+
+	for (const key of keys) {
+		remove(key);
+	}
+
+	dialogBrowse.querySelector<SaveBrowserElement>('save-browser')?.update();
+});
 
 export function isMenuDialogOpen() {
 	return dialogMenu.open;
