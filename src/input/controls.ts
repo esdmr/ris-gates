@@ -2,7 +2,9 @@
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
 import './dialogs.js';
-import '../storage.js';
+
+const ctrl = document.querySelector<HTMLDivElement>('.controls')!;
+assert(ctrl);
 
 const ctrlEmpty = document.querySelector<HTMLButtonElement>('#ctrl-empty')!;
 assert(ctrlEmpty);
@@ -81,14 +83,15 @@ document.body.addEventListener('keydown', (event) => {
 
 ctrlDir.addEventListener('click', rotateDirection);
 
+export let isEval = false;
+
 ctrlEval.addEventListener('click', () => {
-	ctrlEval.classList.toggle('enabled');
+	isEval = !isEval;
+	ctrl.classList.toggle('eval', isEval);
 
 	const title = ctrlEval.querySelector('title');
 	if (title) {
-		title.textContent = ctrlEval.classList.contains('enabled')
-			? 'Modify'
-			: 'Evaluate';
+		title.textContent = isEval ? 'Modify' : 'Evaluate';
 	}
 });
 

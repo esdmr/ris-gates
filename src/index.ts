@@ -1,5 +1,5 @@
 import {canvas, context} from './input/canvas.js';
-import {getSelectedTileType} from './input/controls.js';
+import {getSelectedTileType, isEval} from './input/controls.js';
 import * as pointer from './input/pointer.js';
 import * as wheel from './input/wheel.js';
 import {AxisAlignedBoundingBox} from './lib/aabb.js';
@@ -59,7 +59,7 @@ function commitInputs() {
 		scrollY.float -= pointer.deltaY / scale;
 	}
 
-	if (pointer.hasClicked) {
+	if (pointer.hasClicked && !isEval) {
 		tree.getTileData(
 			new Point(
 				scrollX.bigint +

@@ -22,56 +22,91 @@
 				</g>
 				<path id="menu"
 					d="M.5.45A.05.05 0 01.55.5.05.05 0 01.5.55.05.05 0 01.45.5.05.05 0 01.5.45ZM.8.45A.05.05 0 01.85.5.05.05 0 01.8.55.05.05 0 01.75.5.05.05 0 01.8.45ZM.2.45A.05.05 0 01.25.5.05.05 0 01.2.55.05.05 0 01.15.5.05.05 0 01.2.45Z" />
+				<g id="tick">
+					<path d="M.1129.3065.5.4871.1129.6935Z" />
+					<path d="M.5.3065.8871.4871.5.6935Z" />
+				</g>
+				<g id="tick-stable">
+					<path d="M.2528.3065.6399.4871.2528.6935Z" />
+					<path d="M.6399.6935H.7472V.3065H.6399Z" />
+				</g>
 			</defs>
 		</svg>
 		<canvas id="canvas"></canvas>
 		<div class="controls">
-			<button id="ctrl-empty">
+			<button id="ctrl-eval">
+				<svg viewBox="0 0 1 1" fill="var(--background)"
+					stroke-width="0.1" stroke="var(--foreground)"
+					class="enabled-if-eval">
+					<title>Evaluate</title>
+					<use href="#eval" />
+				</svg>
+			</button>
+			<button id="ctrl-tick-bwd-stable" class="show-if-eval">
+				<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<title>Previous stable tick</title>
+					<use href="#tick-stable"
+						style="transform-origin: center; transform: rotate(180deg)" />
+				</svg>
+			</button>
+			<button id="ctrl-tick-bwd" class="show-if-eval">
+				<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<title>Previous tick</title>
+					<use href="#tick"
+						style="transform-origin: center; transform: rotate(180deg)" />
+				</svg>
+			</button>
+			<button id="ctrl-tick-fwd" class="show-if-eval">
+				<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<title>Next tick</title>
+					<use href="#tick" />
+				</svg>
+			</button>
+			<button id="ctrl-tick-fwd-stable" class="show-if-eval">
+				<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<title>Next stable tick</title>
+					<use href="#tick-stable" />
+				</svg>
+			</button>
+			<button id="ctrl-empty" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Empty</title>
 					<use href="#cross" />
 				</svg>
 			</button>
-			<button id="ctrl-io">
+			<button id="ctrl-io" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-io)">
 					<title>IO</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-negate">
+			<button id="ctrl-negate" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
 					<title>Negate</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-conjoin">
+			<button id="ctrl-conjoin" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
 					<title>Conjoin</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-disjoin">
+			<button id="ctrl-disjoin" class="hide-if-eval">
 				<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
 					<title>Disjoin</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-dir">
+			<button id="ctrl-dir" class="hide-if-eval">
 				<svg viewBox="0 0 1 1">
 					<title>Direction: up</title>
 					<path id="dir" d="M0 1 .5 0 1 1Z" style="transform-origin:
 					center" />
 				</svg>
 			</button>
-			<button id="ctrl-eval">
-				<svg viewBox="0 0 1 1" fill="var(--background)"
-					stroke-width="0.1" stroke="var(--foreground)">
-					<title>Evaluate</title>
-					<use href="#eval" />
-				</svg>
-			</button>
-			<button id="ctrl-menu" data-open-dialog="menu">
+			<button id="ctrl-menu" class="hide-if-eval" data-open-dialog="menu">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Menu</title>

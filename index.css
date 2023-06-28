@@ -49,8 +49,17 @@ dialog button.close {
 	height: 1em;
 }
 
-.controls .enabled {
+.eval .enabled-if-eval {
 	--foreground: var(--controls-enabled);
+}
+
+.show-if-eval,
+.eval .hide-if-eval {
+	display: none;
+}
+
+.eval .show-if-eval {
+	display: unset;
 }
 
 dialog {
