@@ -8,7 +8,6 @@ let context: EvalContext | undefined;
 export function getEvalContext() {
 	assert(isEval);
 	if (!context) context = EvalContext.for(tree);
-	(globalThis as any).ctx = context;
 	return context;
 }
 

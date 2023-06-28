@@ -6,7 +6,12 @@ import {
 import {assert, assertArray} from './assert.js';
 import {type Point} from './point.js';
 import {find, type Mode} from './search-mode.js';
-import {branch, empty, type QuadTreeTileType} from './tile-type.js';
+import {
+	branch,
+	empty,
+	quadTreeTileType,
+	type QuadTreeTileType,
+} from './tile-type.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
@@ -17,10 +22,9 @@ export class QuadTreeNode {
 
 		if (typeof value === 'number') {
 			assert(bounds.width === 1n);
-
-			// Cast safety: This is unsafe, actually.
-			//
-			// FIXME: Add assertion.
+			// Cast safety: Array.includes is too narrowly typed.
+			assert(quadTreeTileType.includes(value as QuadTreeTileType));
+			// Cast safety: Assertion above.
 			node.type = value as QuadTreeTileType;
 			return node;
 		}

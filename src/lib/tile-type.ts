@@ -11,18 +11,21 @@ export const disjoinE = 21;
 export const disjoinS = 22;
 export const disjoinW = 23;
 
-export type QuadTreeTileType =
-	| typeof empty
-	| typeof io
-	| typeof negate
-	| typeof conjoinN
-	| typeof conjoinE
-	| typeof conjoinS
-	| typeof conjoinW
-	| typeof disjoinN
-	| typeof disjoinE
-	| typeof disjoinS
-	| typeof disjoinW;
+export const quadTreeTileType = [
+	empty,
+	io,
+	negate,
+	conjoinN,
+	conjoinE,
+	conjoinS,
+	conjoinW,
+	disjoinN,
+	disjoinE,
+	disjoinS,
+	disjoinW,
+] as const;
+
+export type QuadTreeTileType = (typeof quadTreeTileType)[number];
 
 export function isConjoin(type: QuadTreeTileType) {
 	return typeof type === 'number' && Math.trunc(type / 10) * 10 === conjoinN;
