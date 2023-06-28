@@ -1,6 +1,8 @@
 /* eslint-disable @internal/explained-casts */
 import {assert} from '../lib/assert.js';
+import {QuadTree} from '../lib/tree.js';
 import {load, remove, save, type SaveBrowserElement} from '../storage.js';
+import {replaceTree} from '../tree.js';
 
 const dialogMenu = document.querySelector<HTMLDialogElement>('#dialog-menu')!;
 assert(dialogMenu);
@@ -61,6 +63,12 @@ for (const element of document.querySelectorAll<HTMLElement>(
 		}
 	});
 }
+
+dialogMenu
+	.querySelector<HTMLButtonElement>('#btn-clear')
+	?.addEventListener('click', () => {
+		replaceTree(new QuadTree());
+	});
 
 dialogLoad
 	.querySelector<SaveBrowserElement>('save-browser')
