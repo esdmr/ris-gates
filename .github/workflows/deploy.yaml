@@ -55,7 +55,7 @@ jobs:
         uses: actions/configure-pages@7110e9e03ffb4a421945e5d0607007b8e9f1f52b # v3
 
       - name: Build
-        run: pnpm run vite build
+        run: pnpm vite build
         env:
           BASE_URL: ${{ steps.pages.outputs.base_path }}
 

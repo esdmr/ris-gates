@@ -43,10 +43,10 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm run vite build
+        run: pnpm vite build
 
       - name: Type check
-        run: pnpm run tsc
+        run: pnpm tsc
 
       - name: Lint
-        run: pnpm run xo
+        run: pnpm xo
