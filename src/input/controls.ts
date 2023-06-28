@@ -135,6 +135,7 @@ ctrlTickBwd.addEventListener('click', () => {
 	const evalContext = getEvalContext();
 	evalContext.tickBackward();
 	ctrlTickNo.textContent = String(evalContext.tickCount);
+	clearInterval(stabilityInterval);
 });
 
 ctrlTickFwd.addEventListener('click', () => {
@@ -142,6 +143,7 @@ ctrlTickFwd.addEventListener('click', () => {
 	const evalContext = getEvalContext();
 	evalContext.tickForward();
 	ctrlTickNo.textContent = String(evalContext.tickCount);
+	clearInterval(stabilityInterval);
 });
 
 ctrlTickFwdStable.addEventListener('click', () => {
