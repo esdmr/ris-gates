@@ -1,9 +1,16 @@
 /* eslint-disable @internal/no-object-literals */
+import process from 'node:process';
 import {defineConfig} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';
 
+const ensureTrailingSlash = (url: string) =>
+	url.endsWith('/') ? url : url + '/';
+
 export default defineConfig({
+	base: ensureTrailingSlash(
+		process.env.RISG_BASE_URL ?? process.env.BASE_URL ?? '/',
+	),
 	cacheDir: 'node_modules/.cache/vite',
 	build: {
 		target: ['firefox103', 'chrome104'],
