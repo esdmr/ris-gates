@@ -59,6 +59,38 @@ export class EvalGraph {
 	readonly vertices = new Map<QuadTreeNode, symbol | [h: symbol, v: symbol]>();
 	readonly positiveEdges = new Map<symbol, Set<symbol>>();
 	readonly negativeEdges = new Map<symbol, Set<symbol>>();
+	protected declare _toDot?: () => string;
+
+	static {
+		if (import.meta.env.DEV) {
+			EvalGraph.prototype._toDot = function () {
+				let output = 'digraph G {';
+
+				for (const [to, from] of this.positiveEdges) {
+					for (const fromSymbol of from) {
+						output +=
+							JSON.stringify(fromSymbol.description) +
+							'->' +
+							JSON.stringify(to.description) +
+							';';
+					}
+				}
+
+				for (const [to, from] of this.negativeEdges) {
+					for (const fromSymbol of from) {
+						output +=
+							JSON.stringify(fromSymbol.description) +
+							'->' +
+							JSON.stringify(to.description) +
+							'[color=red];';
+					}
+				}
+
+				output += '}';
+				return output;
+			};
+		}
+	}
 
 	constructor(readonly map: TilesMap) {
 		for (const tile of map.tiles.values()) {
@@ -263,14 +295,13 @@ export class EvalContext {
 
 	input(tile: QuadTreeNode, value: boolean) {
 		const symbol = this.graph.vertices.get(tile);
-		assert(typeof symbol === 'symbol');
+		if (typeof symbol !== 'symbol') return;
 		setToggle(this._enabled, symbol, value);
 	}
 
 	output(tile: QuadTreeNode) {
 		const symbol = this.graph.vertices.get(tile);
-		assert(typeof symbol === 'symbol');
-		return this._enabled.has(symbol);
+		return typeof symbol === 'symbol' && this._enabled.has(symbol);
 	}
 
 	tickForwardUntilStable() {
@@ -281,7 +312,7 @@ export class EvalContext {
 	}
 
 	tickForward() {
-		this._undoStack.push(this._enabled);
+		this._undoStack.push(new Set(this._enabled));
 		if (this._undoStack.length > maxUndoCount) this._undoStack.shift();
 
 		let anythingUpdated = false;
@@ -295,11 +326,11 @@ export class EvalContext {
 
 				for (const fromSymbol of from) {
 					value = this._enabled.has(fromSymbol);
-					if (value) continue;
+					if (value) break;
 				}
 
 				if (this._enabled.has(to) === value) {
-					console.log('-', to, !value);
+					console.log('-', from, to, !value);
 					setToggle(this._enabled, to, !value);
 					updated = true;
 					anythingUpdated = true;
@@ -315,11 +346,11 @@ export class EvalContext {
 
 				for (const fromSymbol of from) {
 					value = this._enabled.has(fromSymbol);
-					if (value) continue;
+					if (value) break;
 				}
 
 				if (this._enabled.has(to) !== value) {
-					console.log('+', to, value);
+					console.log('+', from, to, value);
 					setToggle(this._enabled, to, value);
 					updated = true;
 					anythingUpdated = true;

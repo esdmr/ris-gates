@@ -1,4 +1,5 @@
 /* eslint-disable @internal/explained-casts */
+import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
 import './dialogs.js';
@@ -33,6 +34,27 @@ assert(ctrlDirTitle);
 
 const ctrlEval = document.querySelector<HTMLButtonElement>('#ctrl-eval')!;
 assert(ctrlEval);
+
+const ctrlTickBwdStable = document.querySelector<HTMLButtonElement>(
+	'#ctrl-tick-bwd-stable',
+)!;
+assert(ctrlTickBwdStable);
+
+const ctrlTickBwd =
+	document.querySelector<HTMLButtonElement>('#ctrl-tick-bwd')!;
+assert(ctrlTickBwd);
+
+const ctrlTickNo = document.querySelector<HTMLDivElement>('#ctrl-tick-no')!;
+assert(ctrlTickNo);
+
+const ctrlTickFwd =
+	document.querySelector<HTMLButtonElement>('#ctrl-tick-fwd')!;
+assert(ctrlTickFwd);
+
+const ctrlTickFwdStable = document.querySelector<HTMLButtonElement>(
+	'#ctrl-tick-fwd-stable',
+)!;
+assert(ctrlTickFwdStable);
 
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
@@ -88,12 +110,61 @@ export let isEval = false;
 ctrlEval.addEventListener('click', () => {
 	isEval = !isEval;
 	ctrl.classList.toggle('eval', isEval);
+	clearEvalContext();
+	clearInterval(stabilityInterval);
+	ctrlTickNo.textContent = '0';
 
 	const title = ctrlEval.querySelector('title');
 	if (title) {
 		title.textContent = isEval ? 'Modify' : 'Evaluate';
 	}
 });
+
+const stabilityTimeout = 1000 / 15;
+let stabilityInterval: ReturnType<typeof setInterval> | undefined;
+
+ctrlTickBwdStable.addEventListener('click', () => {
+	assert(isEval);
+	const evalContext = getEvalContext();
+	if (evalContext.tickBackward()) startStabilityInterval('tickBackward');
+	ctrlTickNo.textContent = String(evalContext.tickCount);
+});
+
+ctrlTickBwd.addEventListener('click', () => {
+	assert(isEval);
+	const evalContext = getEvalContext();
+	evalContext.tickBackward();
+	ctrlTickNo.textContent = String(evalContext.tickCount);
+});
+
+ctrlTickFwd.addEventListener('click', () => {
+	assert(isEval);
+	const evalContext = getEvalContext();
+	evalContext.tickForward();
+	ctrlTickNo.textContent = String(evalContext.tickCount);
+});
+
+ctrlTickFwdStable.addEventListener('click', () => {
+	assert(isEval);
+	const evalContext = getEvalContext();
+	if (evalContext.tickForward()) startStabilityInterval('tickForward');
+	ctrlTickNo.textContent = String(evalContext.tickCount);
+});
+
+function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
+	clearInterval(stabilityInterval);
+
+	stabilityInterval = setInterval(() => {
+		const evalContext = getEvalContext();
+
+		if (!isEval || !evalContext[type]()) {
+			clearInterval(stabilityInterval);
+			stabilityInterval = undefined;
+		}
+
+		ctrlTickNo.textContent = String(evalContext.tickCount);
+	}, stabilityTimeout);
+}
 
 export function getSelectedTileType() {
 	const directionIndex = directions.indexOf(selectedDirection);

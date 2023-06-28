@@ -9,7 +9,7 @@ import * as tileType from './lib/tile-type.js';
 import {Point} from './lib/point.js';
 import {WalkStep} from './lib/walk.js';
 import {tree} from './tree.js';
-import {activeFillStyles} from './colors.js';
+import {activeFillStyles, passiveFillStyles} from './colors.js';
 import {
 	pointerScaleMultiplier,
 	wheelScaleMultiplier,
@@ -17,6 +17,7 @@ import {
 	maximumScale,
 	strokeWidth,
 } from './constants.js';
+import {clearEvalContext, getEvalContext} from './eval.js';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
@@ -59,16 +60,33 @@ function commitInputs() {
 		scrollY.float -= pointer.deltaY / scale;
 	}
 
-	if (pointer.hasClicked && !isEval) {
-		tree.getTileData(
-			new Point(
-				scrollX.bigint +
-					BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
-				scrollY.bigint +
-					BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
-			),
-			'make',
-		).type = getSelectedTileType();
+	if (pointer.hasClicked) {
+		if (isEval) {
+			const tile = tree.getTileData(
+				new Point(
+					scrollX.bigint +
+						BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+					scrollY.bigint +
+						BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+				),
+				'find',
+			);
+
+			if (tile?.type === tileType.io) {
+				const context = getEvalContext();
+				context.input(tile, !context.output(tile));
+			}
+		} else {
+			tree.getTileData(
+				new Point(
+					scrollX.bigint +
+						BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+					scrollY.bigint +
+						BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+				),
+				'make',
+			).type = getSelectedTileType();
+		}
 	}
 
 	pointer.commit();
@@ -110,6 +128,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	];
 
 	let lastType: tileType.QuadTreeTileType = tileType.empty;
+	let wasActive = true;
 	context.fillStyle = 'transparent';
 
 	while (progress.length > 0) {
@@ -137,10 +156,14 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			continue;
 		}
 
+		const isActive = !isEval || getEvalContext().output(node);
 		const {type} = node;
-		if (type !== lastType) {
-			context.fillStyle = activeFillStyles[type];
+		if (type !== lastType || wasActive !== isActive) {
+			context.fillStyle = isActive
+				? activeFillStyles[type]
+				: passiveFillStyles[type];
 			lastType = type;
+			wasActive = isActive;
 		}
 
 		drawTile(realScale, offsetX, offsetY, i, j, lastType);

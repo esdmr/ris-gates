@@ -40,25 +40,34 @@ dialog button.close {
 	padding: 0;
 	border: none;
 	background: transparent;
+}
+
+.controls svg,
+.tick-no,
+.controls button,
+dialog button.close {
 	width: 1em;
 	height: 1em;
 }
 
-.controls svg {
-	width: 1em;
-	height: 1em;
+.tick-no {
+	display: inline-block;
+	width: 5.75em;
+	text-align: center;
+	line-height: 1rem;
+	font-size: 0.8rem;
 }
 
-.eval .enabled-if-eval {
+:where(.eval) .enabled-if-eval {
 	--foreground: var(--controls-enabled);
 }
 
 .show-if-eval,
-.eval .hide-if-eval {
+:where(.eval) .hide-if-eval {
 	display: none;
 }
 
-.eval .show-if-eval {
+:where(.eval) .show-if-eval {
 	display: unset;
 }
 
