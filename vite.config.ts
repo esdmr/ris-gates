@@ -25,7 +25,13 @@ export default defineConfig({
 			name: 'bigint to number',
 			enforce: 'post',
 			transform(code, id) {
-				const url = new URL(`file://${id}`);
+				let url;
+
+				try {
+					url = new URL(`file://${id}`);
+				} catch {
+					return;
+				}
 
 				if (
 					url.pathname.endsWith('.css') ||
