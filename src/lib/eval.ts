@@ -239,38 +239,53 @@ export class EvalGraph {
 	}
 }
 
+const maxUndoCount = 128;
+const unchanged = Symbol('unchanged');
+
 export class EvalContext {
 	static for(tree: QuadTree) {
 		return new EvalContext(new EvalGraph(new TilesMap(tree)));
 	}
 
-	enabled = new Set<symbol>();
-	tickCount = 0n;
+	private _enabled = new Set<symbol>();
+	private readonly _undoStack: Array<Set<symbol> | typeof unchanged> = [];
+	private _tickCount = 0n;
 
-	constructor(readonly graph: EvalGraph) {}
+	get canUndo() {
+		return this._undoStack.length > 0;
+	}
+
+	get tickCount() {
+		return this._tickCount;
+	}
+
+	constructor(private readonly graph: EvalGraph) {}
 
 	input(tile: QuadTreeNode, value: boolean) {
 		const symbol = this.graph.vertices.get(tile);
 		assert(typeof symbol === 'symbol');
-		setToggle(this.enabled, symbol, value);
+		setToggle(this._enabled, symbol, value);
 	}
 
 	output(tile: QuadTreeNode) {
 		const symbol = this.graph.vertices.get(tile);
 		assert(typeof symbol === 'symbol');
-		return this.enabled.has(symbol);
+		return this._enabled.has(symbol);
 	}
 
-	tickUntilStable() {
-		console.group('Tick until stability');
-		while (this.tick());
+	tickForwardUntilStable() {
+		console.group('Tick forward until stable');
+		while (this.tickForward());
 		console.log('done');
 		console.groupEnd();
 	}
 
-	tick() {
+	tickForward() {
+		this._undoStack.push(this._enabled);
+		if (this._undoStack.length > maxUndoCount) this._undoStack.shift();
+
 		let anythingUpdated = false;
-		console.group(`Tick ${++this.tickCount}`);
+		console.group('Next Tick:', ++this._tickCount);
 
 		for (let updated = true; updated; ) {
 			updated = false;
@@ -279,13 +294,13 @@ export class EvalContext {
 				let value = false;
 
 				for (const fromSymbol of from) {
-					value = this.enabled.has(fromSymbol);
+					value = this._enabled.has(fromSymbol);
 					if (value) continue;
 				}
 
-				if (this.enabled.has(to) === value) {
+				if (this._enabled.has(to) === value) {
 					console.log('-', to, !value);
-					setToggle(this.enabled, to, !value);
+					setToggle(this._enabled, to, !value);
 					updated = true;
 					anythingUpdated = true;
 				}
@@ -299,13 +314,13 @@ export class EvalContext {
 				let value = false;
 
 				for (const fromSymbol of from) {
-					value = this.enabled.has(fromSymbol);
+					value = this._enabled.has(fromSymbol);
 					if (value) continue;
 				}
 
-				if (this.enabled.has(to) !== value) {
+				if (this._enabled.has(to) !== value) {
 					console.log('+', to, value);
-					setToggle(this.enabled, to, value);
+					setToggle(this._enabled, to, value);
 					updated = true;
 					anythingUpdated = true;
 				}
@@ -313,6 +328,26 @@ export class EvalContext {
 		}
 
 		console.groupEnd();
+
+		if (!anythingUpdated) {
+			this._undoStack[this._undoStack.length - 1] = unchanged;
+		}
+
 		return anythingUpdated;
+	}
+
+	tickBackwardUntilStable() {
+		console.group('Tick backward until stable');
+		while (this.tickBackward());
+		console.log('done');
+		console.groupEnd();
+	}
+
+	tickBackward() {
+		const oldState = this._undoStack.pop();
+		if (!oldState) return false;
+		console.log('Previous Tick:', --this._tickCount);
+		if (oldState !== unchanged) this._enabled = oldState;
+		return oldState !== unchanged;
 	}
 }
