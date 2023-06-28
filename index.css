@@ -22,7 +22,10 @@ canvas {
 	position: fixed;
 	bottom: 0;
 	left: 50%;
+	max-width: 100%;
+	width: max-content;
 	transform: translate(-50%, 0);
+	box-sizing: border-box;
 	border: 0.1em var(--controls-border) solid;
 	border-bottom: none;
 	--border-radius: 0.5em;
@@ -32,6 +35,8 @@ canvas {
 	color: var(--foreground);
 	touch-action: none;
 	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	gap: 1em;
 }
 
@@ -119,5 +124,16 @@ svg.defs-only {
 @media (pointer: coarse) {
 	.controls {
 		font-size: 1.5rem;
+	}
+}
+
+@media (max-width: 24em) {
+	.controls {
+		left: 0;
+		transform: none;
+		width: 100%;
+		border: none;
+		border-top: 0.1em var(--controls-border) solid;
+		border-radius: 0;
 	}
 }
