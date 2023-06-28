@@ -126,7 +126,8 @@
 			<h1 class="title">Menu</h1>
 			<section class="body">
 				<ul class="hide-list-bullets full-width">
-					<li><button id="btn-clear" class="full-width">Clear</button></li>
+					<li><button id="btn-clear" class="full-width">Clear</button>
+					</li>
 					<li><button class="full-width requires-local-storage"
 							data-open-dialog="load">Load</button></li>
 					<li><button class="full-width requires-local-storage"
@@ -146,6 +147,7 @@
 			</button>
 			<h1 class="title">Load</h1>
 			<section class="body">
+				<button id="btn-paste">Paste from clipboard</button>
 				<save-browser primary="load" />
 			</section>
 		</dialog>
@@ -166,6 +168,23 @@
 				</p>
 			</section>
 		</dialog>
+		<dialog id="dialog-paste-failed">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<use href="#cross" />
+				</svg>
+			</button>
+			<h1 class="title">Paste</h1>
+			<section class="body">
+				<p>
+					I cannot automatically read your clipboard.<br>
+					Try pasting in the following text box instead.
+				</p>
+				<textarea></textarea>
+			</section>
+		</dialog>
 		<dialog id="dialog-save">
 			<button class="close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
@@ -176,6 +195,7 @@
 			</button>
 			<h1 class="title">Save</h1>
 			<section class="body">
+				<button id="btn-copy">Copy to clipboard</button>
 				<form method="dialog">
 					<p>
 						<label>Name
@@ -200,6 +220,23 @@
 				<p>
 					See the console for more information.
 				</p>
+			</section>
+		</dialog>
+		<dialog id="dialog-copy-failed">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<use href="#cross" />
+				</svg>
+			</button>
+			<h1 class="title">Copy</h1>
+			<section class="body">
+				<p>
+					I cannot automatically write to your clipboard.<br>
+					Try copying from the following text box instead.
+				</p>
+				<textarea></textarea>
 			</section>
 		</dialog>
 		<dialog id="dialog-browse">

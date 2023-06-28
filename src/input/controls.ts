@@ -2,7 +2,7 @@
 import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
-import './dialogs.js';
+import {isMenuDialogOpen} from './dialogs.js';
 
 const ctrl = document.querySelector<HTMLDivElement>('.controls')!;
 assert(ctrl);
@@ -31,6 +31,9 @@ assert(ctrlDirPath);
 const ctrlDirTitle =
 	document.querySelector<SVGTitleElement>('#ctrl-dir title')!;
 assert(ctrlDirTitle);
+
+const ctrlMenu = document.querySelector<HTMLButtonElement>('#ctrl-menu')!;
+assert(ctrlMenu);
 
 const ctrlEval = document.querySelector<HTMLButtonElement>('#ctrl-eval')!;
 assert(ctrlEval);
@@ -87,20 +90,22 @@ for (const [element, tool] of [
 	element.addEventListener('click', switchTool(tool));
 }
 
-const keys = new Map<string, HTMLButtonElement>([
-	['q', ctrlEmpty],
-	['1', ctrlIo],
-	['2', ctrlNegate],
-	['3', ctrlConjoin],
-	['4', ctrlDisjoin],
-	['r', ctrlDir],
+const keys = new Map<string, [HTMLButtonElement, HTMLButtonElement?]>([
+	['q', [ctrlEmpty]],
+	['1', [ctrlIo, ctrlTickBwdStable]],
+	['2', [ctrlNegate, ctrlTickBwd]],
+	['3', [ctrlConjoin, ctrlTickFwd]],
+	['4', [ctrlDisjoin, ctrlTickFwdStable]],
+	['e', [ctrlEval, ctrlEval]],
+	['r', [ctrlDir]],
+	['Escape', [ctrlMenu]],
 ]);
 
 document.body.addEventListener('keydown', (event) => {
-	if (!keys.has(event.key)) return;
+	if (!keys.has(event.key) || isMenuDialogOpen()) return;
 	event.preventDefault();
 	if (event.repeat) return;
-	keys.get(event.key)?.click();
+	keys.get(event.key)?.[isEval ? 1 : 0]?.click();
 });
 
 ctrlDir.addEventListener('click', rotateDirection);
