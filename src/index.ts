@@ -69,7 +69,7 @@ function commitInputs() {
 					scrollY.bigint +
 						BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
 				),
-				'find',
+				searchMode.find,
 			);
 
 			if (tile?.type === tileType.io) {
@@ -84,7 +84,7 @@ function commitInputs() {
 					scrollY.bigint +
 						BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
 				),
-				'make',
+				searchMode.make,
 			).type = getSelectedTileType();
 		}
 	}
