@@ -23,8 +23,21 @@ const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
 let scale = 50;
 let currentTime = performance.now();
+let strokeStyle: string;
 
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+	updateStrokeStyle();
+});
+
+updateStrokeStyle();
 onFrame(currentTime);
+
+function updateStrokeStyle() {
+	// Cast safety: `document.firstElementChild` is the <html> element.
+	strokeStyle = getComputedStyle(document.firstElementChild!).getPropertyValue(
+		'--foreground',
+	);
+}
 
 function getScaleIntOffset(point: number, oldScale: number) {
 	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / scale));
@@ -132,6 +145,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	let lastType: tileType.QuadTreeTileType = tileType.empty;
 	let wasActive = true;
 	context.fillStyle = 'transparent';
+	context.strokeStyle = strokeStyle;
 
 	while (progress.length > 0) {
 		// Cast safety: length is at least one, so there is always a last
