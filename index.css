@@ -18,6 +18,10 @@ canvas {
 	font-family: var(--font);
 }
 
+.dragging {
+	cursor: grabbing;
+}
+
 .controls {
 	position: fixed;
 	bottom: 0;

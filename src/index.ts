@@ -17,7 +17,7 @@ import {
 	maximumScale,
 	strokeWidth,
 } from './constants.js';
-import {clearEvalContext, getEvalContext} from './eval.js';
+import {getEvalContext} from './eval.js';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
@@ -54,6 +54,8 @@ function commitInputs() {
 		scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
 		scrollY.float += getScaleFloatOffset(pointer.centerY, oldScale);
 	}
+
+	canvas.classList.toggle('dragging', pointer.isDragging);
 
 	if (pointer.isDragging) {
 		scrollX.float -= pointer.deltaX / scale;
