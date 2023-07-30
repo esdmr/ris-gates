@@ -16,6 +16,8 @@ import {
 	minimumScale,
 	maximumScale,
 	strokeWidth,
+	minorGridStrokeWidth,
+	majorGridStrokeWidth,
 } from './constants.js';
 import {getEvalContext} from './eval.js';
 import * as dialogs from './input/dialogs.js';
@@ -116,6 +118,7 @@ function commitInputs() {
 	scrollY.normalize();
 }
 
+// eslint-disable-next-line complexity
 function onFrame(ms: DOMHighResTimeStamp) {
 	const dip = devicePixelRatio;
 	const width = canvas.clientWidth * dip;
@@ -131,10 +134,6 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	commitInputs();
 
 	const realScale = scale * dip;
-	context.lineWidth = strokeWidth * dip;
-	context.lineCap = 'butt';
-	context.lineJoin = 'bevel';
-
 	const offsetX = Math.trunc(scrollX.float * realScale);
 	const offsetY = Math.trunc(scrollY.float * realScale);
 
@@ -150,8 +149,51 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 	let lastType: tileType.QuadTreeTileType = tileType.empty;
 	let wasActive = true;
+
+	context.lineCap = 'butt';
+	context.lineJoin = 'bevel';
 	context.fillStyle = 'transparent';
 	context.strokeStyle = strokeStyle;
+
+	if (dialogs.shouldDrawMinorGrid) {
+		context.lineWidth = minorGridStrokeWidth * dip;
+		context.beginPath();
+
+		for (let dx = 1; dx <= display.width; dx++) {
+			context.moveTo(dx * realScale - offsetX, 0);
+			context.lineTo(dx * realScale - offsetX, height);
+		}
+
+		for (let dy = 1; dy <= display.height; dy++) {
+			context.moveTo(0, dy * realScale - offsetY);
+			context.lineTo(width, dy * realScale - offsetY);
+		}
+
+		context.stroke();
+	}
+
+	if (dialogs.majorGridLength) {
+		context.lineWidth = majorGridStrokeWidth * dip;
+		context.beginPath();
+
+		for (let dx = 1; dx <= display.width; dx++) {
+			if ((scrollX.bigint + BigInt(dx)) % dialogs.majorGridLength === 0n) {
+				context.moveTo(dx * realScale - offsetX, 0);
+				context.lineTo(dx * realScale - offsetX, height);
+			}
+		}
+
+		for (let dy = 1; dy <= display.height; dy++) {
+			if ((scrollY.bigint + BigInt(dy)) % dialogs.majorGridLength === 0n) {
+				context.moveTo(0, dy * realScale - offsetY);
+				context.lineTo(width, dy * realScale - offsetY);
+			}
+		}
+
+		context.stroke();
+	}
+
+	context.lineWidth = strokeWidth * dip;
 
 	while (progress.length > 0) {
 		// Cast safety: length is at least one, so there is always a last
