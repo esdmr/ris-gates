@@ -1,7 +1,7 @@
 import {QuadTree} from './lib/tree.js';
 import {replaceTree, tree} from './tree.js';
 
-export const localStorageAvailable = (() => {
+export const localStorageAvailable = /* @__PURE__ */ (() => {
 	try {
 		const x = '__storage_test__';
 		localStorage.setItem(x, x);
@@ -17,14 +17,6 @@ export const localStorageAvailable = (() => {
 		);
 	}
 })();
-
-if (!localStorageAvailable) {
-	for (const element of document.querySelectorAll<HTMLButtonElement>(
-		'button.requires-local-storage',
-	)) {
-		element.disabled = true;
-	}
-}
 
 export const storagePrefix = 'risg/';
 
@@ -119,4 +111,14 @@ export class SaveBrowserElement extends HTMLElement {
 	}
 }
 
-customElements.define('save-browser', SaveBrowserElement);
+export function setupStorage() {
+	if (!localStorageAvailable) {
+		for (const element of document.querySelectorAll<HTMLButtonElement>(
+			'button.requires-local-storage',
+		)) {
+			element.disabled = true;
+		}
+	}
+
+	customElements.define('save-browser', SaveBrowserElement);
+}

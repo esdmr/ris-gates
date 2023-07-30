@@ -45,6 +45,21 @@ const dialogBrowse =
 	document.querySelector<HTMLDialogElement>('#dialog-browse')!;
 assert(dialogBrowse);
 
+let pasteKind: 'load' | 'import' = 'load';
+
+function escapeKey(key: string) {
+	return key.replaceAll('\\', '\\<').replaceAll('/', '\\>');
+}
+
+function unescapeKey(key: string) {
+	return key.replaceAll('\\>', '/').replaceAll('\\<', '\\');
+}
+
+export function isMenuDialogOpen() {
+	return dialogMenu.open;
+}
+
+export function setup() {
 for (const dialog of document.querySelectorAll('dialog')) {
 	dialog.querySelector('.close')?.addEventListener('click', () => {
 		dialog.close();
@@ -101,8 +116,6 @@ dialogLoad
 			console.error(error);
 		}
 	});
-
-let pasteKind: 'load' | 'import' = 'load';
 
 dialogLoad
 	.querySelector<HTMLButtonElement>('#btn-paste')
@@ -285,14 +298,6 @@ dialogBrowse
 		}
 	});
 
-function escapeKey(key: string) {
-	return key.replaceAll('\\', '\\<').replaceAll('/', '\\>');
-}
-
-function unescapeKey(key: string) {
-	return key.replaceAll('\\>', '/').replaceAll('\\<', '\\');
-}
-
 dialogBrowse
 	.querySelector('#btn-export')
 	?.addEventListener('click', async () => {
@@ -377,7 +382,9 @@ dialogBrowse
 		dialogBrowse.querySelector<SaveBrowserElement>('save-browser')?.update();
 	});
 
-dialogBrowse.querySelector('#btn-delete-all')?.addEventListener('click', () => {
+	dialogBrowse
+		.querySelector('#btn-delete-all')
+		?.addEventListener('click', () => {
 	const keys = [...listStorage()];
 
 	for (const key of keys) {
@@ -386,7 +393,4 @@ dialogBrowse.querySelector('#btn-delete-all')?.addEventListener('click', () => {
 
 	dialogBrowse.querySelector<SaveBrowserElement>('save-browser')?.update();
 });
-
-export function isMenuDialogOpen() {
-	return dialogMenu.open;
 }

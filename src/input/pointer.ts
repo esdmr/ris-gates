@@ -89,13 +89,15 @@ function pointerupHandler(event: PointerEvent) {
 	}
 }
 
-canvas.addEventListener('pointerdown', pointerdownHandler);
-canvas.addEventListener('pointermove', pointermoveHandler);
-canvas.addEventListener('pointerover', pointermoveHandler);
-canvas.addEventListener('pointerup', pointerupHandler);
-canvas.addEventListener('pointercancel', pointerupHandler);
-canvas.addEventListener('pointerout', pointerupHandler);
-canvas.addEventListener('pointerleave', pointerupHandler);
+export function setup() {
+	canvas.addEventListener('pointerdown', pointerdownHandler);
+	canvas.addEventListener('pointermove', pointermoveHandler);
+	canvas.addEventListener('pointerover', pointermoveHandler);
+	canvas.addEventListener('pointerup', pointerupHandler);
+	canvas.addEventListener('pointercancel', pointerupHandler);
+	canvas.addEventListener('pointerout', pointerupHandler);
+	canvas.addEventListener('pointerleave', pointerupHandler);
+}
 
 export function commit() {
 	deltaX = 0;

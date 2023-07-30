@@ -1,5 +1,5 @@
 import {canvas, context} from './input/canvas.js';
-import {getSelectedTileType, isEval} from './input/controls.js';
+import * as controls from './input/controls.js';
 import * as pointer from './input/pointer.js';
 import * as wheel from './input/wheel.js';
 import {AxisAlignedBoundingBox} from './lib/aabb.js';
@@ -18,12 +18,18 @@ import {
 	strokeWidth,
 } from './constants.js';
 import {getEvalContext} from './eval.js';
+import * as dialogs from './input/dialogs.js';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
 let scale = 50;
 let currentTime = performance.now();
 let strokeStyle: string;
+
+controls.setup();
+dialogs.setup();
+pointer.setup();
+wheel.setup();
 
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 	updateStrokeStyle();
@@ -76,7 +82,7 @@ function commitInputs() {
 	}
 
 	if (pointer.hasClicked) {
-		if (isEval) {
+		if (controls.isEval) {
 			const tile = tree.getTileData(
 				new Point(
 					scrollX.bigint +
@@ -100,7 +106,7 @@ function commitInputs() {
 						BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
 				),
 				searchMode.make,
-			).type = getSelectedTileType();
+			).type = controls.getSelectedTileType();
 		}
 	}
 
@@ -172,7 +178,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			continue;
 		}
 
-		const isActive = !isEval || getEvalContext().output(node);
+		const isActive = !controls.isEval || getEvalContext().output(node);
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
 			context.fillStyle = isActive

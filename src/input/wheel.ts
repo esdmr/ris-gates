@@ -6,33 +6,35 @@ export let deltaX = 0;
 export let deltaY = 0;
 export let ctrl = false;
 
-canvas.addEventListener(
-	'wheel',
-	(event) => {
-		event.preventDefault();
-		let multiplier = 1;
+export function setup() {
+	canvas.addEventListener(
+		'wheel',
+		(event) => {
+			event.preventDefault();
+			let multiplier = 1;
 
-		switch (event.deltaMode) {
-			case event.DOM_DELTA_LINE: {
-				multiplier *= deltaLineMultiplier;
-				break;
+			switch (event.deltaMode) {
+				case event.DOM_DELTA_LINE: {
+					multiplier *= deltaLineMultiplier;
+					break;
+				}
+
+				case event.DOM_DELTA_PAGE: {
+					multiplier *= deltaPageMultiplier;
+					break;
+				}
+
+				// No default
 			}
 
-			case event.DOM_DELTA_PAGE: {
-				multiplier *= deltaPageMultiplier;
-				break;
-			}
-
-			// No default
-		}
-
-		deltaX += event.deltaX * multiplier;
-		deltaY += event.deltaY * multiplier;
-		ctrl ||= event.ctrlKey;
-	},
-	// eslint-disable-next-line @internal/no-object-literals
-	{passive: false},
-);
+			deltaX += event.deltaX * multiplier;
+			deltaY += event.deltaY * multiplier;
+			ctrl ||= event.ctrlKey;
+		},
+		// eslint-disable-next-line @internal/no-object-literals
+		{passive: false},
+	);
+}
 
 export function commit() {
 	deltaX = 0;

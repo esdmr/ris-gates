@@ -62,9 +62,12 @@ assert(ctrlTickFwdStable);
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
 const directionsTile = ['N', 'E', 'S', 'W'] as const;
+const stabilityTimeout = 1000 / 15;
 
 let selectedTool: ToolTypes = 'io';
 let selectedDirection: (typeof directions)[number] = 'up';
+export let isEval = false;
+let stabilityInterval: ReturnType<typeof setInterval> | undefined;
 
 function switchTool(tool: ToolTypes) {
 	return () => {
@@ -81,84 +84,6 @@ function rotateDirection() {
 	ctrlDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
 	ctrlDirTitle.textContent = `direction: ${newDirection}`;
 }
-
-for (const [element, tool] of [
-	[ctrlEmpty, 'empty'],
-	[ctrlIo, 'io'],
-	[ctrlNegate, 'negate'],
-	[ctrlConjoin, 'conjoin'],
-	[ctrlDisjoin, 'disjoin'],
-] satisfies Array<[HTMLElement, ToolTypes]>) {
-	element.addEventListener('click', switchTool(tool));
-}
-
-const keys = new Map<string, [HTMLButtonElement, HTMLButtonElement?]>([
-	['q', [ctrlEmpty]],
-	['1', [ctrlIo, ctrlTickBwdStable]],
-	['2', [ctrlNegate, ctrlTickBwd]],
-	['3', [ctrlConjoin, ctrlTickFwd]],
-	['4', [ctrlDisjoin, ctrlTickFwdStable]],
-	['e', [ctrlEval, ctrlEval]],
-	['r', [ctrlDir]],
-	['Escape', [ctrlMenu]],
-]);
-
-document.body.addEventListener('keydown', (event) => {
-	if (!keys.has(event.key) || isMenuDialogOpen()) return;
-	event.preventDefault();
-	if (event.repeat) return;
-	keys.get(event.key)?.[isEval ? 1 : 0]?.click();
-});
-
-ctrlDir.addEventListener('click', rotateDirection);
-
-export let isEval = false;
-
-ctrlEval.addEventListener('click', () => {
-	isEval = !isEval;
-	ctrl.classList.toggle('eval', isEval);
-	clearEvalContext();
-	clearInterval(stabilityInterval);
-	ctrlTickNo.textContent = '0';
-
-	const title = ctrlEval.querySelector('title');
-	if (title) {
-		title.textContent = isEval ? 'modify' : 'evaluate';
-	}
-});
-
-const stabilityTimeout = 1000 / 15;
-let stabilityInterval: ReturnType<typeof setInterval> | undefined;
-
-ctrlTickBwdStable.addEventListener('click', () => {
-	assert(isEval);
-	const evalContext = getEvalContext();
-	if (evalContext.tickBackward()) startStabilityInterval('tickBackward');
-	ctrlTickNo.textContent = String(evalContext.tickCount);
-});
-
-ctrlTickBwd.addEventListener('click', () => {
-	assert(isEval);
-	const evalContext = getEvalContext();
-	evalContext.tickBackward();
-	ctrlTickNo.textContent = String(evalContext.tickCount);
-	clearInterval(stabilityInterval);
-});
-
-ctrlTickFwd.addEventListener('click', () => {
-	assert(isEval);
-	const evalContext = getEvalContext();
-	evalContext.tickForward();
-	ctrlTickNo.textContent = String(evalContext.tickCount);
-	clearInterval(stabilityInterval);
-});
-
-ctrlTickFwdStable.addEventListener('click', () => {
-	assert(isEval);
-	const evalContext = getEvalContext();
-	if (evalContext.tickForward()) startStabilityInterval('tickForward');
-	ctrlTickNo.textContent = String(evalContext.tickCount);
-});
 
 function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
 	clearInterval(stabilityInterval);
@@ -201,4 +126,79 @@ export function getSelectedTileType() {
 
 		// No default
 	}
+}
+
+export function setup() {
+	for (const [element, tool] of [
+		[ctrlEmpty, 'empty'],
+		[ctrlIo, 'io'],
+		[ctrlNegate, 'negate'],
+		[ctrlConjoin, 'conjoin'],
+		[ctrlDisjoin, 'disjoin'],
+	] satisfies Array<[HTMLElement, ToolTypes]>) {
+		element.addEventListener('click', switchTool(tool));
+	}
+
+	const keys = new Map<string, [HTMLButtonElement, HTMLButtonElement?]>([
+		['q', [ctrlEmpty]],
+		['1', [ctrlIo, ctrlTickBwdStable]],
+		['2', [ctrlNegate, ctrlTickBwd]],
+		['3', [ctrlConjoin, ctrlTickFwd]],
+		['4', [ctrlDisjoin, ctrlTickFwdStable]],
+		['e', [ctrlEval, ctrlEval]],
+		['r', [ctrlDir]],
+		['Escape', [ctrlMenu]],
+	]);
+
+	document.body.addEventListener('keydown', (event) => {
+		if (!keys.has(event.key) || isMenuDialogOpen()) return;
+		event.preventDefault();
+		if (event.repeat) return;
+		keys.get(event.key)?.[isEval ? 1 : 0]?.click();
+	});
+
+	ctrlDir.addEventListener('click', rotateDirection);
+
+	ctrlEval.addEventListener('click', () => {
+		isEval = !isEval;
+		ctrl.classList.toggle('eval', isEval);
+		clearEvalContext();
+		clearInterval(stabilityInterval);
+		ctrlTickNo.textContent = '0';
+
+		const title = ctrlEval.querySelector('title');
+		if (title) {
+			title.textContent = isEval ? 'modify' : 'evaluate';
+		}
+	});
+
+	ctrlTickBwdStable.addEventListener('click', () => {
+		assert(isEval);
+		const evalContext = getEvalContext();
+		if (evalContext.tickBackward()) startStabilityInterval('tickBackward');
+		ctrlTickNo.textContent = String(evalContext.tickCount);
+	});
+
+	ctrlTickBwd.addEventListener('click', () => {
+		assert(isEval);
+		const evalContext = getEvalContext();
+		evalContext.tickBackward();
+		ctrlTickNo.textContent = String(evalContext.tickCount);
+		clearInterval(stabilityInterval);
+	});
+
+	ctrlTickFwd.addEventListener('click', () => {
+		assert(isEval);
+		const evalContext = getEvalContext();
+		evalContext.tickForward();
+		ctrlTickNo.textContent = String(evalContext.tickCount);
+		clearInterval(stabilityInterval);
+	});
+
+	ctrlTickFwdStable.addEventListener('click', () => {
+		assert(isEval);
+		const evalContext = getEvalContext();
+		if (evalContext.tickForward()) startStabilityInterval('tickForward');
+		ctrlTickNo.textContent = String(evalContext.tickCount);
+	});
 }
