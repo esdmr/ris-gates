@@ -11,6 +11,7 @@ import {
 	type SaveBrowserElement,
 } from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
+import {updateAutoSaveState} from './page.js';
 
 const dialogMenu = document.querySelector<HTMLDialogElement>('#dialog-menu')!;
 assert(dialogMenu);
@@ -272,6 +273,7 @@ export function setup() {
 			const {detail: key} = event as CustomEvent<string>;
 			try {
 				remove(key);
+				updateAutoSaveState(key);
 				(event.target as HTMLElement).closest('li')?.remove();
 			} catch (error) {
 				dialogSaveFailed.showModal();

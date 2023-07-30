@@ -21,6 +21,8 @@ import {
 } from './constants.js';
 import {getEvalContext} from './eval.js';
 import * as dialogs from './input/dialogs.js';
+import * as page from './input/page.js';
+import * as storage from './storage.js';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
@@ -28,6 +30,8 @@ let scale = 50;
 let currentTime = performance.now();
 let strokeStyle: string;
 
+storage.setup();
+page.setup();
 controls.setup();
 dialogs.setup();
 pointer.setup();

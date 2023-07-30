@@ -36,6 +36,10 @@ export function setString(key: string, string: string) {
 	localStorage.setItem(storagePrefix + key, string);
 }
 
+export function exists(key: string) {
+	return localStorage.getItem(storagePrefix + key) !== null;
+}
+
 export function remove(key: string) {
 	localStorage.removeItem(storagePrefix + key);
 }
@@ -111,7 +115,7 @@ export class SaveBrowserElement extends HTMLElement {
 	}
 }
 
-export function setupStorage() {
+export function setup() {
 	if (!localStorageAvailable) {
 		for (const element of document.querySelectorAll<HTMLButtonElement>(
 			'button.requires-local-storage',
