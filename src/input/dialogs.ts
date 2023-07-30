@@ -17,6 +17,10 @@ import {updateAutoSaveState} from './page.js';
 const dialogMenu = document.querySelector<HTMLDialogElement>('#dialog-menu')!;
 assert(dialogMenu);
 
+const dialogEpilepsy =
+	document.querySelector<HTMLDialogElement>('#dialog-epilepsy')!;
+assert(dialogEpilepsy);
+
 const dialogLoad = document.querySelector<HTMLDialogElement>('#dialog-load')!;
 assert(dialogLoad);
 
@@ -50,6 +54,9 @@ assert(dialogBrowse);
 let pasteKind: 'load' | 'import' = 'load';
 const configMinorGrid = 'conf/minor-grid';
 const configMajorGrid = 'conf/major-grid';
+const configEvaluationRate = 'conf/eval-rate';
+const configEpilepsyWarningShown = 'conf/epilepsy-warned';
+const defaultEvaluationRate = 15;
 
 export let shouldDrawMinorGrid = Boolean(
 	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -61,6 +68,16 @@ export let majorGridLength = BigInt(
 	(localStorageAvailable && localStorage.getItem(configMajorGrid)) || 0n,
 );
 
+export let evaluationRate = normalizeEvaluationRate(
+	localStorageAvailable
+		? Number.parseInt(localStorage.getItem(configEvaluationRate) ?? '', 10)
+		: undefined,
+);
+
+let epilepsyWarningShown = Boolean(
+	localStorage.getItem(configEpilepsyWarningShown),
+);
+
 function escapeKey(key: string) {
 	return key.replaceAll('\\', '\\<').replaceAll('/', '\\>');
 }
@@ -69,8 +86,23 @@ function unescapeKey(key: string) {
 	return key.replaceAll('\\>', '/').replaceAll('\\<', '\\');
 }
 
+function normalizeEvaluationRate(rate = defaultEvaluationRate) {
+	rate = Math.ceil(rate) || defaultEvaluationRate;
+
+	if (rate < 1) rate = 1;
+	else if (rate > 30) rate = 30;
+
+	return rate;
+}
+
 export function isMenuDialogOpen() {
 	return dialogMenu.open;
+}
+
+export function maybeShowEpilepsyWarning() {
+	if (!epilepsyWarningShown) {
+		dialogEpilepsy.showModal();
+	}
 }
 
 export function setup() {
@@ -113,12 +145,20 @@ export function setup() {
 		});
 	}
 
+	dialogEpilepsy.addEventListener('close', () => {
+		epilepsyWarningShown = true;
+
+		if (localStorageAvailable) {
+			localStorage.setItem(configEpilepsyWarningShown, 'y');
+		}
+	});
+
 	const checkboxMinorGrid =
 		dialogMenu.querySelector<HTMLInputElement>('#chk-minor-grid');
 	assert(checkboxMinorGrid);
 	checkboxMinorGrid.checked = shouldDrawMinorGrid;
-	checkboxMinorGrid.addEventListener('change', (event) => {
-		shouldDrawMinorGrid = (event.target as HTMLInputElement).checked;
+	checkboxMinorGrid.addEventListener('change', () => {
+		shouldDrawMinorGrid = checkboxMinorGrid.checked;
 
 		if (localStorageAvailable) {
 			localStorage.setItem(configMinorGrid, shouldDrawMinorGrid ? 'y' : '');
@@ -129,15 +169,40 @@ export function setup() {
 		dialogMenu.querySelector<HTMLInputElement>('#inp-major-grid');
 	assert(inputMajorGrid);
 	inputMajorGrid.value = String(majorGridLength);
-	inputMajorGrid.addEventListener('input', (event) => {
-		majorGridLength = BigInt(
-			(event.target as HTMLInputElement).valueAsNumber || 0n,
-		);
+	inputMajorGrid.addEventListener('input', () => {
+		majorGridLength = BigInt(inputMajorGrid.valueAsNumber || 0n);
 
 		if (localStorageAvailable) {
 			localStorage.setItem(configMajorGrid, String(majorGridLength));
 		}
 	});
+
+	const inputEvaluationRates = [
+		dialogMenu.querySelector<HTMLInputElement>('#inp-eval-rate')!,
+		dialogEpilepsy.querySelector<HTMLInputElement>('#inp-eval-rate2')!,
+	];
+
+	for (const inputEvaluationRate of inputEvaluationRates) {
+		assert(inputEvaluationRate);
+		inputEvaluationRate.value = String(evaluationRate);
+
+		// eslint-disable-next-line @typescript-eslint/no-loop-func
+		inputEvaluationRate.addEventListener('input', () => {
+			evaluationRate = normalizeEvaluationRate(
+				inputEvaluationRate.valueAsNumber,
+			);
+
+			for (const otherInput of inputEvaluationRates) {
+				if (otherInput !== inputEvaluationRate) {
+					otherInput.value = inputEvaluationRate.value;
+				}
+			}
+
+			if (localStorageAvailable) {
+				localStorage.setItem(configEvaluationRate, String(evaluationRate));
+			}
+		});
+	}
 
 	dialogMenu
 		.querySelector<HTMLButtonElement>('#btn-clear')

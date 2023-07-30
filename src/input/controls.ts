@@ -2,7 +2,11 @@
 import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
-import {isMenuDialogOpen} from './dialogs.js';
+import {
+	evaluationRate,
+	isMenuDialogOpen,
+	maybeShowEpilepsyWarning,
+} from './dialogs.js';
 
 const ctrl = document.querySelector<HTMLDivElement>('.controls')!;
 assert(ctrl);
@@ -62,7 +66,6 @@ assert(ctrlTickFwdStable);
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
 const directionsTile = ['N', 'E', 'S', 'W'] as const;
-const stabilityTimeout = 1000 / 15;
 
 let selectedTool: ToolTypes = 'io';
 let selectedDirection: (typeof directions)[number] = 'up';
@@ -97,7 +100,7 @@ function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
 		}
 
 		ctrlTickNo.textContent = String(evalContext.tickCount);
-	}, stabilityTimeout);
+	}, 1000 / evaluationRate);
 }
 
 export function getSelectedTileType() {
@@ -170,6 +173,8 @@ export function setup() {
 		if (title) {
 			title.textContent = isEval ? 'modify' : 'evaluate';
 		}
+
+		if (isEval) maybeShowEpilepsyWarning();
 	});
 
 	ctrlTickBwdStable.addEventListener('click', () => {

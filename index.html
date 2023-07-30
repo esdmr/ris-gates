@@ -126,12 +126,29 @@
 			<h1 class="title">Menu</h1>
 			<section class="body">
 				<ul class="hide-list-bullets full-width">
-					<li><label><input id="chk-minor-grid" type="checkbox"
-								autocomplete="off"> Show
-							minor grid</label></li>
-					<li><label>Major grid length: <input id="inp-major-grid"
-								type="number" placeholder="0" min="0" step="1"
-								autocomplete="off" data-keep-value="true"></label></li>
+					<li>
+						<label>
+							<input id="chk-minor-grid" type="checkbox"
+								autocomplete="off">
+							Show minor grid
+						</label>
+					</li>
+					<li>
+						<label>
+							Major grid length:
+							<input id="inp-major-grid" type="number"
+								placeholder="0" min="0" step="1"
+								autocomplete="off" data-keep-value="true">
+						</label>
+					</li>
+					<li>
+						<label>
+							Rate of evaluation (in Hz):
+							<input id="inp-eval-rate" type="number"
+								placeholder="15" min="1" max="30" step="1"
+								autocomplete="off" data-keep-value="true">
+						</label>
+					</li>
 					<li><button id="btn-clear" class="full-width">clear</button>
 					</li>
 					<li><button class="full-width requires-local-storage"
@@ -141,6 +158,31 @@
 					<li><button class="full-width requires-local-storage"
 							data-open-dialog="browse">browse</button></li>
 				</ul>
+			</section>
+		</dialog>
+		<dialog id="dialog-epilepsy">
+			<button class="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>close</title>
+					<use href="#cross" />
+				</svg>
+			</button>
+			<h1 class="title">Epilepsy Warning</h1>
+			<section class="body">
+				<p>
+					This part may display flashing lights. If you have
+					photosensitive epilepsy, you can either go back, or adjust
+					the rate of evaluation via the input box below.
+				</p>
+				<p>
+					<label>
+						Rate of evaluation (in Hz):
+						<input id="inp-eval-rate2" type="number"
+							placeholder="15" min="1" max="30" step="1"
+							autocomplete="off" data-keep-value="true">
+					</label>
+				</p>
 			</section>
 		</dialog>
 		<dialog id="dialog-load">
