@@ -9,6 +9,7 @@ import {
 	save,
 	setString,
 	type SaveBrowserElement,
+	localStorageAvailable,
 } from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
 import {updateAutoSaveState} from './page.js';
@@ -47,8 +48,18 @@ const dialogBrowse =
 assert(dialogBrowse);
 
 let pasteKind: 'load' | 'import' = 'load';
-export let shouldDrawMinorGrid = false;
-export let majorGridLength = 0n;
+const configMinorGrid = 'conf/minor-grid';
+const configMajorGrid = 'conf/major-grid';
+
+export let shouldDrawMinorGrid = Boolean(
+	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+	(localStorageAvailable && localStorage.getItem(configMinorGrid)) || false,
+);
+
+export let majorGridLength = BigInt(
+	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+	(localStorageAvailable && localStorage.getItem(configMajorGrid)) || 0n,
+);
 
 function escapeKey(key: string) {
 	return key.replaceAll('\\', '\\<').replaceAll('/', '\\>');
@@ -95,24 +106,38 @@ export function setup() {
 			}
 
 			for (const input of dialog.querySelectorAll('input')) {
-				input.value = '';
+				if (!input.dataset.keepValue) {
+					input.value = '';
+				}
 			}
 		});
 	}
 
-	dialogMenu
-		.querySelector<HTMLInputElement>('#chk-minor-grid')
-		?.addEventListener('change', (event) => {
-			shouldDrawMinorGrid = (event.target as HTMLInputElement).checked;
-		});
+	const checkboxMinorGrid =
+		dialogMenu.querySelector<HTMLInputElement>('#chk-minor-grid');
+	assert(checkboxMinorGrid);
+	checkboxMinorGrid.checked = shouldDrawMinorGrid;
+	checkboxMinorGrid.addEventListener('change', (event) => {
+		shouldDrawMinorGrid = (event.target as HTMLInputElement).checked;
 
-	dialogMenu
-		.querySelector<HTMLInputElement>('#inp-major-grid')
-		?.addEventListener('input', (event) => {
-			majorGridLength = BigInt(
-				(event.target as HTMLInputElement).valueAsNumber || 0,
-			);
-		});
+		if (localStorageAvailable) {
+			localStorage.setItem(configMinorGrid, shouldDrawMinorGrid ? 'y' : '');
+		}
+	});
+
+	const inputMajorGrid =
+		dialogMenu.querySelector<HTMLInputElement>('#inp-major-grid');
+	assert(inputMajorGrid);
+	inputMajorGrid.value = String(majorGridLength);
+	inputMajorGrid.addEventListener('input', (event) => {
+		majorGridLength = BigInt(
+			(event.target as HTMLInputElement).valueAsNumber || 0n,
+		);
+
+		if (localStorageAvailable) {
+			localStorage.setItem(configMajorGrid, String(majorGridLength));
+		}
+	});
 
 	dialogMenu
 		.querySelector<HTMLButtonElement>('#btn-clear')
