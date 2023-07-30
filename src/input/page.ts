@@ -1,7 +1,7 @@
-import {exists, load, save} from '../storage.js';
+import {exists, load, localStorageAvailable, save} from '../storage.js';
 
 const autoSaveKey = '__auto_save__';
-let shouldAutoSave = true;
+let shouldAutoSave = localStorageAvailable;
 
 export function updateAutoSaveState(removedKey: string) {
 	if (removedKey === autoSaveKey) {
@@ -10,7 +10,7 @@ export function updateAutoSaveState(removedKey: string) {
 }
 
 export function setup() {
-	if (exists(autoSaveKey)) {
+	if (shouldAutoSave && exists(autoSaveKey)) {
 		load(autoSaveKey);
 	}
 
