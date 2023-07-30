@@ -4,8 +4,9 @@ import {defineConfig} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';
 
-const ensureTrailingSlash = (url: string) =>
-	url.endsWith('/') ? url : url + '/';
+function ensureTrailingSlash(url: string) {
+	return url.endsWith('/') ? url : url + '/';
+}
 
 export default defineConfig({
 	base: ensureTrailingSlash(

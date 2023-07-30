@@ -3,7 +3,7 @@ const {ESLintUtils, TSESTree} = require('@typescript-eslint/utils');
 module.exports = ESLintUtils.RuleCreator.withoutDocs({
 	create(context) {
 		/** @param {TSESTree.TSNonNullExpression | TSESTree.TSAsExpression} node */
-		const cast = (node) => {
+		function cast(node) {
 			if (
 				'typeAnnotation' in node &&
 				node.typeAnnotation.type === 'TSTypeReference' &&
@@ -29,7 +29,7 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 				messageId: 'cast',
 				node,
 			});
-		};
+		}
 
 		return {
 			TSNonNullExpression: cast,

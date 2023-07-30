@@ -14,11 +14,11 @@ export let centerX = 0;
 export let centerY = 0;
 export let deltaScale = 0;
 
-const pointerdownHandler = (event: PointerEvent) => {
+function pointerdownHandler(event: PointerEvent) {
 	eventCache.push(event);
-};
+}
 
-const pointermoveHandler = (event: PointerEvent) => {
+function pointermoveHandler(event: PointerEvent) {
 	const index = eventCache.findIndex(
 		(cachedEvent) => cachedEvent.pointerId === event.pointerId,
 	);
@@ -66,9 +66,9 @@ const pointermoveHandler = (event: PointerEvent) => {
 	} else if (!isDragging && Math.abs(deltaX + deltaY) >= draggingThreshold) {
 		isDragging = true;
 	}
-};
+}
 
-const pointerupHandler = (event: PointerEvent) => {
+function pointerupHandler(event: PointerEvent) {
 	const index = eventCache.findIndex(
 		(cachedEvent) => cachedEvent.pointerId === event.pointerId,
 	);
@@ -87,7 +87,7 @@ const pointerupHandler = (event: PointerEvent) => {
 			hasClicked = true;
 		}
 	}
-};
+}
 
 canvas.addEventListener('pointerdown', pointerdownHandler);
 canvas.addEventListener('pointermove', pointermoveHandler);

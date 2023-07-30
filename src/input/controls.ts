@@ -66,11 +66,13 @@ const directionsTile = ['N', 'E', 'S', 'W'] as const;
 let selectedTool: ToolTypes = 'io';
 let selectedDirection: (typeof directions)[number] = 'up';
 
-const switchTool = (tool: ToolTypes) => () => {
-	selectedTool = tool;
-};
+function switchTool(tool: ToolTypes) {
+	return () => {
+		selectedTool = tool;
+	};
+}
 
-const rotateDirection = () => {
+function rotateDirection() {
 	const newIndex =
 		(directions.indexOf(selectedDirection) + 1) % directions.length;
 	const newDirection = directions[newIndex];
@@ -78,7 +80,7 @@ const rotateDirection = () => {
 	selectedDirection = newDirection;
 	ctrlDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
 	ctrlDirTitle.textContent = `direction: ${newDirection}`;
-};
+}
 
 for (const [element, tool] of [
 	[ctrlEmpty, 'empty'],
