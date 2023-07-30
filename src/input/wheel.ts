@@ -1,5 +1,4 @@
 import {canvas} from './canvas.js';
-import {active} from './dom-event-options.js';
 
 const deltaLineMultiplier = 16;
 const deltaPageMultiplier = 25 * deltaLineMultiplier;
@@ -31,7 +30,8 @@ canvas.addEventListener(
 		deltaY += event.deltaY * multiplier;
 		ctrl ||= event.ctrlKey;
 	},
-	active,
+	// eslint-disable-next-line @internal/no-object-literals
+	{passive: false},
 );
 
 export function commit() {
