@@ -22,9 +22,9 @@ Negate and IO do not output or take input themselves. Rather, a Conjoin or
 Disjoin which is connected to them will.
 
 In evaluation mode, you can either toggle IO states or step through the changes
-in every tick. A tick consists of first updating all Negates, and then updating
-everything else. Therefore, updates in logic gates using Negates may take more
-than one tick to propagate. Because of that, there is also the option to skip to
-the next stable tick. A stable tick is any tick where no updates happen. Note
-that if a logic gate has any cycles — intentional or not — will not allow for a
+in every tick. A tick consists of first updating all non-Negate tiles, and then
+updating the input of Negate tiles. Therefore, updates in logic gates using
+Negates may take more than one tick to propagate. Because of that, there is also
+the option to skip to the next stable tick. A stable tick is any tick where no
+updates happen. Note that if a logic gate has any cycles will not allow for a
 stable tick to happen.
