@@ -2,7 +2,6 @@ import {type QuadTreeNode} from './node.js';
 import type {QuadTree} from './tree.js';
 import {WalkStep} from './walk.js';
 import * as tileType from './tile-type.js';
-import {assert} from './assert.js';
 import {mapGet, setToggle} from './map-and-set.js';
 
 export class TilesMap {

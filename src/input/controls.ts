@@ -86,7 +86,6 @@ assert(ctrlTickFwdStable);
 
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
-const directionsTile = ['N', 'E', 'S', 'W'] as const;
 
 let selectedTool: ToolTypes = 'io';
 let selectedDirection: (typeof directions)[number] = 'up';
