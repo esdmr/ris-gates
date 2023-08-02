@@ -90,20 +90,22 @@ function commitInputs() {
 		pointer.isDragging && !pointer.isSelecting,
 	);
 
-	if (pointer.isSelecting && !pointer.wasSelecting) {
-		selection.setFirstPosition(
-			scrollX.bigint +
-				BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
-			scrollY.bigint +
-				BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
-		);
-	} else if (pointer.isSelecting) {
-		selection.setSecondPosition(
-			scrollX.bigint +
-				BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
-			scrollY.bigint +
-				BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
-		);
+	if (!controls.isEval && pointer.isSelecting) {
+		if (pointer.wasSelecting) {
+			selection.setSecondPosition(
+				scrollX.bigint +
+					BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+				scrollY.bigint +
+					BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+			);
+		} else {
+			selection.setFirstPosition(
+				scrollX.bigint +
+					BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+				scrollY.bigint +
+					BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+			);
+		}
 	} else if (pointer.isDragging) {
 		scrollX.float -= pointer.deltaX / scale;
 		scrollY.float -= pointer.deltaY / scale;
