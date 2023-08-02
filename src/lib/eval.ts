@@ -143,9 +143,9 @@ export class EvalGraph {
 
 			case tileType.negate: {
 				if (otherIsDownwards) {
-					this._addEdge(other, tile);
+					this._addEdge(other, tile, false);
 				} else {
-					this._addEdge(tile, other, false);
+					this._addEdge(tile, other);
 				}
 
 				break;
@@ -206,9 +206,9 @@ export class EvalGraph {
 
 			case tileType.negate: {
 				if (otherIsDownwards) {
-					this._addEdge(tile, other, false);
+					this._addEdge(tile, other);
 				} else {
-					this._addEdge(other, tile);
+					this._addEdge(other, tile, false);
 				}
 
 				break;
@@ -321,26 +321,6 @@ export class EvalContext {
 		for (let updated = true; updated; ) {
 			updated = false;
 
-			for (const [to, from] of this.graph.negativeEdges) {
-				let value = false;
-
-				for (const fromSymbol of from) {
-					value = this._enabled.has(fromSymbol);
-					if (value) break;
-				}
-
-				if (this._enabled.has(to) === value) {
-					console.log('-', from, to, !value);
-					setToggle(this._enabled, to, !value);
-					updated = true;
-					anythingUpdated = true;
-				}
-			}
-		}
-
-		for (let updated = true; updated; ) {
-			updated = false;
-
 			for (const [to, from] of this.graph.positiveEdges) {
 				let value = false;
 
@@ -352,6 +332,26 @@ export class EvalContext {
 				if (this._enabled.has(to) !== value) {
 					console.log('+', from, to, value);
 					setToggle(this._enabled, to, value);
+					updated = true;
+					anythingUpdated = true;
+				}
+			}
+		}
+
+		for (let updated = true; updated; ) {
+			updated = false;
+
+			for (const [to, from] of this.graph.negativeEdges) {
+				let value = false;
+
+				for (const fromSymbol of from) {
+					value = this._enabled.has(fromSymbol);
+					if (value) break;
+				}
+
+				if (this._enabled.has(to) === value) {
+					console.log('-', from, to, !value);
+					setToggle(this._enabled, to, !value);
 					updated = true;
 					anythingUpdated = true;
 				}
