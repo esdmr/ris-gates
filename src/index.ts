@@ -318,7 +318,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			context.lineWidth = selectionStrokeWidth * dip;
 			context.strokeStyle = selectionStrokeStyle;
 			context.lineDashOffset =
-				(ms % (selectionStrokeDashLength * dip)) * selectionStrokeSpeed;
+				(ms % selectionStrokeDashLength) * selectionStrokeSpeed * dip;
 			context.setLineDash([
 				selectionStrokeDashLength * dip,
 				selectionStrokeDashLength * dip,
