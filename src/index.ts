@@ -439,6 +439,19 @@ function drawTile(
 			break;
 		}
 
+		case tileType.io: {
+			context.beginPath();
+			context.arc(
+				(i + 0.5) * realScale - offsetX,
+				(j + 0.5) * realScale - offsetY,
+				realScale / 2,
+				0,
+				2 * Math.PI,
+			);
+			context.stroke();
+			break;
+		}
+
 		// No default
 	}
 
