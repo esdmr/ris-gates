@@ -291,16 +291,16 @@ export class EvalContext {
 		return this._tickCount;
 	}
 
-	constructor(private readonly graph: EvalGraph) {}
+	constructor(private readonly _graph: EvalGraph) {}
 
 	input(tile: QuadTreeNode, value: boolean) {
-		const symbol = this.graph.vertices.get(tile);
+		const symbol = this._graph.vertices.get(tile);
 		if (typeof symbol !== 'symbol') return;
 		setToggle(this._enabled, symbol, value);
 	}
 
 	output(tile: QuadTreeNode) {
-		const symbol = this.graph.vertices.get(tile);
+		const symbol = this._graph.vertices.get(tile);
 		return typeof symbol === 'symbol' && this._enabled.has(symbol);
 	}
 
@@ -321,7 +321,7 @@ export class EvalContext {
 		for (let updated = true; updated; ) {
 			updated = false;
 
-			for (const [to, from] of this.graph.positiveEdges) {
+			for (const [to, from] of this._graph.positiveEdges) {
 				let value = false;
 
 				for (const fromSymbol of from) {
@@ -341,7 +341,7 @@ export class EvalContext {
 		for (let updated = true; updated; ) {
 			updated = false;
 
-			for (const [to, from] of this.graph.negativeEdges) {
+			for (const [to, from] of this._graph.negativeEdges) {
 				let value = false;
 
 				for (const fromSymbol of from) {
