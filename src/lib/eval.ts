@@ -290,7 +290,13 @@ export class EvalContext {
 		return this._tickCount;
 	}
 
-	constructor(private readonly _graph: EvalGraph) {}
+	constructor(private readonly _graph: EvalGraph) {
+		for (const symbols of _graph.vertices.values()) {
+			if (!Array.isArray(symbols)) continue;
+			this._enabled.add(symbols[0]);
+			this._enabled.add(symbols[1]);
+		}
+	}
 
 	input(tile: QuadTreeNode, value: boolean) {
 		const symbol = this._graph.vertices.get(tile);
