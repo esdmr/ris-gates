@@ -2,6 +2,7 @@
 import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
+import * as selection from '../selection.js';
 import {
 	evaluationRate,
 	isMenuDialogOpen,
@@ -39,6 +40,26 @@ assert(ctrlDirTitle);
 const ctrlMenu = document.querySelector<HTMLButtonElement>('#ctrl-menu')!;
 assert(ctrlMenu);
 
+const ctrlUnselect =
+	document.querySelector<HTMLButtonElement>('#ctrl-unselect')!;
+assert(ctrlUnselect);
+
+const ctrlDelete = document.querySelector<HTMLButtonElement>('#ctrl-delete')!;
+assert(ctrlDelete);
+
+const ctrlCut = document.querySelector<HTMLButtonElement>('#ctrl-cut')!;
+assert(ctrlCut);
+
+const ctrlCopy = document.querySelector<HTMLButtonElement>('#ctrl-copy')!;
+assert(ctrlCopy);
+
+const ctrlPaste = document.querySelector<HTMLButtonElement>('#ctrl-paste')!;
+assert(ctrlPaste);
+
+const ctrlPasteCancel =
+	document.querySelector<HTMLButtonElement>('#ctrl-paste-cancel')!;
+assert(ctrlPasteCancel);
+
 const ctrlEval = document.querySelector<HTMLButtonElement>('#ctrl-eval')!;
 assert(ctrlEval);
 
@@ -70,6 +91,7 @@ const directionsTile = ['N', 'E', 'S', 'W'] as const;
 let selectedTool: ToolTypes = 'io';
 let selectedDirection: (typeof directions)[number] = 'up';
 export let isEval = false;
+export let shouldPaste = false;
 let stabilityInterval: ReturnType<typeof setInterval> | undefined;
 
 function switchTool(tool: ToolTypes) {
@@ -85,7 +107,10 @@ function rotateDirection() {
 	assert(newDirection);
 	selectedDirection = newDirection;
 	ctrlDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
-	ctrlDirTitle.textContent = `direction: ${newDirection}`;
+
+	const label = `direction: ${newDirection}`;
+	ctrlDirTitle.textContent = label;
+	ctrlDir.setAttribute('aria-label', label);
 }
 
 function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
@@ -101,6 +126,11 @@ function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
 
 		ctrlTickNo.textContent = String(evalContext.tickCount);
 	}, 1000 / evaluationRate);
+}
+
+export function donePasting() {
+	shouldPaste = false;
+	document.body.classList.remove('pasting');
 }
 
 export function getSelectedTileType() {
@@ -142,29 +172,90 @@ export function setup() {
 		element.addEventListener('click', switchTool(tool));
 	}
 
-	const keys = new Map<string, [HTMLButtonElement, HTMLButtonElement?]>([
-		['q', [ctrlEmpty]],
-		['1', [ctrlIo, ctrlTickBwdStable]],
-		['2', [ctrlNegate, ctrlTickBwd]],
-		['3', [ctrlConjoin, ctrlTickFwd]],
-		['4', [ctrlDisjoin, ctrlTickFwdStable]],
-		['e', [ctrlEval, ctrlEval]],
-		['r', [ctrlDir]],
-		['Escape', [ctrlMenu]],
+	const keys = new Map<
+		string,
+		{
+			normal?: HTMLButtonElement;
+			eval?: HTMLButtonElement;
+			selected?: HTMLButtonElement;
+			pasting?: HTMLButtonElement;
+		}
+	>([
+		/* eslint-disable @internal/no-object-literals */
+		['q', {normal: ctrlEmpty}],
+		['1', {normal: ctrlIo, eval: ctrlTickBwdStable}],
+		['2', {normal: ctrlNegate, eval: ctrlTickBwd}],
+		['3', {normal: ctrlConjoin, eval: ctrlTickFwd}],
+		['4', {normal: ctrlDisjoin, eval: ctrlTickFwdStable}],
+		['e', {normal: ctrlEval, eval: ctrlEval}],
+		['r', {normal: ctrlDir}],
+		[
+			'Escape',
+			{normal: ctrlMenu, selected: ctrlUnselect, pasting: ctrlPasteCancel},
+		],
+		['Control+x', {selected: ctrlCut}],
+		['Control+c', {selected: ctrlCopy}],
+		['Control+v', {normal: ctrlPaste, selected: ctrlPaste}],
+		['Delete', {selected: ctrlDelete}],
+		/* eslint-enable @internal/no-object-literals */
 	]);
 
 	document.body.addEventListener('keydown', (event) => {
-		if (!keys.has(event.key) || isMenuDialogOpen()) return;
+		const key = (event.ctrlKey ? 'Control+' : '') + event.key;
+		if (!keys.has(key) || isMenuDialogOpen()) return;
 		event.preventDefault();
 		if (event.repeat) return;
-		keys.get(event.key)?.[isEval ? 1 : 0]?.click();
+		keys
+			.get(key)
+			?.[
+				isEval
+					? 'eval'
+					: shouldPaste
+					? 'pasting'
+					: selection.isSelecting
+					? 'selected'
+					: 'normal'
+			]?.click();
+	});
+
+	ctrlUnselect.addEventListener('click', () => {
+		selection.unselect();
+	});
+
+	ctrlDelete.addEventListener('click', () => {
+		selection.remove();
+	});
+
+	ctrlCut.addEventListener('click', () => {
+		selection.cut();
+	});
+
+	ctrlCopy.addEventListener('click', () => {
+		selection.copy();
+	});
+
+	ctrlPaste.addEventListener('click', () => {
+		if (!selection.hasSavedTiles()) return;
+		shouldPaste = true;
+		document.body.classList.add('pasting');
+	});
+
+	ctrlPaste.addEventListener('contextmenu', (event) => {
+		if (selection.hasSavedTiles()) {
+			selection.discard();
+			event.preventDefault();
+		}
+	});
+
+	ctrlPasteCancel.addEventListener('click', () => {
+		donePasting();
 	});
 
 	ctrlDir.addEventListener('click', rotateDirection);
 
 	ctrlEval.addEventListener('click', () => {
 		isEval = !isEval;
-		ctrl.classList.toggle('eval', isEval);
+		document.body.classList.toggle('eval', isEval);
 		clearEvalContext();
 		clearInterval(stabilityInterval);
 		ctrlTickNo.textContent = '0';

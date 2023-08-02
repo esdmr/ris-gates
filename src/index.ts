@@ -18,17 +18,22 @@ import {
 	strokeWidth,
 	minorGridStrokeWidth,
 	majorGridStrokeWidth,
+	selectionStrokeWidth,
+	selectionStrokeDashLength,
+	selectionStrokeSpeed,
 } from './constants.js';
 import {getEvalContext} from './eval.js';
 import * as dialogs from './input/dialogs.js';
 import * as page from './input/page.js';
 import * as storage from './storage.js';
+import * as selection from './selection.js';
 
 const scrollX = new FloatingBigInt();
 const scrollY = new FloatingBigInt();
 let scale = 50;
 let currentTime = performance.now();
 let strokeStyle: string;
+let selectionStrokeStyle: string;
 
 storage.setup();
 page.setup();
@@ -46,9 +51,9 @@ onFrame(currentTime);
 
 function updateStrokeStyle() {
 	// Cast safety: `document.firstElementChild` is the <html> element.
-	strokeStyle = getComputedStyle(document.firstElementChild!).getPropertyValue(
-		'--foreground',
-	);
+	const styles = getComputedStyle(document.firstElementChild!);
+	strokeStyle = styles.getPropertyValue('--foreground');
+	selectionStrokeStyle = styles.getPropertyValue('--selection');
 }
 
 function getScaleIntOffset(point: number, oldScale: number) {
@@ -80,9 +85,26 @@ function commitInputs() {
 		scrollY.float += getScaleFloatOffset(pointer.centerY, oldScale);
 	}
 
-	canvas.classList.toggle('dragging', pointer.isDragging);
+	canvas.classList.toggle(
+		'dragging',
+		pointer.isDragging && !pointer.isSelecting,
+	);
 
-	if (pointer.isDragging) {
+	if (pointer.isSelecting && !pointer.wasSelecting) {
+		selection.setFirstPosition(
+			scrollX.bigint +
+				BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+			scrollY.bigint +
+				BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+		);
+	} else if (pointer.isSelecting) {
+		selection.setSecondPosition(
+			scrollX.bigint +
+				BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+			scrollY.bigint +
+				BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+		);
+	} else if (pointer.isDragging) {
 		scrollX.float -= pointer.deltaX / scale;
 		scrollY.float -= pointer.deltaY / scale;
 	}
@@ -103,6 +125,18 @@ function commitInputs() {
 				const context = getEvalContext();
 				context.input(tile, !context.output(tile));
 			}
+		} else if (controls.shouldPaste) {
+			selection.paste(
+				new Point(
+					scrollX.bigint +
+						BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+					scrollY.bigint +
+						BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+				),
+			);
+			controls.donePasting();
+		} else if (selection.isSelecting) {
+			selection.unselect();
 		} else {
 			tree.getTileData(
 				new Point(
@@ -245,8 +279,95 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		}
 	}
 
+	if (selection.isSelecting) {
+		const box = selection.getBox();
+		const x = convertAxisToDisplayCoordinate(
+			box.topLeft.x,
+			scrollX.bigint,
+			realScale,
+			offsetX,
+			width,
+		);
+		const y = convertAxisToDisplayCoordinate(
+			box.topLeft.y,
+			scrollY.bigint,
+			realScale,
+			offsetY,
+			height,
+		);
+		const w = convertSizeToDisplayCoordinate(
+			box.topLeft.x,
+			box.width,
+			scrollX.bigint,
+			realScale,
+			offsetX,
+			width,
+			x,
+		);
+		const h = convertSizeToDisplayCoordinate(
+			box.topLeft.y,
+			box.height,
+			scrollY.bigint,
+			realScale,
+			offsetY,
+			height,
+			y,
+		);
+
+		if (w && h) {
+			context.lineWidth = selectionStrokeWidth * dip;
+			context.strokeStyle = selectionStrokeStyle;
+			context.lineDashOffset =
+				(ms % (selectionStrokeDashLength * dip)) * selectionStrokeSpeed;
+			context.setLineDash([
+				selectionStrokeDashLength * dip,
+				selectionStrokeDashLength * dip,
+			]);
+			context.strokeRect(x, y, w, h);
+			context.setLineDash([]);
+		}
+	}
+
 	currentTime = ms;
 	requestAnimationFrame(onFrame);
+}
+
+function clampDisplayCoordinate(display: number, max: number) {
+	if (display < -1) return -1;
+	if (display > max) return max;
+	return display;
+}
+
+// eslint-disable-next-line max-params
+function convertAxisToDisplayCoordinate(
+	axisValue: bigint,
+	scrollAxis: bigint,
+	realScale: number,
+	offset: number,
+	max: number,
+) {
+	return clampDisplayCoordinate(
+		Number(axisValue - scrollAxis) * realScale - offset,
+		max,
+	);
+}
+
+// eslint-disable-next-line max-params
+function convertSizeToDisplayCoordinate(
+	axisValue: bigint,
+	sizeValue: bigint,
+	scrollAxis: bigint,
+	realScale: number,
+	offset: number,
+	max: number,
+	axisDisplay: number,
+) {
+	return (
+		clampDisplayCoordinate(
+			Number(axisValue + sizeValue - scrollAxis) * realScale - offset,
+			max,
+		) - axisDisplay
+	);
 }
 
 // eslint-disable-next-line max-params

@@ -2,11 +2,15 @@ import {canvas} from './canvas.js';
 
 const eventCache: PointerEvent[] = [];
 const draggingThreshold = 1;
+const selectingThreshold = 400;
 let oldX = 0;
 let oldY = 0;
 let oldDiff = -1;
 let firstDelta = true;
+let timeOfInitialDelta = -1;
 export let isDragging = false;
+export let isSelecting = false;
+export let wasSelecting = false;
 export let hasClicked = false;
 export let deltaX = 0;
 export let deltaY = 0;
@@ -16,6 +20,10 @@ export let deltaScale = 0;
 
 function pointerdownHandler(event: PointerEvent) {
 	eventCache.push(event);
+
+	if (timeOfInitialDelta === -1) {
+		timeOfInitialDelta = performance.now();
+	}
 }
 
 function pointermoveHandler(event: PointerEvent) {
@@ -63,8 +71,16 @@ function pointermoveHandler(event: PointerEvent) {
 
 		oldDiff = diff;
 		isDragging = true;
+		isSelecting = false;
 	} else if (!isDragging && Math.abs(deltaX + deltaY) >= draggingThreshold) {
 		isDragging = true;
+
+		if (
+			event.shiftKey ||
+			timeOfInitialDelta + selectingThreshold <= performance.now()
+		) {
+			isSelecting = true;
+		}
 	}
 }
 
@@ -78,11 +94,14 @@ function pointerupHandler(event: PointerEvent) {
 	if (eventCache.length !== 2) {
 		oldDiff = -1;
 		firstDelta = true;
+		timeOfInitialDelta = -1;
 	}
 
 	if (eventCache.length === 0 && index !== -1) {
 		if (isDragging) {
 			isDragging = false;
+			wasSelecting = isSelecting;
+			isSelecting = false;
 		} else {
 			hasClicked = true;
 		}
@@ -104,4 +123,5 @@ export function commit() {
 	deltaY = 0;
 	deltaScale = 0;
 	hasClicked = false;
+	wasSelecting = isSelecting;
 }

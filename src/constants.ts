@@ -5,3 +5,6 @@ export const maximumScale = 400;
 export const strokeWidth = 1.5;
 export const minorGridStrokeWidth = 0.5;
 export const majorGridStrokeWidth = 1;
+export const selectionStrokeWidth = 2;
+export const selectionStrokeDashLength = 8;
+export const selectionStrokeSpeed = 2;
