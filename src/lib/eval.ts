@@ -323,7 +323,18 @@ export class EvalContext {
 		let anythingUpdated = false;
 		console.group('Next Tick:', ++this._tickCount);
 
-		for (let updated = true; updated; ) {
+		// Make sure this loop terminates. If you created a loop with an IO
+		// tile, it would have produced a sub-tick pulse and cause this loop to
+		// never end. Since the worst-case scenario for a non-looping circuit is
+		// equal to the number of positive edges, we will terminate at that
+		// point, plus one more for good measure. (Of course, this scenario
+		// implies that there will never be a stable tick, which technically is
+		// not supported.)
+		for (
+			let updated = true, count = this._graph.positiveEdges.size;
+			updated && count >= 0;
+			count--
+		) {
 			updated = false;
 
 			for (const [to, from] of this._graph.positiveEdges) {
@@ -343,23 +354,21 @@ export class EvalContext {
 			}
 		}
 
-		for (let updated = true; updated; ) {
-			updated = false;
+		// Since only Conjoins and Disjoins can interact with other tiles, two
+		// negative edges can never connect to each other. Therefore, no need to
+		// loop multiple times here.
+		for (const [to, from] of this._graph.negativeEdges) {
+			let value = false;
 
-			for (const [to, from] of this._graph.negativeEdges) {
-				let value = false;
+			for (const fromSymbol of from) {
+				value = this._enabled.has(fromSymbol);
+				if (value) break;
+			}
 
-				for (const fromSymbol of from) {
-					value = this._enabled.has(fromSymbol);
-					if (value) break;
-				}
-
-				if (this._enabled.has(to) === value) {
-					console.log('-', from, to, !value);
-					setToggle(this._enabled, to, !value);
-					updated = true;
-					anythingUpdated = true;
-				}
+			if (this._enabled.has(to) === value) {
+				console.log('-', from, to, !value);
+				setToggle(this._enabled, to, !value);
+				anythingUpdated = true;
 			}
 		}
 
