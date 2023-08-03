@@ -1,31 +1,28 @@
-import {
-	type AxisAlignedBoundingBox,
-	type QuadTreeBoundingBox,
-	type QuadTreeChildIndex,
-} from './aabb.js';
+import type * as aabb from './aabb.js';
 import {assert, assertArray} from './assert.js';
 import {type Point} from './point.js';
 import {find, type Mode} from './search-mode.js';
-import {
-	branch,
-	empty,
-	quadTreeTileType,
-	type QuadTreeTileType,
-} from './tile-type.js';
+import * as tileType from './tile-type.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
-	static from(value: unknown, bounds: QuadTreeBoundingBox, parity: boolean) {
-		if (value === branch) return undefined;
+	static from(
+		value: unknown,
+		bounds: aabb.QuadTreeBoundingBox,
+		parity: boolean,
+	) {
+		if (value === tileType.branch) return undefined;
 
 		const node = new QuadTreeNode(bounds, parity);
 
 		if (typeof value === 'number') {
 			assert(bounds.width === 1n);
 			// Cast safety: Array.includes is too narrowly typed.
-			assert(quadTreeTileType.includes(value as QuadTreeTileType));
+			assert(
+				tileType.quadTreeTileType.includes(value as tileType.QuadTreeTileType),
+			);
 			// Cast safety: Assertion above.
-			node.type = value as QuadTreeTileType;
+			node.type = value as tileType.QuadTreeTileType;
 			return node;
 		}
 
@@ -44,7 +41,7 @@ export class QuadTreeNode {
 		for (let i = 0; i < 4; i++) {
 			// Cast safety: Value of i is between 0 and 3, exactly the same as
 			// QuadTreeChildIndex.
-			const index = i as QuadTreeChildIndex;
+			const index = i as aabb.QuadTreeChildIndex;
 			node[index] = QuadTreeNode.from(
 				value[index],
 				bounds.narrow(index),
@@ -56,7 +53,7 @@ export class QuadTreeNode {
 	}
 
 	/** `undefined` if this node is a branch */
-	type: QuadTreeTileType | typeof branch;
+	type: tileType.QuadTreeTileType | typeof tileType.branch;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
 	/** Top left child */
@@ -70,24 +67,24 @@ export class QuadTreeNode {
 	/* eslint-enable @typescript-eslint/naming-convention */
 
 	constructor(
-		readonly bounds: QuadTreeBoundingBox,
-		/** @see {@link QuadTreeBoundingBox.widen} */
+		readonly bounds: aabb.QuadTreeBoundingBox,
+		/** @see {@link aabb.QuadTreeBoundingBox.widen} */
 		readonly parity: boolean,
 	) {
-		this.type = bounds.isTile() ? empty : branch;
+		this.type = bounds.isTile() ? tileType.empty : tileType.branch;
 	}
 
 	/**
 	 * Chooses the smallest node which fully contains the
-	 * {@link AxisAlignedBoundingBox}. `undefined` if
-	 * {@link AxisAlignedBoundingBox} is out-of-bounds.
+	 * {@link aabb.AxisAlignedBoundingBox}. `undefined` if
+	 * {@link aabb.AxisAlignedBoundingBox} is out-of-bounds.
 	 */
-	getContainingNode(aabb: AxisAlignedBoundingBox, mode: Mode) {
+	getContainingNode(aabb: aabb.AxisAlignedBoundingBox, mode: Mode) {
 		let node: QuadTreeNode = this;
 		let previousNode: QuadTreeNode | undefined;
 
 		while (node.bounds.contains(aabb)) {
-			if (node.type !== branch) {
+			if (node.type !== tileType.branch) {
 				// Tile contains the bounding box. Since we cannot go any
 				// deeper, we stop.
 				return node;
@@ -159,7 +156,7 @@ export class QuadTreeNode {
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	toJSON() {
-		if (this.type !== branch) return this.type;
+		if (this.type !== tileType.branch) return this.type;
 
 		const emptyBranches =
 			Number(this[0] === undefined) +
@@ -167,14 +164,14 @@ export class QuadTreeNode {
 			Number(this[2] === undefined) +
 			Number(this[3] === undefined);
 
-		if (emptyBranches === 4) return branch;
+		if (emptyBranches === 4) return tileType.branch;
 
 		if (emptyBranches < 3) {
 			return [
-				this[0] ?? branch,
-				this[1] ?? branch,
-				this[2] ?? branch,
-				this[3] ?? branch,
+				this[0] ?? tileType.branch,
+				this[1] ?? tileType.branch,
+				this[2] ?? tileType.branch,
+				this[3] ?? tileType.branch,
 			];
 		}
 

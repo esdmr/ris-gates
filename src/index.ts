@@ -10,18 +10,7 @@ import {Point} from './lib/point.js';
 import {WalkStep} from './lib/walk.js';
 import {tree} from './tree.js';
 import {activeFillStyles, passiveFillStyles} from './colors.js';
-import {
-	pointerScaleMultiplier,
-	wheelScaleMultiplier,
-	minimumScale,
-	maximumScale,
-	strokeWidth,
-	minorGridStrokeWidth,
-	majorGridStrokeWidth,
-	selectionStrokeWidth,
-	selectionStrokeDashLength,
-	selectionStrokeSpeed,
-} from './constants.js';
+import * as constants from './constants.js';
 import {getEvalContext} from './eval.js';
 import * as dialogs from './input/dialogs.js';
 import * as page from './input/page.js';
@@ -65,10 +54,11 @@ function getScaleFloatOffset(point: number, oldScale: number) {
 }
 
 function commitInputs() {
-	let deltaScale = pointer.deltaScale * pointerScaleMultiplier;
+	let deltaScale = pointer.deltaScale * constants.pointerScaleMultiplier;
 
 	if (wheel.ctrl) {
-		deltaScale -= (wheel.deltaX + wheel.deltaY) * wheelScaleMultiplier;
+		deltaScale -=
+			(wheel.deltaX + wheel.deltaY) * constants.wheelScaleMultiplier;
 	} else {
 		scrollX.float += wheel.deltaX / scale;
 		scrollY.float += wheel.deltaY / scale;
@@ -77,8 +67,8 @@ function commitInputs() {
 	if (deltaScale) {
 		const oldScale = scale;
 		scale += deltaScale;
-		if (scale < minimumScale) scale = minimumScale;
-		else if (scale > maximumScale) scale = maximumScale;
+		if (scale < constants.minimumScale) scale = constants.minimumScale;
+		else if (scale > constants.maximumScale) scale = constants.maximumScale;
 		scrollX.bigint += getScaleIntOffset(pointer.centerX, oldScale);
 		scrollY.bigint += getScaleIntOffset(pointer.centerY, oldScale);
 		scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
@@ -196,7 +186,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	context.strokeStyle = strokeStyle;
 
 	if (dialogs.shouldDrawMinorGrid) {
-		context.lineWidth = minorGridStrokeWidth * dip;
+		context.lineWidth = constants.minorGridStrokeWidth * dip;
 		context.beginPath();
 
 		for (let dx = 1; dx <= display.width; dx++) {
@@ -213,7 +203,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	}
 
 	if (dialogs.majorGridLength) {
-		context.lineWidth = majorGridStrokeWidth * dip;
+		context.lineWidth = constants.majorGridStrokeWidth * dip;
 		context.beginPath();
 
 		for (let dx = 1; dx <= display.width; dx++) {
@@ -233,7 +223,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		context.stroke();
 	}
 
-	context.lineWidth = strokeWidth * dip;
+	context.lineWidth = constants.strokeWidth * dip;
 
 	while (progress.length > 0) {
 		// Cast safety: length is at least one, so there is always a last
@@ -317,13 +307,15 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		);
 
 		if (w && h) {
-			context.lineWidth = selectionStrokeWidth * dip;
+			context.lineWidth = constants.selectionStrokeWidth * dip;
 			context.strokeStyle = selectionStrokeStyle;
 			context.lineDashOffset =
-				(ms % selectionStrokeDashLength) * selectionStrokeSpeed * dip;
+				(ms % constants.selectionStrokeDashLength) *
+				constants.selectionStrokeSpeed *
+				dip;
 			context.setLineDash([
-				selectionStrokeDashLength * dip,
-				selectionStrokeDashLength * dip,
+				constants.selectionStrokeDashLength * dip,
+				constants.selectionStrokeDashLength * dip,
 			]);
 			context.strokeRect(x, y, w, h);
 			context.setLineDash([]);

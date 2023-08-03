@@ -1,16 +1,7 @@
 /* eslint-disable @internal/explained-casts */
 import {assert} from '../lib/assert.js';
 import {QuadTree} from '../lib/tree.js';
-import {
-	getString,
-	listStorage,
-	load,
-	remove,
-	save,
-	setString,
-	type SaveBrowserElement,
-	localStorageAvailable,
-} from '../storage.js';
+import * as storage from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
 import {updateAutoSaveState} from './page.js';
 
@@ -60,16 +51,18 @@ const defaultEvaluationRate = 15;
 
 export let shouldDrawMinorGrid = Boolean(
 	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-	(localStorageAvailable && localStorage.getItem(configMinorGrid)) || false,
+	(storage.localStorageAvailable && localStorage.getItem(configMinorGrid)) ||
+		false,
 );
 
 export let majorGridLength = BigInt(
 	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-	(localStorageAvailable && localStorage.getItem(configMajorGrid)) || 0n,
+	(storage.localStorageAvailable && localStorage.getItem(configMajorGrid)) ||
+		0n,
 );
 
 export let evaluationRate = normalizeEvaluationRate(
-	localStorageAvailable
+	storage.localStorageAvailable
 		? Number.parseInt(localStorage.getItem(configEvaluationRate) ?? '', 10)
 		: undefined,
 );
@@ -112,7 +105,7 @@ export function setup() {
 		});
 
 		dialog.addEventListener('close', () => {
-			for (const saveBrowser of dialog.querySelectorAll<SaveBrowserElement>(
+			for (const saveBrowser of dialog.querySelectorAll<storage.SaveBrowserElement>(
 				'save-browser',
 			)) {
 				saveBrowser.clear();
@@ -131,7 +124,7 @@ export function setup() {
 			if (!dialog) return;
 			dialog.showModal();
 
-			for (const saveBrowser of dialog.querySelectorAll<SaveBrowserElement>(
+			for (const saveBrowser of dialog.querySelectorAll<storage.SaveBrowserElement>(
 				'save-browser',
 			)) {
 				saveBrowser.update();
@@ -148,7 +141,7 @@ export function setup() {
 	dialogEpilepsy.addEventListener('close', () => {
 		epilepsyWarningShown = true;
 
-		if (localStorageAvailable) {
+		if (storage.localStorageAvailable) {
 			localStorage.setItem(configEpilepsyWarningShown, 'y');
 		}
 	});
@@ -160,7 +153,7 @@ export function setup() {
 	checkboxMinorGrid.addEventListener('change', () => {
 		shouldDrawMinorGrid = checkboxMinorGrid.checked;
 
-		if (localStorageAvailable) {
+		if (storage.localStorageAvailable) {
 			localStorage.setItem(configMinorGrid, shouldDrawMinorGrid ? 'y' : '');
 		}
 	});
@@ -172,7 +165,7 @@ export function setup() {
 	inputMajorGrid.addEventListener('input', () => {
 		majorGridLength = BigInt(inputMajorGrid.valueAsNumber || 0n);
 
-		if (localStorageAvailable) {
+		if (storage.localStorageAvailable) {
 			localStorage.setItem(configMajorGrid, String(majorGridLength));
 		}
 	});
@@ -198,7 +191,7 @@ export function setup() {
 				}
 			}
 
-			if (localStorageAvailable) {
+			if (storage.localStorageAvailable) {
 				localStorage.setItem(configEvaluationRate, String(evaluationRate));
 			}
 		});
@@ -211,11 +204,11 @@ export function setup() {
 		});
 
 	dialogLoad
-		.querySelector<SaveBrowserElement>('save-browser')
+		.querySelector<storage.SaveBrowserElement>('save-browser')
 		?.addEventListener('primary', (event) => {
 			const {detail: key} = event as CustomEvent<string>;
 			try {
-				load(key);
+				storage.load(key);
 				dialogLoad.close();
 				dialogMenu.close();
 			} catch (error) {
@@ -291,11 +284,11 @@ export function setup() {
 						assert(key);
 						assert(value);
 						QuadTree.from(JSON.parse(value));
-						setString(unescapeKey(key), value);
+						storage.setString(unescapeKey(key), value);
 					}
 
 					dialogBrowse
-						.querySelector<SaveBrowserElement>('save-browser')
+						.querySelector<storage.SaveBrowserElement>('save-browser')
 						?.update();
 
 					queueMicrotask(() => {
@@ -312,7 +305,7 @@ export function setup() {
 		const name = event.formData.get('name');
 		if (!name || typeof name !== 'string') return;
 		try {
-			save(name);
+			storage.save(name);
 			dialogSave.close();
 			dialogMenu.close();
 		} catch (error) {
@@ -358,11 +351,11 @@ export function setup() {
 		});
 
 	dialogBrowse
-		.querySelector<SaveBrowserElement>('save-browser')
+		.querySelector<storage.SaveBrowserElement>('save-browser')
 		?.addEventListener('primary', (event) => {
 			const {detail: key} = event as CustomEvent<string>;
 			try {
-				remove(key);
+				storage.remove(key);
 				updateAutoSaveState(key);
 				(event.target as HTMLElement).closest('li')?.remove();
 			} catch (error) {
@@ -372,10 +365,10 @@ export function setup() {
 		});
 
 	dialogBrowse
-		.querySelector<SaveBrowserElement>('save-browser')
+		.querySelector<storage.SaveBrowserElement>('save-browser')
 		?.addEventListener('secondary', async (event) => {
 			const {detail: key} = event as CustomEvent<string>;
-			const json = getString(key)!;
+			const json = storage.getString(key)!;
 
 			try {
 				let otherError;
@@ -411,8 +404,8 @@ export function setup() {
 		?.addEventListener('click', async () => {
 			let text = '';
 
-			for (const key of listStorage()) {
-				text += escapeKey(key) + '/' + getString(key)! + '\n';
+			for (const key of storage.listStorage()) {
+				text += escapeKey(key) + '/' + storage.getString(key)! + '\n';
 			}
 
 			try {
@@ -484,21 +477,25 @@ export function setup() {
 				assert(key);
 				assert(value);
 				QuadTree.from(JSON.parse(value));
-				setString(unescapeKey(key), value);
+				storage.setString(unescapeKey(key), value);
 			}
 
-			dialogBrowse.querySelector<SaveBrowserElement>('save-browser')?.update();
+			dialogBrowse
+				.querySelector<storage.SaveBrowserElement>('save-browser')
+				?.update();
 		});
 
 	dialogBrowse
 		.querySelector('#btn-delete-all')
 		?.addEventListener('click', () => {
-			const keys = [...listStorage()];
+			const keys = [...storage.listStorage()];
 
 			for (const key of keys) {
-				remove(key);
+				storage.remove(key);
 			}
 
-			dialogBrowse.querySelector<SaveBrowserElement>('save-browser')?.update();
+			dialogBrowse
+				.querySelector<storage.SaveBrowserElement>('save-browser')
+				?.update();
 		});
 }

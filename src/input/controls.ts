@@ -3,11 +3,7 @@ import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
 import * as selection from '../selection.js';
-import {
-	evaluationRate,
-	isMenuDialogOpen,
-	maybeShowEpilepsyWarning,
-} from './dialogs.js';
+import * as dialogs from './dialogs.js';
 
 const ctrl = document.querySelector<HTMLDivElement>('.controls')!;
 assert(ctrl);
@@ -124,7 +120,7 @@ function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
 		}
 
 		ctrlTickNo.textContent = String(evalContext.tickCount);
-	}, 1000 / evaluationRate);
+	}, 1000 / dialogs.evaluationRate);
 }
 
 export function donePasting() {
@@ -201,7 +197,7 @@ export function setup() {
 
 	document.body.addEventListener('keydown', (event) => {
 		const key = (event.ctrlKey ? 'Control+' : '') + event.key;
-		if (!keys.has(key) || isMenuDialogOpen()) return;
+		if (!keys.has(key) || dialogs.isMenuDialogOpen()) return;
 		event.preventDefault();
 		if (event.repeat) return;
 		keys
@@ -264,7 +260,7 @@ export function setup() {
 			title.textContent = isEval ? 'modify' : 'evaluate';
 		}
 
-		if (isEval) maybeShowEpilepsyWarning();
+		if (isEval) dialogs.maybeShowEpilepsyWarning();
 	});
 
 	ctrlTickBwdStable.addEventListener('click', () => {
