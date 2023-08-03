@@ -6,8 +6,6 @@ import {mapGet, setToggle} from './map-and-set.js';
 
 export class TilesMap {
 	readonly tiles = new Map<string, QuadTreeNode>();
-	readonly io = new Set<QuadTreeNode>();
-	readonly negates = new Set<QuadTreeNode>();
 
 	constructor(readonly tree: QuadTree) {
 		const progress: WalkStep[] = [new WalkStep(tree.root)];
@@ -36,13 +34,6 @@ export class TilesMap {
 
 			const {x, y} = node.bounds.topLeft;
 			this.tiles.set(`${x},${y}`, node);
-
-			if (node.type === tileType.io) {
-				this.io.add(node);
-			} else if (node.type === tileType.negate) {
-				this.negates.add(node);
-			}
-
 			progress.pop();
 
 			if (progress.length > 0) {
@@ -282,10 +273,6 @@ export class EvalContext {
 	private readonly _undoStack: Array<Set<symbol> | typeof unchanged> = [];
 	private _tickCount = 0n;
 
-	get canUndo() {
-		return this._undoStack.length > 0;
-	}
-
 	get tickCount() {
 		return this._tickCount;
 	}
@@ -307,13 +294,6 @@ export class EvalContext {
 	output(tile: QuadTreeNode) {
 		const symbol = this._graph.vertices.get(tile);
 		return typeof symbol === 'symbol' && this._enabled.has(symbol);
-	}
-
-	tickForwardUntilStable() {
-		console.group('Tick forward until stable');
-		while (this.tickForward());
-		console.log('done');
-		console.groupEnd();
 	}
 
 	tickForward() {
@@ -379,13 +359,6 @@ export class EvalContext {
 		}
 
 		return anythingUpdated;
-	}
-
-	tickBackwardUntilStable() {
-		console.group('Tick backward until stable');
-		while (this.tickBackward());
-		console.log('done');
-		console.groupEnd();
 	}
 
 	tickBackward() {
