@@ -43,32 +43,29 @@ const dialogBrowse =
 assert(dialogBrowse);
 
 let pasteKind: 'load' | 'import' = 'load';
-const configMinorGrid = 'conf/minor-grid';
-const configMajorGrid = 'conf/major-grid';
-const configEvaluationRate = 'conf/eval-rate';
-const configEpilepsyWarningShown = 'conf/epilepsy-warned';
+const configMinorGrid = 'minor-grid';
+const configMajorGrid = 'major-grid';
+const configEvaluationRate = 'eval-rate';
+const configEpilepsyWarningShown = 'epilepsy-warned';
 const defaultEvaluationRate = 15;
 
 export let shouldDrawMinorGrid = Boolean(
-	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-	(storage.localStorageAvailable && localStorage.getItem(configMinorGrid)) ||
-		false,
+	storage.getString(configMinorGrid, storage.configPrefix),
 );
 
 export let majorGridLength = BigInt(
-	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-	(storage.localStorageAvailable && localStorage.getItem(configMajorGrid)) ||
-		0n,
+	storage.getString(configMajorGrid, storage.configPrefix, 0n),
 );
 
 export let evaluationRate = normalizeEvaluationRate(
-	storage.localStorageAvailable
-		? Number.parseInt(localStorage.getItem(configEvaluationRate) ?? '', 10)
-		: undefined,
+	Number.parseInt(
+		storage.getString(configEvaluationRate, storage.configPrefix, ''),
+		10,
+	),
 );
 
 let epilepsyWarningShown = Boolean(
-	localStorage.getItem(configEpilepsyWarningShown),
+	storage.getString(configEpilepsyWarningShown, storage.configPrefix),
 );
 
 function escapeKey(key: string) {
@@ -141,9 +138,7 @@ export function setup() {
 	dialogEpilepsy.addEventListener('close', () => {
 		epilepsyWarningShown = true;
 
-		if (storage.localStorageAvailable) {
-			localStorage.setItem(configEpilepsyWarningShown, 'y');
-		}
+		storage.setString(configEpilepsyWarningShown, 'y', storage.configPrefix);
 	});
 
 	const checkboxMinorGrid =
@@ -153,9 +148,11 @@ export function setup() {
 	checkboxMinorGrid.addEventListener('change', () => {
 		shouldDrawMinorGrid = checkboxMinorGrid.checked;
 
-		if (storage.localStorageAvailable) {
-			localStorage.setItem(configMinorGrid, shouldDrawMinorGrid ? 'y' : '');
-		}
+		storage.setString(
+			configMinorGrid,
+			shouldDrawMinorGrid ? 'y' : '',
+			storage.configPrefix,
+		);
 	});
 
 	const inputMajorGrid =
@@ -165,9 +162,11 @@ export function setup() {
 	inputMajorGrid.addEventListener('input', () => {
 		majorGridLength = BigInt(inputMajorGrid.valueAsNumber || 0n);
 
-		if (storage.localStorageAvailable) {
-			localStorage.setItem(configMajorGrid, String(majorGridLength));
-		}
+		storage.setString(
+			configMajorGrid,
+			String(majorGridLength),
+			storage.configPrefix,
+		);
 	});
 
 	const inputEvaluationRates = [
@@ -191,9 +190,11 @@ export function setup() {
 				}
 			}
 
-			if (storage.localStorageAvailable) {
-				localStorage.setItem(configEvaluationRate, String(evaluationRate));
-			}
+			storage.setString(
+				configEvaluationRate,
+				String(evaluationRate),
+				storage.configPrefix,
+			);
 		});
 	}
 

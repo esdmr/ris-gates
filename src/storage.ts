@@ -19,40 +19,60 @@ export const localStorageAvailable = /* @__PURE__ */ (() => {
 })();
 
 export const storagePrefix = 'risg/';
+export const configPrefix = 'conf/';
 
-export function load(key: string) {
-	replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
+export function getString(key: string, prefix?: string): string | undefined;
+
+export function getString<F>(
+	key: string,
+	prefix: string | undefined,
+	fallback: F,
+): string | F;
+
+export function getString(
+	key: string,
+	prefix = storagePrefix,
+	fallback = undefined,
+) {
+	return localStorageAvailable
+		? localStorage.getItem(prefix + key) ?? fallback
+		: fallback;
 }
 
-export function getString(key: string) {
-	return localStorage.getItem(storagePrefix + key);
+export function setString(key: string, string: string, prefix = storagePrefix) {
+	if (!localStorageAvailable) return;
+	localStorage.setItem(prefix + key, string);
 }
 
-export function save(key: string) {
-	localStorage.setItem(storagePrefix + key, JSON.stringify(tree));
+export function exists(key: string, prefix = storagePrefix) {
+	return getString(key, prefix) !== undefined;
 }
 
-export function setString(key: string, string: string) {
-	localStorage.setItem(storagePrefix + key, string);
+export function remove(key: string, prefix = storagePrefix) {
+	if (!localStorageAvailable) return;
+	localStorage.removeItem(prefix + key);
 }
 
-export function exists(key: string) {
-	return localStorage.getItem(storagePrefix + key) !== null;
-}
-
-export function remove(key: string) {
-	localStorage.removeItem(storagePrefix + key);
-}
-
-export function* listStorage() {
+export function* listStorage(prefix = storagePrefix) {
+	if (!localStorageAvailable) return;
 	const length = localStorage.length;
 
 	for (let i = 0; i < length; i++) {
 		// Cast safety: i is between 0 and `length - 1`. Since i is always
 		// in-bounds, this will never return null.
 		const key = localStorage.key(i)!;
-		if (key.startsWith(storagePrefix)) yield key.slice(storagePrefix.length);
+		if (key.startsWith(prefix)) yield key.slice(prefix.length);
 	}
+}
+
+export function load(key: string) {
+	if (!localStorageAvailable) return;
+	replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
+}
+
+export function save(key: string) {
+	if (!localStorageAvailable) return;
+	setString(key, JSON.stringify(tree));
 }
 
 export class SaveBrowserElement extends HTMLElement {
