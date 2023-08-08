@@ -17,10 +17,10 @@ import * as page from './input/page.js';
 import * as storage from './storage.js';
 import * as selection from './selection.js';
 
-const scrollX = new FloatingBigInt();
-const scrollY = new FloatingBigInt();
+const scrollX = /* @__PURE__ */ new FloatingBigInt();
+const scrollY = /* @__PURE__ */ new FloatingBigInt();
 let scale = 50;
-let currentTime = performance.now();
+let currentTime = /* @__PURE__ */ performance.now();
 let strokeStyle: string;
 let selectionStrokeStyle: string;
 
