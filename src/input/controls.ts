@@ -1,84 +1,92 @@
-/* eslint-disable @internal/explained-casts */
 import {clearEvalContext, getEvalContext} from '../eval.js';
-import {assert} from '../lib/assert.js';
+import {assert, nonNullable} from '../lib/assert.js';
 import * as tileType from '../lib/tile-type.js';
 import * as selection from '../selection.js';
 import * as dialogs from './dialogs.js';
 
-const ctrl = document.querySelector<HTMLDivElement>('.controls')!;
-assert(ctrl);
+const ctrlEmpty = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-empty'),
+);
 
-const ctrlEmpty = document.querySelector<HTMLButtonElement>('#ctrl-empty')!;
-assert(ctrlEmpty);
+const ctrlIo = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-io'),
+);
 
-const ctrlIo = document.querySelector<HTMLButtonElement>('#ctrl-io')!;
-assert(ctrlIo);
+const ctrlNegate = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-negate'),
+);
 
-const ctrlNegate = document.querySelector<HTMLButtonElement>('#ctrl-negate')!;
-assert(ctrlNegate);
+const ctrlConjoin = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-conjoin'),
+);
 
-const ctrlConjoin = document.querySelector<HTMLButtonElement>('#ctrl-conjoin')!;
-assert(ctrlConjoin);
+const ctrlDisjoin = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-disjoin'),
+);
 
-const ctrlDisjoin = document.querySelector<HTMLButtonElement>('#ctrl-disjoin')!;
-assert(ctrlDisjoin);
+const ctrlDir = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-dir'),
+);
 
-const ctrlDir = document.querySelector<HTMLButtonElement>('#ctrl-dir')!;
-assert(ctrlDir);
+const ctrlDirPath = nonNullable(
+	document.querySelector<SVGPathElement>('#ctrl-dir path'),
+);
 
-const ctrlDirPath = document.querySelector<SVGPathElement>('#ctrl-dir path')!;
-assert(ctrlDirPath);
+const ctrlDirTitle = nonNullable(
+	document.querySelector<SVGTitleElement>('#ctrl-dir title'),
+);
 
-const ctrlDirTitle =
-	document.querySelector<SVGTitleElement>('#ctrl-dir title')!;
-assert(ctrlDirTitle);
+const ctrlMenu = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-menu'),
+);
 
-const ctrlMenu = document.querySelector<HTMLButtonElement>('#ctrl-menu')!;
-assert(ctrlMenu);
+const ctrlUnselect = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-unselect'),
+);
 
-const ctrlUnselect =
-	document.querySelector<HTMLButtonElement>('#ctrl-unselect')!;
-assert(ctrlUnselect);
+const ctrlDelete = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-delete'),
+);
 
-const ctrlDelete = document.querySelector<HTMLButtonElement>('#ctrl-delete')!;
-assert(ctrlDelete);
+const ctrlCut = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-cut'),
+);
 
-const ctrlCut = document.querySelector<HTMLButtonElement>('#ctrl-cut')!;
-assert(ctrlCut);
+const ctrlCopy = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-copy'),
+);
 
-const ctrlCopy = document.querySelector<HTMLButtonElement>('#ctrl-copy')!;
-assert(ctrlCopy);
+const ctrlPaste = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-paste'),
+);
 
-const ctrlPaste = document.querySelector<HTMLButtonElement>('#ctrl-paste')!;
-assert(ctrlPaste);
+const ctrlPasteCancel = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-paste-cancel'),
+);
 
-const ctrlPasteCancel =
-	document.querySelector<HTMLButtonElement>('#ctrl-paste-cancel')!;
-assert(ctrlPasteCancel);
+const ctrlEval = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-eval'),
+);
 
-const ctrlEval = document.querySelector<HTMLButtonElement>('#ctrl-eval')!;
-assert(ctrlEval);
+const ctrlTickBwdStable = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-tick-bwd-stable'),
+);
 
-const ctrlTickBwdStable = document.querySelector<HTMLButtonElement>(
-	'#ctrl-tick-bwd-stable',
-)!;
-assert(ctrlTickBwdStable);
+const ctrlTickBwd = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-tick-bwd'),
+);
 
-const ctrlTickBwd =
-	document.querySelector<HTMLButtonElement>('#ctrl-tick-bwd')!;
-assert(ctrlTickBwd);
+const ctrlTickNo = nonNullable(
+	document.querySelector<HTMLDivElement>('#ctrl-tick-no'),
+);
 
-const ctrlTickNo = document.querySelector<HTMLDivElement>('#ctrl-tick-no')!;
-assert(ctrlTickNo);
+const ctrlTickFwd = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-tick-fwd'),
+);
 
-const ctrlTickFwd =
-	document.querySelector<HTMLButtonElement>('#ctrl-tick-fwd')!;
-assert(ctrlTickFwd);
-
-const ctrlTickFwdStable = document.querySelector<HTMLButtonElement>(
-	'#ctrl-tick-fwd-stable',
-)!;
-assert(ctrlTickFwdStable);
+const ctrlTickFwdStable = nonNullable(
+	document.querySelector<HTMLButtonElement>('#ctrl-tick-fwd-stable'),
+);
 
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
@@ -98,8 +106,7 @@ function switchTool(tool: ToolTypes) {
 function rotateDirection() {
 	const newIndex =
 		(directions.indexOf(selectedDirection) + 1) % directions.length;
-	const newDirection = directions[newIndex];
-	assert(newDirection);
+	const newDirection = nonNullable(directions[newIndex]);
 	selectedDirection = newDirection;
 	ctrlDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
 
@@ -145,10 +152,14 @@ export function getSelectedTileType() {
 		}
 
 		case 'conjoin': {
+			// Cast safety: directionIndex is between 0 and 3. Adding it to
+			// conjoinN will result in the four types of conjoin: 10 for
+			// conjoinN, 11 for conjoinE, 12 for conjoinS, and 13 for conjoinW.
 			return (tileType.conjoinN + directionIndex) as tileType.QuadTreeTileType;
 		}
 
 		case 'disjoin': {
+			// Cast safety: Same as above, s/conjoin/disjoin/g.
 			return (tileType.disjoinN + directionIndex) as tileType.QuadTreeTileType;
 		}
 

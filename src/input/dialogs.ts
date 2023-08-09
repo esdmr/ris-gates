@@ -1,46 +1,52 @@
-/* eslint-disable @internal/explained-casts */
-import {assert} from '../lib/assert.js';
+import {assert, nonNullable} from '../lib/assert.js';
 import {QuadTree} from '../lib/tree.js';
 import * as storage from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
 import {updateAutoSaveState} from './page.js';
 
-const dialogMenu = document.querySelector<HTMLDialogElement>('#dialog-menu')!;
-assert(dialogMenu);
+const dialogMenu = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-menu'),
+);
 
-const dialogEpilepsy =
-	document.querySelector<HTMLDialogElement>('#dialog-epilepsy')!;
-assert(dialogEpilepsy);
+const dialogEpilepsy = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-epilepsy'),
+);
 
-const dialogLoad = document.querySelector<HTMLDialogElement>('#dialog-load')!;
-assert(dialogLoad);
+const dialogLoad = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-load'),
+);
 
-const dialogLoadFailed = document.querySelector<HTMLDialogElement>(
-	'#dialog-load-failed',
-)!;
-assert(dialogLoadFailed);
+const dialogLoadFailed = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-load-failed'),
+);
 
-const dialogPasteFailed = document.querySelector<HTMLDialogElement>(
-	'#dialog-paste-failed',
-)!;
-assert(dialogPasteFailed);
+const dialogPasteFailed = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-paste-failed'),
+);
 
-const dialogSave = document.querySelector<HTMLDialogElement>('#dialog-save')!;
-assert(dialogSave);
+const dialogSave = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-save'),
+);
 
-const dialogSaveFailed = document.querySelector<HTMLDialogElement>(
-	'#dialog-save-failed',
-)!;
-assert(dialogSaveFailed);
+const dialogSaveFailed = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-save-failed'),
+);
 
-const dialogCopyFailed = document.querySelector<HTMLDialogElement>(
-	'#dialog-copy-failed',
-)!;
-assert(dialogCopyFailed);
+const dialogCopyFailed = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-copy-failed'),
+);
 
-const dialogBrowse =
-	document.querySelector<HTMLDialogElement>('#dialog-browse')!;
-assert(dialogBrowse);
+const dialogBrowse = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-browse'),
+);
+
+const checkboxMinorGrid = nonNullable(
+	dialogMenu.querySelector<HTMLInputElement>('#chk-minor-grid'),
+);
+
+const inputMajorGrid = nonNullable(
+	dialogMenu.querySelector<HTMLInputElement>('#inp-major-grid'),
+);
 
 let pasteKind: 'load' | 'import' = 'load';
 const configMinorGrid = 'minor-grid';
@@ -114,6 +120,8 @@ export function setup() {
 		'[data-open-dialog]',
 	)) {
 		const dialog = document.querySelector<HTMLDialogElement>(
+			// Cast safety: We are looping over all elements with
+			// data-open-dialog attribute, so this can never be undefined.
 			`#dialog-${element.dataset.openDialog!}`,
 		);
 
@@ -141,9 +149,6 @@ export function setup() {
 		storage.setString(configEpilepsyWarningShown, 'y', storage.configPrefix);
 	});
 
-	const checkboxMinorGrid =
-		dialogMenu.querySelector<HTMLInputElement>('#chk-minor-grid');
-	assert(checkboxMinorGrid);
 	checkboxMinorGrid.checked = shouldDrawMinorGrid;
 	checkboxMinorGrid.addEventListener('change', () => {
 		shouldDrawMinorGrid = checkboxMinorGrid.checked;
@@ -155,9 +160,6 @@ export function setup() {
 		);
 	});
 
-	const inputMajorGrid =
-		dialogMenu.querySelector<HTMLInputElement>('#inp-major-grid');
-	assert(inputMajorGrid);
 	inputMajorGrid.value = String(majorGridLength);
 	inputMajorGrid.addEventListener('input', () => {
 		majorGridLength = BigInt(inputMajorGrid.valueAsNumber || 0n);
@@ -170,12 +172,11 @@ export function setup() {
 	});
 
 	const inputEvaluationRates = [
-		dialogMenu.querySelector<HTMLInputElement>('#inp-eval-rate')!,
-		dialogEpilepsy.querySelector<HTMLInputElement>('#inp-eval-rate2')!,
-	];
+		dialogMenu.querySelector<HTMLInputElement>('#inp-eval-rate'),
+		dialogEpilepsy.querySelector<HTMLInputElement>('#inp-eval-rate2'),
+	].map((i) => nonNullable(i));
 
 	for (const inputEvaluationRate of inputEvaluationRates) {
-		assert(inputEvaluationRate);
 		inputEvaluationRate.value = String(evaluationRate);
 
 		// eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -207,9 +208,11 @@ export function setup() {
 	dialogLoad
 		.querySelector<storage.SaveBrowserElement>('save-browser')
 		?.addEventListener('primary', (event) => {
-			const {detail: key} = event as CustomEvent<string>;
+			assert(event instanceof CustomEvent);
+			assert(typeof event.detail === 'string');
+
 			try {
-				storage.load(key);
+				storage.load(event.detail);
 				dialogLoad.close();
 				dialogMenu.close();
 			} catch (error) {
@@ -229,6 +232,8 @@ export function setup() {
 				try {
 					// eslint-disable-next-line @internal/no-object-literals
 					const permission = await navigator.permissions.query({
+						// Cast safety: clipboard-read is not yet supported in
+						// all browsers and it is not in lib.dom.
 						name: 'clipboard-read' as never,
 					});
 
@@ -272,8 +277,9 @@ export function setup() {
 				if (pasteKind === 'load') {
 					replaceTree(QuadTree.from(JSON.parse(text)));
 
-					// Firefox is weird. It doesn’t like closing the dialogs in the
-					// paste event handler. So we do it in the next microtask.
+					// Firefox is weird. It does not like closing the dialogs in
+					// the paste event handler. So we do it in the next
+					// microtask.
 					queueMicrotask(() => {
 						dialogMenu.close();
 						dialogLoad.close();
@@ -326,6 +332,8 @@ export function setup() {
 				try {
 					// eslint-disable-next-line @internal/no-object-literals
 					const permission = await navigator.permissions.query({
+						// Cast safety: clipboard-write is not yet supported in
+						// all browsers and it is not in lib.dom.
 						name: 'clipboard-write' as never,
 					});
 
@@ -354,11 +362,14 @@ export function setup() {
 	dialogBrowse
 		.querySelector<storage.SaveBrowserElement>('save-browser')
 		?.addEventListener('primary', (event) => {
-			const {detail: key} = event as CustomEvent<string>;
+			assert(event instanceof CustomEvent);
+			assert(typeof event.detail === 'string');
+			assert(event.target instanceof HTMLElement);
+
 			try {
-				storage.remove(key);
-				updateAutoSaveState(key);
-				(event.target as HTMLElement).closest('li')?.remove();
+				storage.remove(event.detail);
+				updateAutoSaveState(event.detail);
+				event.target.closest('li')?.remove();
 			} catch (error) {
 				dialogSaveFailed.showModal();
 				console.error(error);
@@ -368,8 +379,9 @@ export function setup() {
 	dialogBrowse
 		.querySelector<storage.SaveBrowserElement>('save-browser')
 		?.addEventListener('secondary', async (event) => {
-			const {detail: key} = event as CustomEvent<string>;
-			const json = storage.getString(key)!;
+			assert(event instanceof CustomEvent);
+			assert(typeof event.detail === 'string');
+			const json = storage.getString(event.detail, undefined, '');
 
 			try {
 				let otherError;
@@ -377,6 +389,8 @@ export function setup() {
 				try {
 					// eslint-disable-next-line @internal/no-object-literals
 					const permission = await navigator.permissions.query({
+						// Cast safety: clipboard-write is not yet supported in
+						// all browsers and it is not in lib.dom.
 						name: 'clipboard-write' as never,
 					});
 
@@ -406,7 +420,8 @@ export function setup() {
 			let text = '';
 
 			for (const key of storage.listStorage()) {
-				text += escapeKey(key) + '/' + storage.getString(key)! + '\n';
+				text +=
+					escapeKey(key) + '/' + storage.getString(key, undefined, '') + '\n';
 			}
 
 			try {
@@ -415,6 +430,8 @@ export function setup() {
 				try {
 					// eslint-disable-next-line @internal/no-object-literals
 					const permission = await navigator.permissions.query({
+						// Cast safety: clipboard-write is not yet supported in
+						// all browsers and it is not in lib.dom.
 						name: 'clipboard-write' as never,
 					});
 
@@ -449,6 +466,8 @@ export function setup() {
 				try {
 					// eslint-disable-next-line @internal/no-object-literals
 					const permission = await navigator.permissions.query({
+						// Cast safety: clipboard-read is not yet supported in
+						// all browsers and it is not in lib.dom.
 						name: 'clipboard-read' as never,
 					});
 

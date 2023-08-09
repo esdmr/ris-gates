@@ -1,8 +1,7 @@
-/* eslint-disable @internal/explained-casts */
-import {assert} from '../lib/assert.js';
+import {nonNullable} from '../lib/assert.js';
 
-export const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
-assert(canvas);
+export const canvas = nonNullable(
+	document.querySelector<HTMLCanvasElement>('#canvas'),
+);
 
-export const context = canvas.getContext('2d')!;
-assert(context);
+export const context = nonNullable(canvas.getContext('2d'));
