@@ -156,10 +156,6 @@ p {
 	max-width: 60ch;
 }
 
-svg.defs-only {
-	display: none;
-}
-
 @media (pointer: coarse) {
 	.controls {
 		font-size: 1.5rem;
