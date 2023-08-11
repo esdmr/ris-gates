@@ -41,8 +41,7 @@
 					.07.61.07.61.06.61.06L.61.03C.61.02.6.01.59.01L.41.01Z" />
 				<g id="cut">
 					<path d="M.2.42C.1.31.07.18.07.06L.69.69C.72.66.75.64.8.64
-						.88.64.95.72.95.8.95.88.88.95.8.95.75.95.72.93.68.9Z"
-						fill="none" />
+						.88.64.95.72.95.8.95.88.88.95.8.95.75.95.72.93.68.9Z" fill="none" />
 					<circle cx="0.8" cy="0.8" r="0.075" stroke="none" />
 					<path d="m.99.01c-.23.23-.46.47-.69.7-.05-.06-.16-.07-.22
 						-.02-.08.06-.08.19-.01.26.07.06.19.05.25-.02.17-.18.35
@@ -108,7 +107,8 @@
 					<use href="#tick-stable" />
 				</svg>
 			</button>
-			<button id="ctrl-empty" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-empty"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				aria-label="empty">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
@@ -116,35 +116,40 @@
 					<use href="#cross" />
 				</svg>
 			</button>
-			<button id="ctrl-io" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-io"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				aria-label="IO">
 				<svg viewBox="0 0 1 1" fill="var(--colors-io)">
 					<title>IO</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-negate" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-negate"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				aria-label="negate">
 				<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
 					<title>negate</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-conjoin" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-conjoin"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				aria-label="conjoin">
 				<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
 					<title>conjoin</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-disjoin" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-disjoin"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				aria-label="disjoin">
 				<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
 					<title>disjoin</title>
 					<use href="#tile" />
 				</svg>
 			</button>
-			<button id="ctrl-dir" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-dir"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				aria-label="direction: up">
 				<svg viewBox="0 0 1 1">
 					<title>direction: up</title>
@@ -167,21 +172,24 @@
 					<use href="#delete" />
 				</svg>
 			</button>
-			<button id="ctrl-cut" class="show-if-selected hide-if-pasting" aria-label="cut">
+			<button id="ctrl-cut" class="show-if-selected hide-if-pasting"
+				aria-label="cut">
 				<svg viewBox="0 0 1 1" fill="var(--foreground)"
 					stroke-width="0.1" stroke="var(--foreground)">
 					<title>cut</title>
 					<use href="#cut" />
 				</svg>
 			</button>
-			<button id="ctrl-copy" class="show-if-selected hide-if-pasting" aria-label="copy">
+			<button id="ctrl-copy" class="show-if-selected hide-if-pasting"
+				aria-label="copy">
 				<svg viewBox="0 0 1 1" fill="var(--background)"
 					stroke-width="0.1" stroke="var(--foreground)">
 					<title>copy</title>
 					<use href="#copy" />
 				</svg>
 			</button>
-			<button id="ctrl-paste" class="show-if-used-clipboard hide-if-eval hide-if-pasting"
+			<button id="ctrl-paste"
+				class="show-if-used-clipboard hide-if-eval hide-if-pasting"
 				aria-label="paste">
 				<svg viewBox="0 0 1 1" fill="var(--background)"
 					stroke-width="0.1" stroke="var(--foreground)">
@@ -189,7 +197,8 @@
 					<use href="#paste" />
 				</svg>
 			</button>
-			<button id="ctrl-menu" class="hide-if-eval hide-if-selected hide-if-pasting"
+			<button id="ctrl-menu"
+				class="hide-if-eval hide-if-selected hide-if-pasting"
 				data-open-dialog="menu" aria-label="Menu">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
@@ -219,39 +228,30 @@
 			</button>
 			<h1 class="title">Menu</h1>
 			<section class="body">
-				<ul class="hide-list-bullets full-width">
-					<li>
-						<label>
-							<input id="chk-minor-grid" type="checkbox"
-								autocomplete="off">
-							Show minor grid
-						</label>
-					</li>
-					<li>
-						<label>
-							Major grid length:
-							<input id="inp-major-grid" type="number"
-								placeholder="0" min="0" step="1"
-								autocomplete="off" data-keep-value="true">
-						</label>
-					</li>
-					<li>
-						<label>
-							Rate of evaluation (in Hz):
-							<input id="inp-eval-rate" type="number"
-								placeholder="15" min="1" max="30" step="1"
-								autocomplete="off" data-keep-value="true">
-						</label>
-					</li>
-					<li><button id="btn-clear" class="full-width">clear</button>
-					</li>
-					<li><button class="full-width requires-local-storage"
-							data-open-dialog="load">load</button></li>
-					<li><button class="full-width requires-local-storage"
-							data-open-dialog="save">save</button></li>
-					<li><button class="full-width requires-local-storage"
-							data-open-dialog="browse">browse</button></li>
-				</ul>
+				<label>
+					<input id="chk-minor-grid" type="checkbox"
+						autocomplete="off">
+					Show minor grid
+				</label>
+				<label>
+					Major grid length:
+					<input id="inp-major-grid" type="number" placeholder="0"
+						min="0" step="1" autocomplete="off"
+						data-keep-value="true">
+				</label>
+				<label>
+					Rate of evaluation (in Hz):
+					<input id="inp-eval-rate" type="number" placeholder="15"
+						min="1" max="30" step="1" autocomplete="off"
+						data-keep-value="true">
+				</label>
+				<button id="btn-clear" class="full-width">clear</button>
+				<button class="full-width requires-local-storage"
+					data-open-dialog="load">load</button>
+				<button class="full-width requires-local-storage"
+					data-open-dialog="save">save</button>
+				<button class="full-width requires-local-storage"
+					data-open-dialog="browse">browse</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-epilepsy">
@@ -269,14 +269,12 @@
 					photosensitive epilepsy, you can either go back, or adjust
 					the rate of evaluation via the input box below.
 				</p>
-				<p>
-					<label>
-						Rate of evaluation (in Hz):
-						<input id="inp-eval-rate2" type="number"
-							placeholder="15" min="1" max="30" step="1"
-							autocomplete="off" data-keep-value="true">
-					</label>
-				</p>
+				<label>
+					Rate of evaluation (in Hz):
+					<input id="inp-eval-rate2" type="number" placeholder="15"
+						min="1" max="30" step="1" autocomplete="off"
+						data-keep-value="true">
+				</label>
 			</section>
 		</dialog>
 		<dialog id="dialog-load">
@@ -323,7 +321,7 @@
 					I cannot automatically read your clipboard.<br>
 					Try pasting in the following text box instead.
 				</p>
-				<textarea></textarea>
+				<textarea class="full-width"></textarea>
 			</section>
 		</dialog>
 		<dialog id="dialog-save">
@@ -378,7 +376,7 @@
 					I cannot automatically write to your clipboard.<br>
 					Try copying from the following text box instead.
 				</p>
-				<textarea></textarea>
+				<textarea class="full-width"></textarea>
 			</section>
 		</dialog>
 		<dialog id="dialog-browse">
@@ -395,6 +393,24 @@
 				<button id="btn-import">import from clipboard</button>
 				<button id="btn-delete-all">delete all</button>
 				<save-browser primary="delete" secondary="copy to clipboard" />
+			</section>
+		</dialog>
+		<dialog id="dialog-screenshot">
+			<button class="close" aria-label="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>close</title>
+					<use href="#cross" />
+				</svg>
+			</button>
+			<h1 class="title">Screenshot</h1>
+			<section class="body">
+				<form method="dialog">
+					<label>
+						X Offset:
+						<input autocomplete="off" data-keep-value="true" />
+					</label>
+				</form>
 			</section>
 		</dialog>
 	</body>

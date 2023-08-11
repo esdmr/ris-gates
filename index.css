@@ -145,6 +145,15 @@ dialog .body {
 
 .full-width {
 	width: 100%;
+	resize: vertical;
+}
+
+label {
+	display: block;
+}
+
+p {
+	max-width: 60ch;
 }
 
 svg.defs-only {
