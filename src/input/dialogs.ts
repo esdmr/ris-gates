@@ -2,7 +2,8 @@ import {assert, nonNullable} from '../lib/assert.js';
 import {QuadTree} from '../lib/tree.js';
 import * as storage from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
-import {updateAutoSaveState} from './page.js';
+import {canvas, outputToSvg} from './canvas.js';
+import * as page from './page.js';
 
 const dialogMenu = nonNullable(
 	document.querySelector<HTMLDialogElement>('#dialog-menu'),
@@ -47,6 +48,12 @@ const checkboxMinorGrid = nonNullable(
 const inputMajorGrid = nonNullable(
 	dialogMenu.querySelector<HTMLInputElement>('#inp-major-grid'),
 );
+
+const dialogScreenshot = nonNullable(
+	document.querySelector<HTMLDialogElement>('#dialog-screenshot'),
+);
+
+const screenshotForm = nonNullable(dialogScreenshot.querySelector('form'));
 
 let pasteKind: 'load' | 'import' = 'load';
 const configMinorGrid = 'minor-grid';
@@ -101,6 +108,74 @@ export function maybeShowEpilepsyWarning() {
 	}
 }
 
+export let takingScreenshot = false;
+
+function setupScreenshotOverrides(formData = new FormData(screenshotForm)) {
+	const offsetX = nonNullable(formData.get('x')).toString();
+	const offsetY = nonNullable(formData.get('y')).toString();
+	const scale = nonNullable(formData.get('scale')).toString();
+	const darkTheme = Boolean(formData.get('dark')?.toString());
+	const width = nonNullable(formData.get('width')).toString();
+	const height = nonNullable(formData.get('height')).toString();
+
+	takingScreenshot = true;
+	document.body.classList.add('screenshot');
+	page.scrollX.fromString(offsetX);
+	page.scrollY.fromString(offsetY);
+	page.setScale(Number(scale));
+	document.body.classList.toggle('dark', darkTheme);
+	canvas.width = Number(width);
+	canvas.height = Number(height);
+	page.updateStylesFromCss();
+}
+
+function clearScreenshotOverrides() {
+	takingScreenshot = false;
+	document.body.classList.remove('screenshot', 'dark');
+	page.updateStylesFromCss();
+}
+
+async function takeScreenshot(formData: FormData) {
+	const type = nonNullable(formData.get('type')).toString();
+	let data: string | Blob;
+
+	switch (type) {
+		case 'svg': {
+			data = await outputToSvg();
+			break;
+		}
+
+		case 'png': {
+			data = await new Promise<Blob>((resolve, reject) => {
+				requestAnimationFrame(() => {
+					canvas.toBlob(async (blob) => {
+						if (blob) resolve(blob);
+						else reject(new Error('Failed to generate screenshot'));
+					}, 'image/png');
+				});
+			});
+			break;
+		}
+
+		default: {
+			throw new Error(`Unsupported screenshot type: ${String(type)}`);
+		}
+	}
+
+	const fileName = `screenshot.${type}`;
+	const url = URL.createObjectURL(new File([data], fileName));
+	const link = document.createElement('a');
+	link.href = url;
+	link.download = fileName;
+	document.body.append(link);
+	link.click();
+
+	setTimeout(() => {
+		link.remove();
+		URL.revokeObjectURL(url);
+	}, 100);
+}
+
 export function setup() {
 	for (const dialog of document.querySelectorAll('dialog')) {
 		dialog.querySelector('.close')?.addEventListener('click', () => {
@@ -126,7 +201,7 @@ export function setup() {
 		);
 
 		element.addEventListener('click', () => {
-			if (!dialog) return;
+			if (!dialog || dialog.open) return;
 			dialog.showModal();
 
 			for (const saveBrowser of dialog.querySelectorAll<storage.SaveBrowserElement>(
@@ -140,6 +215,8 @@ export function setup() {
 					input.value = '';
 				}
 			}
+
+			dialog.dispatchEvent(new Event('DialogOpen'));
 		});
 	}
 
@@ -368,7 +445,7 @@ export function setup() {
 
 			try {
 				storage.remove(event.detail);
-				updateAutoSaveState(event.detail);
+				page.updateAutoSaveState(event.detail);
 				event.target.closest('li')?.remove();
 			} catch (error) {
 				dialogSaveFailed.showModal();
@@ -518,4 +595,46 @@ export function setup() {
 				.querySelector<storage.SaveBrowserElement>('save-browser')
 				?.update();
 		});
+
+	dialogScreenshot.addEventListener('DialogOpen', () => {
+		nonNullable(
+			screenshotForm.querySelector<HTMLInputElement>('[name=x]'),
+		).value = String(page.scrollX);
+		nonNullable(
+			screenshotForm.querySelector<HTMLInputElement>('[name=y]'),
+		).value = String(page.scrollY);
+		nonNullable(
+			screenshotForm.querySelector<HTMLInputElement>('[name=scale]'),
+		).value = String(page.scale);
+		nonNullable(
+			screenshotForm.querySelector<HTMLInputElement>('[name=dark]'),
+		).checked = matchMedia('(prefers-color-scheme: dark)').matches;
+		nonNullable(
+			screenshotForm.querySelector<HTMLInputElement>('[name=width]'),
+		).value = String(canvas.clientWidth);
+		nonNullable(
+			screenshotForm.querySelector<HTMLInputElement>('[name=height]'),
+		).value = String(canvas.clientHeight);
+
+		setupScreenshotOverrides();
+	});
+
+	dialogScreenshot.addEventListener('close', () => {
+		clearScreenshotOverrides();
+	});
+
+	screenshotForm.addEventListener('change', () => {
+		setupScreenshotOverrides();
+	});
+
+	screenshotForm.addEventListener('check', () => {
+		setupScreenshotOverrides();
+	});
+
+	screenshotForm.addEventListener('submit', (event) => {
+		event.preventDefault();
+		const formData = new FormData(screenshotForm, event.submitter);
+		setupScreenshotOverrides(formData);
+		void takeScreenshot(formData);
+	});
 }

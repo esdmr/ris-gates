@@ -195,6 +195,8 @@
 					data-open-dialog="save">save</button>
 				<button class="full-width requires-local-storage"
 					data-open-dialog="browse">browse</button>
+				<button class="full-width requires-local-storage"
+					data-open-dialog="screenshot">screenshot</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-epilepsy">
@@ -337,6 +339,63 @@
 				<button id="btn-delete-all">delete all</button>
 				<save-browser primary="delete"
 					secondary="copy to clipboard"></save-browser>
+			</section>
+		</dialog>
+		<dialog id="dialog-screenshot">
+			<button class="close" aria-label="close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>close</title>
+					<use href="icons.svg#cross" />
+				</svg>
+			</button>
+			<h1 class="title">Screenshot</h1>
+			<section class="body">
+				<form method="dialog">
+					<fieldset>
+						<legend>Appearance</legend>
+						<label>
+							X offset:
+							<input type="number" name="x" step="any"
+								placeholder="0" autocomplete="off"
+								data-keep-value="true">
+						</label>
+						<label>
+							Y offset:
+							<input type="number" name="y" step="any"
+								placeholder="0" autocomplete="off"
+								data-keep-value="true">
+						</label>
+						<label>
+							Scale:
+							<input type="number" name="scale" step="any"
+								placeholder="0" autocomplete="off"
+								data-keep-value="true">
+						</label>
+						<label>
+							<input type="checkbox" name="dark"
+								autocomplete="off" data-keep-value="true">
+							Use dark theme
+						</label>
+					</fieldset>
+					<fieldset>
+						<legend>Output</legend>
+						<label>
+							Width:
+							<input type="number" name="width" placeholder="0"
+								autocomplete="off" data-keep-value="true">
+						</label>
+						<label>
+							Height:
+							<input type="number" name="height" placeholder="0"
+								autocomplete="off" data-keep-value="true">
+						</label>
+					</fieldset>
+					<button class="full-width" name="type" value="png">Raster
+						(PNG)</button>
+					<button class="full-width" name="type" value="svg">Vector
+						(SVG)</button>
+				</form>
 			</section>
 		</dialog>
 	</body>
