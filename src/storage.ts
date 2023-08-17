@@ -1,3 +1,4 @@
+import {queryAll} from './lib/dom.js';
 import {QuadTree} from './lib/tree.js';
 import {replaceTree, tree} from './tree.js';
 
@@ -137,8 +138,9 @@ export class SaveBrowserElement extends HTMLElement {
 
 export function setup() {
 	if (!localStorageAvailable) {
-		for (const element of document.querySelectorAll<HTMLButtonElement>(
+		for (const element of queryAll(
 			'button.requires-local-storage',
+			HTMLButtonElement,
 		)) {
 			element.disabled = true;
 		}

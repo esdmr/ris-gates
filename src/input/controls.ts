@@ -1,92 +1,31 @@
 import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert, nonNullable} from '../lib/assert.js';
+import {query} from '../lib/dom.js';
 import * as tileType from '../lib/tile-type.js';
 import * as selection from '../selection.js';
 import * as dialogs from './dialogs.js';
 
-const ctrlEmpty = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-empty'),
-);
-
-const ctrlIo = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-io'),
-);
-
-const ctrlNegate = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-negate'),
-);
-
-const ctrlConjoin = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-conjoin'),
-);
-
-const ctrlDisjoin = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-disjoin'),
-);
-
-const ctrlDir = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-dir'),
-);
-
-const ctrlDirPath = nonNullable(
-	document.querySelector<SVGPathElement>('#ctrl-dir path'),
-);
-
-const ctrlDirTitle = nonNullable(
-	document.querySelector<SVGTitleElement>('#ctrl-dir title'),
-);
-
-const ctrlMenu = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-menu'),
-);
-
-const ctrlUnselect = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-unselect'),
-);
-
-const ctrlDelete = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-delete'),
-);
-
-const ctrlCut = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-cut'),
-);
-
-const ctrlCopy = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-copy'),
-);
-
-const ctrlPaste = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-paste'),
-);
-
-const ctrlPasteCancel = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-paste-cancel'),
-);
-
-const ctrlEval = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-eval'),
-);
-
-const ctrlTickBwdStable = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-tick-bwd-stable'),
-);
-
-const ctrlTickBwd = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-tick-bwd'),
-);
-
-const ctrlTickNo = nonNullable(
-	document.querySelector<HTMLDivElement>('#ctrl-tick-no'),
-);
-
-const ctrlTickFwd = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-tick-fwd'),
-);
-
-const ctrlTickFwdStable = nonNullable(
-	document.querySelector<HTMLButtonElement>('#ctrl-tick-fwd-stable'),
-);
+const ctrlEmpty = query('#ctrl-empty', HTMLButtonElement);
+const ctrlIo = query('#ctrl-io', HTMLButtonElement);
+const ctrlNegate = query('#ctrl-negate', HTMLButtonElement);
+const ctrlConjoin = query('#ctrl-conjoin', HTMLButtonElement);
+const ctrlDisjoin = query('#ctrl-disjoin', HTMLButtonElement);
+const ctrlDir = query('#ctrl-dir', HTMLButtonElement);
+const ctrlDirPath = query('#ctrl-dir path', SVGPathElement);
+const ctrlDirTitle = query('#ctrl-dir title', SVGTitleElement);
+const ctrlMenu = query('#ctrl-menu', HTMLButtonElement);
+const ctrlUnselect = query('#ctrl-unselect', HTMLButtonElement);
+const ctrlDelete = query('#ctrl-delete', HTMLButtonElement);
+const ctrlCut = query('#ctrl-cut', HTMLButtonElement);
+const ctrlCopy = query('#ctrl-copy', HTMLButtonElement);
+const ctrlPaste = query('#ctrl-paste', HTMLButtonElement);
+const ctrlPasteCancel = query('#ctrl-paste-cancel', HTMLButtonElement);
+const ctrlEval = query('#ctrl-eval', HTMLButtonElement);
+const ctrlTickBwdStable = query('#ctrl-tick-bwd-stable', HTMLButtonElement);
+const ctrlTickBwd = query('#ctrl-tick-bwd', HTMLButtonElement);
+const ctrlTickNo = query('#ctrl-tick-no', HTMLDivElement);
+const ctrlTickFwd = query('#ctrl-tick-fwd', HTMLButtonElement);
+const ctrlTickFwdStable = query('#ctrl-tick-fwd-stable', HTMLButtonElement);
 
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 const directions = ['up', 'right', 'down', 'left'] as const;
@@ -266,10 +205,9 @@ export function setup() {
 		clearInterval(stabilityInterval);
 		ctrlTickNo.textContent = '0';
 
-		const title = ctrlEval.querySelector('title');
-		if (title) {
-			title.textContent = isEval ? 'modify' : 'evaluate';
-		}
+		query('title', SVGTitleElement, ctrlEval).textContent = isEval
+			? 'modify'
+			: 'evaluate';
 
 		if (isEval) dialogs.maybeShowEpilepsyWarning();
 	});

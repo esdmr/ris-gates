@@ -1,10 +1,8 @@
 import {nonNullable} from '../lib/assert.js';
+import {query} from '../lib/dom.js';
 import type {CanvasLike, ContextLike} from '../lib/svg-canvas.js';
 
-export let canvas: CanvasLike = nonNullable(
-	document.querySelector<HTMLCanvasElement>('#canvas'),
-);
-
+export let canvas: CanvasLike = query('#canvas', HTMLCanvasElement);
 export let context: ContextLike = nonNullable(canvas.getContext('2d'));
 
 export async function outputToSvg() {

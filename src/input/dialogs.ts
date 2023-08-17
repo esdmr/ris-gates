@@ -1,59 +1,28 @@
 import {assert, nonNullable} from '../lib/assert.js';
+import {query, queryAll} from '../lib/dom.js';
 import {QuadTree} from '../lib/tree.js';
 import * as storage from '../storage.js';
 import {replaceTree, tree} from '../tree.js';
 import {canvas, outputToSvg} from './canvas.js';
 import * as page from './page.js';
 
-const dialogMenu = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-menu'),
+const dialogMenu = query('#dialog-menu', HTMLDialogElement);
+const dialogEpilepsy = query('#dialog-epilepsy', HTMLDialogElement);
+const dialogLoad = query('#dialog-load', HTMLDialogElement);
+const dialogLoadFailed = query('#dialog-load-failed', HTMLDialogElement);
+const dialogPasteFailed = query('#dialog-paste-failed', HTMLDialogElement);
+const dialogSave = query('#dialog-save', HTMLDialogElement);
+const dialogSaveFailed = query('#dialog-save-failed', HTMLDialogElement);
+const dialogCopyFailed = query('#dialog-copy-failed', HTMLDialogElement);
+const dialogBrowse = query('#dialog-browse', HTMLDialogElement);
+const checkboxMinorGrid = query(
+	'#chk-minor-grid',
+	HTMLInputElement,
+	dialogMenu,
 );
-
-const dialogEpilepsy = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-epilepsy'),
-);
-
-const dialogLoad = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-load'),
-);
-
-const dialogLoadFailed = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-load-failed'),
-);
-
-const dialogPasteFailed = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-paste-failed'),
-);
-
-const dialogSave = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-save'),
-);
-
-const dialogSaveFailed = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-save-failed'),
-);
-
-const dialogCopyFailed = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-copy-failed'),
-);
-
-const dialogBrowse = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-browse'),
-);
-
-const checkboxMinorGrid = nonNullable(
-	dialogMenu.querySelector<HTMLInputElement>('#chk-minor-grid'),
-);
-
-const inputMajorGrid = nonNullable(
-	dialogMenu.querySelector<HTMLInputElement>('#inp-major-grid'),
-);
-
-const dialogScreenshot = nonNullable(
-	document.querySelector<HTMLDialogElement>('#dialog-screenshot'),
-);
-
-const screenshotForm = nonNullable(dialogScreenshot.querySelector('form'));
+const inputMajorGrid = query('#inp-major-grid', HTMLInputElement, dialogMenu);
+const dialogScreenshot = query('#dialog-screenshot', HTMLDialogElement);
+const screenshotForm = query('form', HTMLFormElement, dialogScreenshot);
 
 let pasteKind: 'load' | 'import' = 'load';
 const configMinorGrid = 'minor-grid';
@@ -177,40 +146,43 @@ async function takeScreenshot(formData: FormData) {
 }
 
 export function setup() {
-	for (const dialog of document.querySelectorAll('dialog')) {
+	for (const dialog of queryAll('dialog', HTMLDialogElement)) {
 		dialog.querySelector('.close')?.addEventListener('click', () => {
 			dialog.close();
 		});
 
 		dialog.addEventListener('close', () => {
-			for (const saveBrowser of dialog.querySelectorAll<storage.SaveBrowserElement>(
+			for (const saveBrowser of queryAll(
 				'save-browser',
+				storage.SaveBrowserElement,
+				dialog,
 			)) {
 				saveBrowser.clear();
 			}
 		});
 	}
 
-	for (const element of document.querySelectorAll<HTMLElement>(
-		'[data-open-dialog]',
-	)) {
-		const dialog = document.querySelector<HTMLDialogElement>(
+	for (const element of queryAll('[data-open-dialog]', HTMLElement)) {
+		const dialog = query(
 			// Cast safety: We are looping over all elements with
 			// data-open-dialog attribute, so this can never be undefined.
 			`#dialog-${element.dataset.openDialog!}`,
+			HTMLDialogElement,
 		);
 
 		element.addEventListener('click', () => {
 			if (!dialog || dialog.open) return;
 			dialog.showModal();
 
-			for (const saveBrowser of dialog.querySelectorAll<storage.SaveBrowserElement>(
+			for (const saveBrowser of queryAll(
 				'save-browser',
+				storage.SaveBrowserElement,
+				dialog,
 			)) {
 				saveBrowser.update();
 			}
 
-			for (const input of dialog.querySelectorAll('input')) {
+			for (const input of queryAll('input', HTMLInputElement, dialog)) {
 				if (!input.dataset.keepValue) {
 					input.value = '';
 				}
@@ -249,9 +221,9 @@ export function setup() {
 	});
 
 	const inputEvaluationRates = [
-		dialogMenu.querySelector<HTMLInputElement>('#inp-eval-rate'),
-		dialogEpilepsy.querySelector<HTMLInputElement>('#inp-eval-rate2'),
-	].map((i) => nonNullable(i));
+		query('#inp-eval-rate', HTMLInputElement, dialogMenu),
+		query('#inp-eval-rate2', HTMLInputElement, dialogEpilepsy),
+	];
 
 	for (const inputEvaluationRate of inputEvaluationRates) {
 		inputEvaluationRate.value = String(evaluationRate);
@@ -597,24 +569,24 @@ export function setup() {
 		});
 
 	dialogScreenshot.addEventListener('DialogOpen', () => {
-		nonNullable(
-			screenshotForm.querySelector<HTMLInputElement>('[name=x]'),
-		).value = String(page.scrollX);
-		nonNullable(
-			screenshotForm.querySelector<HTMLInputElement>('[name=y]'),
-		).value = String(page.scrollY);
-		nonNullable(
-			screenshotForm.querySelector<HTMLInputElement>('[name=scale]'),
-		).value = String(page.scale);
-		nonNullable(
-			screenshotForm.querySelector<HTMLInputElement>('[name=dark]'),
-		).checked = matchMedia('(prefers-color-scheme: dark)').matches;
-		nonNullable(
-			screenshotForm.querySelector<HTMLInputElement>('[name=width]'),
-		).value = String(canvas.clientWidth);
-		nonNullable(
-			screenshotForm.querySelector<HTMLInputElement>('[name=height]'),
-		).value = String(canvas.clientHeight);
+		query('[name=x]', HTMLInputElement, screenshotForm).value = String(
+			page.scrollX,
+		);
+		query('[name=y]', HTMLInputElement, screenshotForm).value = String(
+			page.scrollY,
+		);
+		query('[name=scale]', HTMLInputElement, screenshotForm).value = String(
+			page.scale,
+		);
+		query('[name=dark]', HTMLInputElement, screenshotForm).checked = matchMedia(
+			'(prefers-color-scheme: dark)',
+		).matches;
+		query('[name=width]', HTMLInputElement, screenshotForm).value = String(
+			canvas.clientWidth,
+		);
+		query('[name=height]', HTMLInputElement, screenshotForm).value = String(
+			canvas.clientHeight,
+		);
 
 		setupScreenshotOverrides();
 	});
