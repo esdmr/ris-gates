@@ -1,8 +1,8 @@
 import {assert, nonNullable} from '../lib/assert.js';
 import {query, queryAll} from '../lib/dom.js';
 import {QuadTree} from '../lib/tree.js';
-import * as storage from '../storage.js';
-import {replaceTree, tree} from '../tree.js';
+import * as storage from './storage.js';
+import {replaceTree, tree} from './tree.js';
 import {canvas, outputToSvg} from './canvas.js';
 import * as page from './page.js';
 

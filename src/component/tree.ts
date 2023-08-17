@@ -1,7 +1,7 @@
-import {Point} from './lib/point.js';
-import {QuadTree} from './lib/tree.js';
-import * as searchMode from './lib/search-mode.js';
-import * as tileType from './lib/tile-type.js';
+import {Point} from '../lib/point.js';
+import {QuadTree} from '../lib/tree.js';
+import * as searchMode from '../lib/search-mode.js';
+import * as tileType from '../lib/tile-type.js';
 
 export let tree = /* @__PURE__ */ createDefaultTree();
 

@@ -1,5 +1,5 @@
-import {queryAll} from './lib/dom.js';
-import {QuadTree} from './lib/tree.js';
+import {queryAll} from '../lib/dom.js';
+import {QuadTree} from '../lib/tree.js';
 import {replaceTree, tree} from './tree.js';
 
 export const localStorageAvailable = /* @__PURE__ */ (() => {

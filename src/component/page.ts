@@ -1,6 +1,6 @@
-import {exists, load, localStorageAvailable, save} from '../storage.js';
 import {FloatingBigInt} from '../lib/floating-bigint.js';
 import {defaultScale, maximumScale, minimumScale} from '../constants.js';
+import {exists, load, localStorageAvailable, save} from './storage.js';
 import {canvas} from './canvas.js';
 
 export const scrollX = /* @__PURE__ */ new FloatingBigInt();

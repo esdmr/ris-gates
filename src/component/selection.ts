@@ -1,9 +1,9 @@
-import {AxisAlignedBoundingBox} from './lib/aabb.js';
-import {Point} from './lib/point.js';
-import * as tileType from './lib/tile-type.js';
-import {WalkStep} from './lib/walk.js';
+import {AxisAlignedBoundingBox} from '../lib/aabb.js';
+import {Point} from '../lib/point.js';
+import * as tileType from '../lib/tile-type.js';
+import {WalkStep} from '../lib/walk.js';
+import * as searchMode from '../lib/search-mode.js';
 import {tree} from './tree.js';
-import * as searchMode from './lib/search-mode.js';
 
 export let isSelecting = false;
 export let firstX = 0n;

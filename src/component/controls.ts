@@ -1,8 +1,8 @@
-import {clearEvalContext, getEvalContext} from '../eval.js';
 import {assert, nonNullable} from '../lib/assert.js';
 import {query} from '../lib/dom.js';
 import * as tileType from '../lib/tile-type.js';
-import * as selection from '../selection.js';
+import {clearEvalContext, getEvalContext} from './eval.js';
+import * as selection from './selection.js';
 import * as dialogs from './dialogs.js';
 
 const ctrlEmpty = query('#ctrl-empty', HTMLButtonElement);
