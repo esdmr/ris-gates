@@ -5,7 +5,6 @@ import {Point} from '../lib/point.js';
 import {WalkStep} from '../lib/walk.js';
 import {activeFillStyles, passiveFillStyles} from '../colors.js';
 import * as constants from '../constants.js';
-import * as svgCanvas from '../lib/svg-canvas.js';
 import {canvas, context} from './canvas.js';
 import * as controls from './controls.js';
 import * as pointer from './pointer.js';
@@ -14,20 +13,13 @@ import {tree} from './tree.js';
 import {getEvalContext} from './eval.js';
 import * as dialogs from './dialogs.js';
 import * as page from './page.js';
-import * as storage from './storage.js';
 import * as selection from './selection.js';
 
 let currentTime = /* @__PURE__ */ performance.now();
 
-svgCanvas.setup();
-storage.setup();
-page.setup();
-controls.setup();
-dialogs.setup();
-pointer.setup();
-wheel.setup();
-
-onFrame(currentTime);
+export function setup() {
+	onFrame(currentTime);
+}
 
 function getScaleIntOffset(point: number, oldScale: number) {
 	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / page.scale));

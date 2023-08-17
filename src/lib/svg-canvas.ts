@@ -47,10 +47,6 @@ declare global {
 	}
 }
 
-export function setup() {
-	customElements.define('svg-canvas', SvgCanvas);
-}
-
 function createSvg<K extends keyof SVGElementTagNameMap>(
 	qualifiedName: K,
 	attributes: Record<string, unknown>,
