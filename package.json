@@ -9,7 +9,7 @@
     "@internal/eslint-plugin": "link:lint",
     "@types/node": "20.4.5",
     "acorn-walk": "8.2.0",
-    "magic-string": "0.30.1",
+    "magic-string": "0.30.2",
     "typescript": "5.1.6",
     "vite": "4.4.7",
     "xo": "0.54.2"
