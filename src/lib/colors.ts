@@ -1,4 +1,4 @@
-import * as tileType from './lib/tile-type.js';
+import * as tileType from './tile-type.js';
 
 const ioColorActive = '#0072B2';
 const negateColorActive = '#D55E00';

@@ -19,6 +19,9 @@ export default defineConfig({
 		rollupOptions: {
 			input: ['index.html'],
 		},
+		modulePreload: {
+			polyfill: false,
+		},
 	},
 
 	plugins: [

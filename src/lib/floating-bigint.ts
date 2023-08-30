@@ -1,3 +1,11 @@
+function toFixedPoint(number: number, precision: number) {
+	return Math.round(number * 10 ** precision);
+}
+
+function abs(int: bigint) {
+	return int < 0 ? -int : int;
+}
+
 export class FloatingBigInt {
 	constructor(public bigint = 0n, public float = 0) {}
 
@@ -39,6 +47,14 @@ export class FloatingBigInt {
 
 	toString(precision = 1) {
 		this.normalize();
-		return `${this.bigint}${this.float.toFixed(precision).slice(1)}`;
+
+		const fixed = toFixedPoint(this.float, precision);
+		if (fixed === 0) return String(this.bigint);
+		if (this.bigint >= 0) return `${this.bigint}.${fixed}`;
+
+		return `-${abs(this.bigint + 1n)}.${toFixedPoint(
+			1 - this.float,
+			precision,
+		)}`;
 	}
 }

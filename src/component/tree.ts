@@ -1,7 +1,9 @@
+import {defaultScale, maximumScale, minimumScale} from '../lib/constants.js';
+import {FloatingBigInt} from '../lib/floating-bigint.js';
 import {Point} from '../lib/point.js';
-import {QuadTree} from '../lib/tree.js';
 import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
+import {QuadTree} from '../lib/tree.js';
 
 export let tree = /* @__PURE__ */ createDefaultTree();
 
@@ -26,4 +28,15 @@ function createDefaultTree() {
 
 export function replaceTree(newTree: QuadTree) {
 	tree = newTree;
+}
+
+export const scrollX = /* @__PURE__ */ new FloatingBigInt();
+export const scrollY = /* @__PURE__ */ new FloatingBigInt();
+export let scale = defaultScale;
+
+export function setScale(newScale: number) {
+	scale = newScale;
+	if (!Number.isFinite) scale = defaultScale;
+	else if (scale < minimumScale) scale = minimumScale;
+	else if (scale > maximumScale) scale = maximumScale;
 }

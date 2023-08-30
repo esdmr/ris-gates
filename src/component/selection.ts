@@ -1,19 +1,19 @@
 import {AxisAlignedBoundingBox} from '../lib/aabb.js';
 import {Point} from '../lib/point.js';
+import {Schematic} from '../lib/schematic.js';
+import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
 import {WalkStep} from '../lib/walk.js';
-import * as searchMode from '../lib/search-mode.js';
+import {setMode} from './mode.js';
 import {tree} from './tree.js';
 
-export let isSelecting = false;
 export let firstX = 0n;
 export let firstY = 0n;
 export let secondX = 0n;
 export let secondY = 0n;
 
 export function unselect() {
-	isSelecting = false;
-	document.body.classList.remove('selected');
+	setMode('normal');
 }
 
 export function setFirstPosition(fromX: bigint, fromY: bigint) {
@@ -21,8 +21,7 @@ export function setFirstPosition(fromX: bigint, fromY: bigint) {
 	firstY = fromY;
 	secondX = fromX;
 	secondY = fromY;
-	isSelecting = true;
-	document.body.classList.add('selected');
+	setMode('selected');
 }
 
 export function setSecondPosition(toX: bigint, toY: bigint) {
@@ -41,15 +40,7 @@ export function getBox() {
 	);
 }
 
-class SavedTiles {
-	constructor(
-		readonly tiles: readonly tileType.QuadTreeTileType[],
-		readonly width: number,
-		readonly height: number,
-	) {}
-}
-
-function get(display: AxisAlignedBoundingBox): SavedTiles {
+function get(display: AxisAlignedBoundingBox): Schematic {
 	// eslint-disable-next-line @internal/no-object-literals
 	const tiles = Array.from<tileType.QuadTreeTileType>({
 		length: Number(display.width * display.height),
@@ -95,10 +86,10 @@ function get(display: AxisAlignedBoundingBox): SavedTiles {
 		}
 	}
 
-	return new SavedTiles(tiles, Number(display.width), Number(display.height));
+	return new Schematic(tiles, Number(display.width), Number(display.height));
 }
 
-function set({tiles, width, height}: SavedTiles, topLeft: Point) {
+function set({tiles, width, height}: Schematic, topLeft: Point) {
 	const display = new AxisAlignedBoundingBox(
 		topLeft,
 		BigInt(width),
@@ -119,20 +110,16 @@ function set({tiles, width, height}: SavedTiles, topLeft: Point) {
 	}
 }
 
-let savedTiles: SavedTiles | undefined;
+let schematic: Schematic | undefined;
 
 export function copy() {
-	if (isSelecting) {
-		savedTiles = get(getBox());
-		document.body.classList.add('used-clipboard');
-	}
+	schematic = get(getBox());
+	document.body.classList.add('used-clipboard');
 }
 
 export function remove() {
-	if (isSelecting) {
-		const {width, height} = getBox();
-		set(new SavedTiles([], Number(width), Number(height)), getBox().topLeft);
-	}
+	const {width, height} = getBox();
+	set(new Schematic([], Number(width), Number(height)), getBox().topLeft);
 }
 
 export function cut() {
@@ -142,20 +129,19 @@ export function cut() {
 }
 
 export function paste(point: Point) {
-	if (savedTiles) {
-		set(savedTiles, point);
-		firstX = point.x;
-		firstY = point.y;
-		secondX = firstX + BigInt(savedTiles.width) - 1n;
-		secondY = firstY + BigInt(savedTiles.height) - 1n;
-	}
+	if (!schematic) return;
+	set(schematic, point);
+	firstX = point.x;
+	firstY = point.y;
+	secondX = firstX + BigInt(schematic.width) - 1n;
+	secondY = firstY + BigInt(schematic.height) - 1n;
 }
 
-export function hasSavedTiles() {
-	return Boolean(savedTiles);
+export function hasSchematic() {
+	return Boolean(schematic);
 }
 
 export function discard() {
-	savedTiles = undefined;
+	schematic = undefined;
 	document.body.classList.remove('used-clipboard');
 }

@@ -9,156 +9,145 @@
 	</head>
 	<body>
 		<canvas id="canvas"></canvas>
-		<div class="controls">
-			<button id="ctrl-eval" class="hide-if-selected hide-if-pasting"
-				aria-label="evaluate">
-				<svg id="ctrl-eval-svg" viewBox="0 0 1 1"
-					fill="var(--background)" stroke-width="0.1"
-					stroke="var(--foreground)" class="enabled-if-eval">
-					<title>evaluate</title>
-					<use href="icons.svg#eval" />
-				</svg>
-			</button>
-			<button id="ctrl-tick-bwd-stable" class="show-if-eval"
-				aria-label="previous stable tick">
-				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>previous stable tick</title>
-					<use href="icons.svg#tick-stable"
-						style="transform-origin: center; transform: rotate(180deg)" />
-				</svg>
-			</button>
-			<button id="ctrl-tick-bwd" class="show-if-eval"
-				aria-label="previous tick">
-				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>previous tick</title>
-					<use href="icons.svg#tick"
-						style="transform-origin: center; transform: rotate(180deg)" />
-				</svg>
-			</button>
-			<div id="ctrl-tick-no" class="controls-message show-if-eval">0</div>
-			<button id="ctrl-tick-fwd" class="show-if-eval"
-				aria-label="next tick">
-				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>next tick</title>
-					<use href="icons.svg#tick" />
-				</svg>
-			</button>
-			<button id="ctrl-tick-fwd-stable" class="show-if-eval"
-				aria-label="next stable tick">
-				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>next stable tick</title>
-					<use href="icons.svg#tick-stable" />
-				</svg>
-			</button>
-			<button id="ctrl-empty"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				aria-label="empty">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
-					<title>empty</title>
-					<use href="icons.svg#cross" />
-				</svg>
-			</button>
-			<button id="ctrl-io"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				aria-label="IO">
-				<svg viewBox="0 0 1 1" fill="var(--colors-io)">
-					<title>IO</title>
-					<use href="icons.svg#tile" />
-				</svg>
-			</button>
-			<button id="ctrl-negate"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				aria-label="negate">
-				<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
-					<title>negate</title>
-					<use href="icons.svg#tile" />
-				</svg>
-			</button>
-			<button id="ctrl-conjoin"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				aria-label="conjoin">
-				<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
-					<title>conjoin</title>
-					<use href="icons.svg#tile" />
-				</svg>
-			</button>
-			<button id="ctrl-disjoin"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				aria-label="disjoin">
-				<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
-					<title>disjoin</title>
-					<use href="icons.svg#tile" />
-				</svg>
-			</button>
-			<button id="ctrl-dir"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				aria-label="direction: up">
-				<svg viewBox="0 0 1 1">
-					<title>direction: up</title>
-					<path id="dir" d="M0 1 .5 0 1 1Z" style="transform-origin:
+		<div class="hud" aria-label="heads-on display">
+			<div class="show-if-normal show-if-eval" role="presentation">
+				<button id="hud-eval" aria-label="evaluate">
+					<svg viewBox="0 0 1 1" fill="var(--background)"
+						stroke-width="0.1" stroke="var(--foreground)"
+						class="enabled-if-eval">
+						<title>evaluate</title>
+						<use href="icons.svg#eval" />
+					</svg>
+				</button>
+			</div>
+			<div class="show-if-eval" role="presentation">
+				<button id="hud-tick-bwd-stable"
+					aria-label="previous stable tick">
+					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+						<title>previous stable tick</title>
+						<use href="icons.svg#tick-stable"
+							style="transform-origin: center; transform: rotate(180deg)" />
+					</svg>
+				</button>
+				<button id="hud-tick-bwd" aria-label="previous tick">
+					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+						<title>previous tick</title>
+						<use href="icons.svg#tick"
+							style="transform-origin: center; transform: rotate(180deg)" />
+					</svg>
+				</button>
+				<div id="hud-tick-no" class="hud-message">0</div>
+				<button id="hud-tick-fwd" aria-label="next tick">
+					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+						<title>next tick</title>
+						<use href="icons.svg#tick" />
+					</svg>
+				</button>
+				<button id="hud-tick-fwd-stable" aria-label="next stable tick">
+					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+						<title>next stable tick</title>
+						<use href="icons.svg#tick-stable" />
+					</svg>
+				</button>
+			</div>
+			<div class="show-if-normal" role="presentation">
+				<button id="hud-empty" aria-label="empty">
+					<svg viewBox="0 0 1 1" stroke-width="0.1"
+						stroke="var(--foreground)">
+						<title>empty</title>
+						<use href="icons.svg#cross" />
+					</svg>
+				</button>
+				<button id="hud-io" aria-label="IO">
+					<svg viewBox="0 0 1 1" fill="var(--colors-io)">
+						<title>IO</title>
+						<use href="icons.svg#tile" />
+					</svg>
+				</button>
+				<button id="hud-negate" aria-label="negate">
+					<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
+						<title>negate</title>
+						<use href="icons.svg#tile" />
+					</svg>
+				</button>
+				<button id="hud-conjoin" aria-label="conjoin">
+					<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
+						<title>conjoin</title>
+						<use href="icons.svg#tile" />
+					</svg>
+				</button>
+				<button id="hud-disjoin" aria-label="disjoin">
+					<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
+						<title>disjoin</title>
+						<use href="icons.svg#tile" />
+					</svg>
+				</button>
+				<button id="hud-dir" aria-label="direction: up">
+					<svg viewBox="0 0 1 1">
+						<title>direction: up</title>
+						<path d="M0 1 .5 0 1 1Z" style="transform-origin:
 					center" fill="var(--foreground)" />
-				</svg>
-			</button>
-			<button id="ctrl-unselect" class="show-if-selected hide-if-pasting"
-				aria-label="unselect">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
-					<title>unselect</title>
-					<use href="icons.svg#cross" />
-				</svg>
-			</button>
-			<button id="ctrl-delete" class="show-if-selected hide-if-pasting"
-				aria-label="delete">
-				<svg viewBox="0 0 1 1" fill="var(--foreground)">
-					<title>delete</title>
-					<use href="icons.svg#delete" />
-				</svg>
-			</button>
-			<button id="ctrl-cut" class="show-if-selected hide-if-pasting"
-				aria-label="cut">
-				<svg viewBox="0 0 1 1" fill="var(--foreground)"
-					stroke-width="0.1" stroke="var(--foreground)">
-					<title>cut</title>
-					<use href="icons.svg#cut" />
-				</svg>
-			</button>
-			<button id="ctrl-copy" class="show-if-selected hide-if-pasting"
-				aria-label="copy">
-				<svg viewBox="0 0 1 1" fill="var(--background)"
-					stroke-width="0.1" stroke="var(--foreground)">
-					<title>copy</title>
-					<use href="icons.svg#copy" />
-				</svg>
-			</button>
-			<button id="ctrl-paste"
-				class="show-if-used-clipboard hide-if-eval hide-if-pasting"
-				aria-label="paste">
-				<svg viewBox="0 0 1 1" fill="var(--background)"
-					stroke-width="0.1" stroke="var(--foreground)">
-					<title>paste</title>
-					<use href="icons.svg#paste" />
-				</svg>
-			</button>
-			<button id="ctrl-menu"
-				class="hide-if-eval hide-if-selected hide-if-pasting"
-				data-open-dialog="menu" aria-label="Menu">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
-					<title>Menu</title>
-					<use href="icons.svg#menu" />
-				</svg>
-			</button>
-			<button id="ctrl-paste-cancel" class="show-if-pasting"
-				aria-label="cancel pasting">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
-					<title>cancel pasting</title>
-					<use href="icons.svg#cross" />
-				</svg>
-			</button>
-			<div class="controls-message show-if-pasting">
-				Click top left corner to paste.
+					</svg>
+				</button>
+			</div>
+			<div class="show-if-selected" role="presentation">
+				<button id="hud-unselect" aria-label="unselect">
+					<svg viewBox="0 0 1 1" stroke-width="0.1"
+						stroke="var(--foreground)">
+						<title>unselect</title>
+						<use href="icons.svg#cross" />
+					</svg>
+				</button>
+				<button id="hud-delete" aria-label="delete">
+					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+						<title>delete</title>
+						<use href="icons.svg#delete" />
+					</svg>
+				</button>
+				<button id="hud-cut" aria-label="cut">
+					<svg viewBox="0 0 1 1" fill="var(--foreground)"
+						stroke-width="0.1" stroke="var(--foreground)">
+						<title>cut</title>
+						<use href="icons.svg#cut" />
+					</svg>
+				</button>
+				<button id="hud-copy" aria-label="copy">
+					<svg viewBox="0 0 1 1" fill="var(--background)"
+						stroke-width="0.1" stroke="var(--foreground)">
+						<title>copy</title>
+						<use href="icons.svg#copy" />
+					</svg>
+				</button>
+			</div>
+			<div class="hud-paste" role="presentation">
+				<button id="hud-paste" aria-label="paste">
+					<svg viewBox="0 0 1 1" fill="var(--background)"
+						stroke-width="0.1" stroke="var(--foreground)">
+						<title>paste</title>
+						<use href="icons.svg#paste" />
+					</svg>
+				</button>
+			</div>
+			<div class="show-if-normal" role="presentation">
+				<button id="hud-menu" aria-label="menu">
+					<svg viewBox="0 0 1 1" stroke-width="0.1"
+						stroke="var(--foreground)">
+						<title>menu</title>
+						<use href="icons.svg#menu" />
+					</svg>
+				</button>
+			</div>
+			<div class="show-if-pasting" role="presentation">
+				<button id="hud-paste-cancel" aria-label="cancel pasting">
+					<svg viewBox="0 0 1 1" stroke-width="0.1"
+						stroke="var(--foreground)">
+						<title>cancel pasting</title>
+						<use href="icons.svg#cross" />
+					</svg>
+				</button>
+				<div class="hud-message">
+					Click top left corner to paste.
+				</div>
 			</div>
 		</div>
 		<dialog id="dialog-menu">
@@ -171,32 +160,32 @@
 			</button>
 			<h1 class="title">Menu</h1>
 			<section class="body">
-				<label>
-					<input id="chk-minor-grid" type="checkbox"
-						autocomplete="off">
-					Show minor grid
-				</label>
-				<label>
-					Major grid length:
-					<input id="inp-major-grid" type="number" placeholder="0"
-						min="0" step="1" autocomplete="off"
-						data-keep-value="true">
-				</label>
-				<label>
-					Rate of evaluation (in Hz):
-					<input id="inp-eval-rate" type="number" placeholder="15"
-						min="1" max="30" step="1" autocomplete="off"
-						data-keep-value="true">
-				</label>
+				<fieldset>
+					<legend>Appearance</legend>
+					<label>
+						<input id="chk-minor-grid" type="checkbox">
+						Show minor grid
+					</label>
+					<label>
+						Major grid length:
+						<input id="inp-major-grid" type="number" placeholder="0"
+							min="0" step="1">
+					</label>
+					<label>
+						Rate of evaluation (in Hz):
+						<input id="inp-eval-rate" type="number" placeholder="15"
+							min="1" max="30" step="1">
+					</label>
+				</fieldset>
 				<button id="btn-clear" class="full-width">clear</button>
-				<button class="full-width requires-local-storage"
-					data-open-dialog="load">load</button>
-				<button class="full-width requires-local-storage"
-					data-open-dialog="save">save</button>
-				<button class="full-width requires-local-storage"
-					data-open-dialog="browse">browse</button>
-				<button class="full-width requires-local-storage"
-					data-open-dialog="screenshot">screenshot</button>
+				<button id="btn-load"
+					class="full-width requires-local-storage">load</button>
+				<button id="btn-save"
+					class="full-width requires-local-storage">save</button>
+				<button id="btn-browse"
+					class="full-width requires-local-storage">browse</button>
+				<button id="btn-screenshot"
+					class="full-width requires-local-storage">screenshot</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-epilepsy">
@@ -217,8 +206,7 @@
 				<label>
 					Rate of evaluation (in Hz):
 					<input id="inp-eval-rate2" type="number" placeholder="15"
-						min="1" max="30" step="1" autocomplete="off"
-						data-keep-value="true">
+						min="1" max="30" step="1">
 				</label>
 			</section>
 		</dialog>
@@ -371,6 +359,11 @@
 							<input type="number" name="scale" step="any"
 								placeholder="0" autocomplete="off"
 								data-keep-value="true">
+						</label>
+						<label>
+							<input type="checkbox" name="dip" autocomplete="off"
+								data-keep-value="true">
+							Scale according to screen resolution
 						</label>
 						<label>
 							<input type="checkbox" name="dark"

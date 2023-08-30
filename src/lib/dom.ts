@@ -41,3 +41,33 @@ export function queryAll<T extends Element>(
 	// Cast safety: Asserted above.
 	return elements as T[];
 }
+
+export function createClickHandler(element: HTMLButtonElement) {
+	return () => {
+		element.click();
+	};
+}
+
+export function createContextMenuHandler(element: HTMLButtonElement) {
+	return () => {
+		element.dispatchEvent(new MouseEvent('contextmenu'));
+	};
+}
+
+export function createInputUpdateHandler(element: HTMLInputElement) {
+	return (value: unknown) => {
+		const text = String(value);
+
+		if (element.value !== text) {
+			element.value = text;
+		}
+	};
+}
+
+export function setupDialogCloseButton(dialog: HTMLDialogElement) {
+	const button = query('.close', HTMLButtonElement, dialog);
+
+	button.addEventListener('click', () => {
+		dialog.close();
+	});
+}

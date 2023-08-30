@@ -1,19 +1,21 @@
 import {AxisAlignedBoundingBox} from '../lib/aabb.js';
+import {activeFillStyles, passiveFillStyles} from '../lib/colors.js';
+import * as constants from '../lib/constants.js';
+import {Point} from '../lib/point.js';
 import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
-import {Point} from '../lib/point.js';
 import {WalkStep} from '../lib/walk.js';
-import {activeFillStyles, passiveFillStyles} from '../colors.js';
-import * as constants from '../constants.js';
 import {canvas, context} from './canvas.js';
-import * as controls from './controls.js';
-import * as pointer from './pointer.js';
-import * as wheel from './wheel.js';
-import {tree} from './tree.js';
+import {useDip} from './dialog/screenshot.js';
 import {getEvalContext} from './eval.js';
-import * as dialogs from './dialogs.js';
-import * as page from './page.js';
+import {majorGridLength, shouldDrawMinorGrid} from './grid.js';
+import {getSelectedTileType} from './hud/edit.js';
+import {mode, setMode} from './mode.js';
+import * as pointer from './pointer.js';
 import * as selection from './selection.js';
+import * as theme from './theme.js';
+import {scale, scrollX, scrollY, setScale, tree} from './tree.js';
+import * as wheel from './wheel.js';
 
 let currentTime = /* @__PURE__ */ performance.now();
 
@@ -22,11 +24,11 @@ export function setup() {
 }
 
 function getScaleIntOffset(point: number, oldScale: number) {
-	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / page.scale));
+	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / scale));
 }
 
 function getScaleFloatOffset(point: number, oldScale: number) {
-	return ((point / oldScale) % 1) - ((point / page.scale) % 1);
+	return ((point / oldScale) % 1) - ((point / scale) % 1);
 }
 
 function commitInputs() {
@@ -36,17 +38,17 @@ function commitInputs() {
 		deltaScale -=
 			(wheel.deltaX + wheel.deltaY) * constants.wheelScaleMultiplier;
 	} else {
-		page.scrollX.float += wheel.deltaX / page.scale;
-		page.scrollY.float += wheel.deltaY / page.scale;
+		scrollX.float += wheel.deltaX / scale;
+		scrollY.float += wheel.deltaY / scale;
 	}
 
 	if (deltaScale) {
-		const oldScale = page.scale;
-		page.setScale(page.scale + deltaScale);
-		page.scrollX.bigint += getScaleIntOffset(pointer.centerX, oldScale);
-		page.scrollY.bigint += getScaleIntOffset(pointer.centerY, oldScale);
-		page.scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
-		page.scrollY.float += getScaleFloatOffset(pointer.centerY, oldScale);
+		const oldScale = scale;
+		setScale(scale + deltaScale);
+		scrollX.bigint += getScaleIntOffset(pointer.centerX, oldScale);
+		scrollY.bigint += getScaleIntOffset(pointer.centerY, oldScale);
+		scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
+		scrollY.float += getScaleFloatOffset(pointer.centerY, oldScale);
 	}
 
 	canvas.classList.toggle(
@@ -54,94 +56,94 @@ function commitInputs() {
 		pointer.isDragging && !pointer.isSelecting,
 	);
 
-	if (!controls.isEval && pointer.isSelecting) {
+	if (mode !== 'eval' && pointer.isSelecting) {
 		if (pointer.wasSelecting) {
 			selection.setSecondPosition(
-				page.scrollX.bigint +
-					BigInt(Math.trunc(pointer.centerX / page.scale + page.scrollX.float)),
-				page.scrollY.bigint +
-					BigInt(Math.trunc(pointer.centerY / page.scale + page.scrollY.float)),
+				scrollX.bigint +
+					BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+				scrollY.bigint +
+					BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
 			);
 		} else {
 			selection.setFirstPosition(
-				page.scrollX.bigint +
-					BigInt(Math.trunc(pointer.centerX / page.scale + page.scrollX.float)),
-				page.scrollY.bigint +
-					BigInt(Math.trunc(pointer.centerY / page.scale + page.scrollY.float)),
+				scrollX.bigint +
+					BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+				scrollY.bigint +
+					BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
 			);
 		}
 	} else if (pointer.isDragging) {
-		page.scrollX.float -= pointer.deltaX / page.scale;
-		page.scrollY.float -= pointer.deltaY / page.scale;
+		scrollX.float -= pointer.deltaX / scale;
+		scrollY.float -= pointer.deltaY / scale;
 	}
 
 	if (pointer.hasClicked) {
-		if (controls.isEval) {
-			const tile = tree.getTileData(
-				new Point(
-					page.scrollX.bigint +
-						BigInt(
-							Math.trunc(pointer.centerX / page.scale + page.scrollX.float),
-						),
-					page.scrollY.bigint +
-						BigInt(
-							Math.trunc(pointer.centerY / page.scale + page.scrollY.float),
-						),
-				),
-				searchMode.find,
-			);
+		switch (mode) {
+			case 'eval': {
+				const tile = tree.getTileData(
+					new Point(
+						scrollX.bigint +
+							BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+						scrollY.bigint +
+							BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+					),
+					searchMode.find,
+				);
 
-			if (tile?.type === tileType.io) {
-				const context = getEvalContext();
-				context.input(tile, !context.output(tile));
+				if (tile?.type === tileType.io) {
+					const context = getEvalContext();
+					context.input(tile, !context.output(tile));
+				}
+
+				break;
 			}
-		} else if (controls.shouldPaste) {
-			selection.paste(
-				new Point(
-					page.scrollX.bigint +
-						BigInt(
-							Math.trunc(pointer.centerX / page.scale + page.scrollX.float),
-						),
-					page.scrollY.bigint +
-						BigInt(
-							Math.trunc(pointer.centerY / page.scale + page.scrollY.float),
-						),
-				),
-			);
-			controls.donePasting();
-		} else if (selection.isSelecting) {
-			selection.unselect();
-		} else {
-			tree.getTileData(
-				new Point(
-					page.scrollX.bigint +
-						BigInt(
-							Math.trunc(pointer.centerX / page.scale + page.scrollX.float),
-						),
-					page.scrollY.bigint +
-						BigInt(
-							Math.trunc(pointer.centerY / page.scale + page.scrollY.float),
-						),
-				),
-				searchMode.make,
-			).type = controls.getSelectedTileType();
+
+			case 'pasting': {
+				selection.paste(
+					new Point(
+						scrollX.bigint +
+							BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+						scrollY.bigint +
+							BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+					),
+				);
+				setMode('selected');
+				break;
+			}
+
+			case 'selected': {
+				selection.unselect();
+				break;
+			}
+
+			default: {
+				tree.getTileData(
+					new Point(
+						scrollX.bigint +
+							BigInt(Math.trunc(pointer.centerX / scale + scrollX.float)),
+						scrollY.bigint +
+							BigInt(Math.trunc(pointer.centerY / scale + scrollY.float)),
+					),
+					searchMode.make,
+				).type = getSelectedTileType();
+			}
 		}
 	}
 
 	pointer.commit();
 	wheel.commit();
-	page.scrollX.normalize();
-	page.scrollY.normalize();
+	scrollX.normalize();
+	scrollY.normalize();
 }
 
 // eslint-disable-next-line complexity
 function onFrame(ms: DOMHighResTimeStamp) {
-	const dip = dialogs.takingScreenshot ? 1 : devicePixelRatio;
+	const dip = mode === 'screenshot' && !useDip ? 1 : devicePixelRatio;
 	const width = canvas.clientWidth * dip;
 	const height = canvas.clientHeight * dip;
 
-	if (dialogs.takingScreenshot) {
-		context.fillStyle = page.backgroundStyle;
+	if (mode === 'screenshot') {
+		context.fillStyle = theme.backgroundStyle;
 		context.fillRect(0, 0, width, height);
 	} else if (canvas.width === width && canvas.height === height) {
 		context.clearRect(0, 0, width, height);
@@ -152,12 +154,12 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 	commitInputs();
 
-	const realScale = page.scale * dip;
-	const offsetX = Math.trunc(page.scrollX.float * realScale);
-	const offsetY = Math.trunc(page.scrollY.float * realScale);
+	const realScale = scale * dip;
+	const offsetX = Math.trunc(scrollX.float * realScale);
+	const offsetY = Math.trunc(scrollY.float * realScale);
 
 	const display = new AxisAlignedBoundingBox(
-		new Point(page.scrollX.bigint, page.scrollY.bigint),
+		new Point(scrollX.bigint, scrollY.bigint),
 		BigInt(Math.ceil(width / realScale) + 1),
 		BigInt(Math.ceil(height / realScale) + 1),
 	);
@@ -172,9 +174,9 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	context.lineCap = 'butt';
 	context.lineJoin = 'bevel';
 	context.fillStyle = 'transparent';
-	context.strokeStyle = page.strokeStyle;
+	context.strokeStyle = theme.strokeStyle;
 
-	if (dialogs.shouldDrawMinorGrid) {
+	if (shouldDrawMinorGrid) {
 		context.lineWidth = constants.minorGridStrokeWidth * dip;
 		context.beginPath();
 
@@ -191,19 +193,19 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		context.stroke();
 	}
 
-	if (dialogs.majorGridLength) {
+	if (majorGridLength) {
 		context.lineWidth = constants.majorGridStrokeWidth * dip;
 		context.beginPath();
 
 		for (let dx = 1; dx <= display.width; dx++) {
-			if ((page.scrollX.bigint + BigInt(dx)) % dialogs.majorGridLength === 0n) {
+			if ((scrollX.bigint + BigInt(dx)) % majorGridLength === 0n) {
 				context.moveTo(dx * realScale - offsetX, 0);
 				context.lineTo(dx * realScale - offsetX, height);
 			}
 		}
 
 		for (let dy = 1; dy <= display.height; dy++) {
-			if ((page.scrollY.bigint + BigInt(dy)) % dialogs.majorGridLength === 0n) {
+			if ((scrollY.bigint + BigInt(dy)) % majorGridLength === 0n) {
 				context.moveTo(0, dy * realScale - offsetY);
 				context.lineTo(width, dy * realScale - offsetY);
 			}
@@ -231,15 +233,15 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			continue;
 		}
 
-		const i = Number(node.bounds.topLeft.x - page.scrollX.bigint);
-		const j = Number(node.bounds.topLeft.y - page.scrollY.bigint);
+		const i = Number(node.bounds.topLeft.x - scrollX.bigint);
+		const j = Number(node.bounds.topLeft.y - scrollY.bigint);
 
 		if (node.type === tileType.branch) {
 			progress.push(new WalkStep(node[index]));
 			continue;
 		}
 
-		const isActive = !controls.isEval || getEvalContext().output(node);
+		const isActive = mode !== 'eval' || getEvalContext().output(node);
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
 			context.fillStyle = isActive
@@ -260,18 +262,18 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		}
 	}
 
-	if (selection.isSelecting) {
+	if (mode === 'selected') {
 		const box = selection.getBox();
 		const x = convertAxisToDisplayCoordinate(
 			box.topLeft.x,
-			page.scrollX.bigint,
+			scrollX.bigint,
 			realScale,
 			offsetX,
 			width,
 		);
 		const y = convertAxisToDisplayCoordinate(
 			box.topLeft.y,
-			page.scrollY.bigint,
+			scrollY.bigint,
 			realScale,
 			offsetY,
 			height,
@@ -279,7 +281,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		const w = convertSizeToDisplayCoordinate(
 			box.topLeft.x,
 			box.width,
-			page.scrollX.bigint,
+			scrollX.bigint,
 			realScale,
 			offsetX,
 			width,
@@ -288,7 +290,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		const h = convertSizeToDisplayCoordinate(
 			box.topLeft.y,
 			box.height,
-			page.scrollY.bigint,
+			scrollY.bigint,
 			realScale,
 			offsetY,
 			height,
@@ -297,7 +299,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 		if (w && h) {
 			context.lineWidth = constants.selectionStrokeWidth * dip;
-			context.strokeStyle = page.selectionStrokeStyle;
+			context.strokeStyle = theme.selectionStrokeStyle;
 			context.lineDashOffset =
 				(ms % constants.selectionStrokeDashLength) *
 				constants.selectionStrokeSpeed *
