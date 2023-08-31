@@ -1,5 +1,5 @@
 import {createClickHandler, query} from '../../lib/dom.js';
-import * as eval from '../eval.js';
+import * as eval_ from '../eval.js';
 import * as keyboard from '../keyboard.js';
 import * as mode from '../mode.js';
 
@@ -22,17 +22,17 @@ function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
 	stopStabilityInterval();
 
 	stabilityInterval = setInterval(() => {
-		const evalContext = eval.getEvalContext();
+		const evalContext = eval_.getEvalContext();
 
 		if (mode.mode !== 'eval' || !evalContext[type]()) {
 			stopStabilityInterval();
 		}
 
 		updateTickNo();
-	}, 1000 / eval.evaluationRate);
+	}, 1000 / eval_.evaluationRate);
 }
 
-export function updateTickNo(count = eval.getEvalContext().tickCount) {
+export function updateTickNo(count = eval_.getEvalContext().tickCount) {
 	buttonTickNo.textContent = String(count);
 }
 
@@ -49,27 +49,27 @@ export function setup() {
 	/* eslint-enable @internal/no-object-literals */
 
 	buttonTickBwdStable.addEventListener('click', () => {
-		const evalContext = eval.getEvalContext();
+		const evalContext = eval_.getEvalContext();
 		if (evalContext.tickBackward()) startStabilityInterval('tickBackward');
 		buttonTickNo.textContent = String(evalContext.tickCount);
 	});
 
 	buttonTickBwd.addEventListener('click', () => {
-		const evalContext = eval.getEvalContext();
+		const evalContext = eval_.getEvalContext();
 		evalContext.tickBackward();
 		buttonTickNo.textContent = String(evalContext.tickCount);
 		stopStabilityInterval();
 	});
 
 	buttonTickFwd.addEventListener('click', () => {
-		const evalContext = eval.getEvalContext();
+		const evalContext = eval_.getEvalContext();
 		evalContext.tickForward();
 		buttonTickNo.textContent = String(evalContext.tickCount);
 		stopStabilityInterval();
 	});
 
 	buttonTickFwdStable.addEventListener('click', () => {
-		const evalContext = eval.getEvalContext();
+		const evalContext = eval_.getEvalContext();
 		if (evalContext.tickForward()) startStabilityInterval('tickForward');
 		buttonTickNo.textContent = String(evalContext.tickCount);
 	});

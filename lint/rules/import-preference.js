@@ -42,6 +42,11 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 								node: child.local,
 								messageId: 'refactoredWrongly',
 							});
+						} else if (child.local.name === 'eval') {
+							context.report({
+								node: child.local,
+								messageId: 'evalIdentifier',
+							});
 						}
 					}
 				}
@@ -57,6 +62,7 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 			useNamespace: 'Prefer namespace import for this module',
 			useNamed: 'Prefer named import for this module',
 			refactoredWrongly: 'Unexpected `Js` prefix for namespace import',
+			evalIdentifier: 'Replace `eval` with `eval_`',
 		},
 		type: 'suggestion',
 		schema: [],
