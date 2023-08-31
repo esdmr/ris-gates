@@ -106,7 +106,3 @@ export function setup() {
 export function open() {
 	mode.openDialog(dialogBrowse);
 }
-
-export function close() {
-	dialogBrowse.close();
-}

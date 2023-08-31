@@ -58,7 +58,3 @@ export function open(kind: 'load' | 'import', error?: unknown) {
 	textarea.value = '';
 	console.error('Paste failed:', error);
 }
-
-export function close() {
-	dialogPasteFailed.close();
-}

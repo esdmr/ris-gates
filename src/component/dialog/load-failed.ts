@@ -13,7 +13,3 @@ export function open(error?: unknown) {
 
 	console.error('Load failed:', error);
 }
-
-export function close() {
-	dialogLoadFailed.close();
-}

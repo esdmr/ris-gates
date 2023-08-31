@@ -49,7 +49,3 @@ export function open() {
 		inputEvalRate.value = String(eval_.evaluationRate);
 	}
 }
-
-export function close() {
-	dialogEpilepsy.close();
-}

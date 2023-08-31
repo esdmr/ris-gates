@@ -71,7 +71,3 @@ export function open() {
 	inputMajorGrid.value = String(grid.majorGridLength);
 	inputEvalRate.value = String(eval_.evaluationRate);
 }
-
-export function close() {
-	dialogMenu.close();
-}

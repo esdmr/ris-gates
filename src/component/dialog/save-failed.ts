@@ -12,7 +12,3 @@ export function open(error?: unknown) {
 	mode.openDialog(dialogSaveFailed);
 	console.error('Save failed:', error);
 }
-
-export function close() {
-	dialogSaveFailed.close();
-}

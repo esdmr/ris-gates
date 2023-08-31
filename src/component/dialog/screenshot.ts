@@ -122,7 +122,3 @@ export function open() {
 	mode.openDialog(dialogScreenshot);
 	setupScreenshotOverrides();
 }
-
-export function close() {
-	dialogScreenshot.close();
-}

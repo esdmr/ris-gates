@@ -41,7 +41,3 @@ export function open() {
 	mode.openDialog(dialogSave);
 	inputName.value = '';
 }
-
-export function close() {
-	dialogSave.close();
-}

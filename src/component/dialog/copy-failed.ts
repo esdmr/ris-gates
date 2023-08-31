@@ -14,7 +14,3 @@ export function open(text: string, error?: unknown) {
 	textarea.value = text;
 	console.error('Copy failed:', error);
 }
-
-export function close() {
-	dialogCopyFailed.close();
-}

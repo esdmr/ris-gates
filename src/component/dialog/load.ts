@@ -55,7 +55,3 @@ export function setup() {
 export function open() {
 	mode.openDialog(dialogLoad);
 }
-
-export function close() {
-	dialogLoad.close();
-}
