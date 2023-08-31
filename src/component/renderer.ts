@@ -65,20 +65,17 @@ function commitInputs() {
 	);
 
 	if (mode.mode !== 'eval' && pointer.isSelecting) {
+		const x =
+			tree.scrollX.bigint +
+			BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float));
+		const y =
+			tree.scrollY.bigint +
+			BigInt(Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float));
+
 		if (pointer.wasSelecting) {
-			selection.setSecondPosition(
-				tree.scrollX.bigint +
-					BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float)),
-				tree.scrollY.bigint +
-					BigInt(Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float)),
-			);
+			selection.setSecondPosition(x, y);
 		} else {
-			selection.setFirstPosition(
-				tree.scrollX.bigint +
-					BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float)),
-				tree.scrollY.bigint +
-					BigInt(Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float)),
-			);
+			selection.setFirstPosition(x, y);
 		}
 	} else if (pointer.isDragging) {
 		tree.scrollX.float -= pointer.deltaX / tree.scale;
@@ -86,21 +83,16 @@ function commitInputs() {
 	}
 
 	if (pointer.hasClicked) {
+		const currentPoint = new Point(
+			tree.scrollX.bigint +
+				BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float)),
+			tree.scrollY.bigint +
+				BigInt(Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float)),
+		);
+
 		switch (mode.mode) {
 			case 'eval': {
-				const tile = tree.tree.getTileData(
-					new Point(
-						tree.scrollX.bigint +
-							BigInt(
-								Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
-							),
-						tree.scrollY.bigint +
-							BigInt(
-								Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
-							),
-					),
-					searchMode.find,
-				);
+				const tile = tree.tree.getTileData(currentPoint, searchMode.find);
 
 				if (tile?.type === tileType.io) {
 					const context = eval_.getEvalContext();
@@ -111,18 +103,7 @@ function commitInputs() {
 			}
 
 			case 'pasting': {
-				selection.paste(
-					new Point(
-						tree.scrollX.bigint +
-							BigInt(
-								Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
-							),
-						tree.scrollY.bigint +
-							BigInt(
-								Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
-							),
-					),
-				);
+				selection.paste(currentPoint);
 				mode.setMode('selected');
 				break;
 			}
@@ -133,19 +114,8 @@ function commitInputs() {
 			}
 
 			default: {
-				tree.tree.getTileData(
-					new Point(
-						tree.scrollX.bigint +
-							BigInt(
-								Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
-							),
-						tree.scrollY.bigint +
-							BigInt(
-								Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
-							),
-					),
-					searchMode.make,
-				).type = hudEdit.getSelectedTileType();
+				tree.tree.getTileData(currentPoint, searchMode.make).type =
+					hudEdit.getSelectedTileType();
 			}
 		}
 	}
