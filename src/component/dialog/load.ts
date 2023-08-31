@@ -4,6 +4,7 @@ import {QuadTree} from '../../lib/tree.js';
 import * as mode from '../mode.js';
 import * as tree from '../tree.js';
 import * as storage from '../storage.js';
+import {pasteText} from '../../lib/clipboard.js';
 import * as dialogLoadFailed from './load-failed.js';
 import * as dialogPasteFailed from './paste-failed.js';
 
@@ -36,28 +37,7 @@ export function setup() {
 		let text;
 
 		try {
-			let otherError;
-
-			try {
-				// eslint-disable-next-line @internal/no-object-literals
-				const permission = await navigator.permissions.query({
-					// Cast safety: clipboard-read is not yet supported in
-					// all browsers and it is not in lib.dom.
-					name: 'clipboard-read' as never,
-				});
-
-				if (permission.state === 'denied') {
-					throw new Error('Not allowed to read clipboard.');
-				}
-			} catch (error) {
-				otherError = error;
-			}
-
-			try {
-				text = await navigator.clipboard.readText();
-			} catch (error) {
-				throw otherError ?? error;
-			}
+			text = await pasteText();
 		} catch (error) {
 			dialogPasteFailed.open('load', error);
 			return;

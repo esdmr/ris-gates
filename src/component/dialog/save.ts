@@ -2,6 +2,7 @@ import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import * as mode from '../mode.js';
 import * as tree from '../tree.js';
 import * as storage from '../storage.js';
+import {copyText} from '../../lib/clipboard.js';
 import * as dialogSaveFailed from './save-failed.js';
 import * as dialogCopyFailed from './copy-failed.js';
 
@@ -29,29 +30,7 @@ export function setup() {
 		const json = JSON.stringify(tree.tree);
 
 		try {
-			let otherError;
-
-			try {
-				// eslint-disable-next-line @internal/no-object-literals
-				const permission = await navigator.permissions.query({
-					// Cast safety: clipboard-write is not yet supported in
-					// all browsers and it is not in lib.dom.
-					name: 'clipboard-write' as never,
-				});
-
-				if (permission.state === 'denied') {
-					throw new Error('Not allowed to write to clipboard.');
-				}
-			} catch (error) {
-				otherError = error;
-			}
-
-			try {
-				await navigator.clipboard.writeText(json);
-				mode.closeAllDialogs();
-			} catch (error) {
-				throw otherError ?? error;
-			}
+			await copyText(json);
 		} catch (error) {
 			dialogCopyFailed.open(json, error);
 		}
