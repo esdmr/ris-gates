@@ -7,6 +7,7 @@
     "@internal/explained-casts": "error",
     "@internal/no-object-literals": "error",
     "@internal/type-only-imports": "error",
+    "@internal/import-preference": "error",
     "import/no-mutable-exports": "off",
     "unicorn/no-this-assignment": "off",
     "@typescript-eslint/no-this-alias": "off"
