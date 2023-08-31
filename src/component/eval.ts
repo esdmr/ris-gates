@@ -1,14 +1,14 @@
 import {assert} from '../lib/assert.js';
 import {EvalContext} from '../lib/eval.js';
-import {mode} from './mode.js';
-import {configPrefix, getString, setString} from './storage.js';
-import {tree} from './tree.js';
+import * as mode from './mode.js';
+import * as storage from './storage.js';
+import * as tree from './tree.js';
 
 let context: EvalContext | undefined;
 
 export function getEvalContext() {
-	assert(mode === 'eval');
-	if (!context) context = EvalContext.for(tree);
+	assert(mode.mode === 'eval');
+	if (!context) context = EvalContext.for(tree.tree);
 	return context;
 }
 
@@ -26,11 +26,18 @@ export function setEvaluationRate(newRate = defaultEvaluationRate) {
 	if (evaluationRate < 1) evaluationRate = 1;
 	else if (evaluationRate > 30) evaluationRate = 30;
 
-	setString(configEvaluationRate, String(evaluationRate), configPrefix);
+	storage.setString(
+		configEvaluationRate,
+		String(evaluationRate),
+		storage.configPrefix,
+	);
 }
 
 export function setup() {
 	setEvaluationRate(
-		Number.parseInt(getString(configEvaluationRate, configPrefix, ''), 10),
+		Number.parseInt(
+			storage.getString(configEvaluationRate, storage.configPrefix, ''),
+			10,
+		),
 	);
 }

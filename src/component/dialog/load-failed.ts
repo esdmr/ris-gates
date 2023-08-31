@@ -1,15 +1,15 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {openDialog, setupDialog} from '../mode.js';
+import * as mode from '../mode.js';
 
 const dialogLoadFailed = query('#dialog-load-failed', HTMLDialogElement);
 
 export function setup() {
-	setupDialog(dialogLoadFailed);
+	mode.setupDialog(dialogLoadFailed);
 	setupDialogCloseButton(dialogLoadFailed);
 }
 
 export function open(error?: unknown) {
-	openDialog(dialogLoadFailed);
+	mode.openDialog(dialogLoadFailed);
 
 	console.error('Load failed:', error);
 }

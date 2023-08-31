@@ -5,7 +5,7 @@ import {
 	query,
 } from '../../lib/dom.js';
 import * as tileType from '../../lib/tile-type.js';
-import {extendKeyBinds} from '../keyboard.js';
+import * as keyboard from '../keyboard.js';
 
 const buttonEmpty = query('#hud-empty', HTMLButtonElement);
 const buttonIo = query('#hud-io', HTMLButtonElement);
@@ -68,13 +68,19 @@ export function getSelectedTileType() {
 
 export function setup() {
 	/* eslint-disable @internal/no-object-literals */
-	extendKeyBinds('KeyQ', {normal: createClickHandler(buttonEmpty)});
-	extendKeyBinds('Digit1', {normal: createClickHandler(buttonIo)});
-	extendKeyBinds('Digit2', {normal: createClickHandler(buttonNegate)});
-	extendKeyBinds('Digit3', {normal: createClickHandler(buttonConjoin)});
-	extendKeyBinds('Digit4', {normal: createClickHandler(buttonDisjoin)});
-	extendKeyBinds('KeyR', {normal: createClickHandler(buttonDir)});
-	extendKeyBinds('Shift KeyR', {normal: createContextMenuHandler(buttonDir)});
+	keyboard.extendKeyBinds('KeyQ', {normal: createClickHandler(buttonEmpty)});
+	keyboard.extendKeyBinds('Digit1', {normal: createClickHandler(buttonIo)});
+	keyboard.extendKeyBinds('Digit2', {normal: createClickHandler(buttonNegate)});
+	keyboard.extendKeyBinds('Digit3', {
+		normal: createClickHandler(buttonConjoin),
+	});
+	keyboard.extendKeyBinds('Digit4', {
+		normal: createClickHandler(buttonDisjoin),
+	});
+	keyboard.extendKeyBinds('KeyR', {normal: createClickHandler(buttonDir)});
+	keyboard.extendKeyBinds('Shift KeyR', {
+		normal: createContextMenuHandler(buttonDir),
+	});
 	/* eslint-enable @internal/no-object-literals */
 
 	for (const [element, tool] of [

@@ -1,6 +1,6 @@
 import {queryAll} from '../lib/dom.js';
 import {QuadTree} from '../lib/tree.js';
-import {replaceTree, tree} from './tree.js';
+import * as tree from './tree.js';
 
 export const localStorageAvailable = /* @__PURE__ */ (() => {
 	try {
@@ -68,12 +68,12 @@ export function* listStorage(prefix = storagePrefix) {
 
 export function load(key: string) {
 	if (!localStorageAvailable) return;
-	replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
+	tree.replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
 }
 
 export function save(key: string) {
 	if (!localStorageAvailable) return;
-	setString(key, JSON.stringify(tree));
+	setString(key, JSON.stringify(tree.tree));
 }
 
 export class SaveBrowserElement extends HTMLElement {

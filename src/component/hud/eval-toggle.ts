@@ -1,26 +1,26 @@
 import {createClickHandler, query} from '../../lib/dom.js';
 import * as dialogEpilepsy from '../dialog/epilepsy.js';
-import {clearEvalContext} from '../eval.js';
-import {extendKeyBinds} from '../keyboard.js';
-import {mode, setMode} from '../mode.js';
-import {stopStabilityInterval, updateTickNo} from './eval.js';
+import * as eval_ from '../eval.js';
+import * as keyboard from '../keyboard.js';
+import * as mode from '../mode.js';
+import * as hudEval from './eval.js';
 
 const buttonEval = query('#hud-eval', HTMLButtonElement);
 
 export function setup() {
 	// eslint-disable-next-line @internal/no-object-literals
-	extendKeyBinds('KeyE', {
+	keyboard.extendKeyBinds('KeyE', {
 		normal: createClickHandler(buttonEval),
 		eval: createClickHandler(buttonEval),
 	});
 
 	buttonEval.addEventListener('click', () => {
-		const isEval = mode !== 'eval';
+		const isEval = mode.mode !== 'eval';
 
-		setMode(isEval ? 'eval' : 'normal');
-		clearEvalContext();
-		stopStabilityInterval();
-		updateTickNo(0n);
+		mode.setMode(isEval ? 'eval' : 'normal');
+		eval_.clearEvalContext();
+		hudEval.stopStabilityInterval();
+		hudEval.updateTickNo(0n);
 
 		query('title', SVGTitleElement, buttonEval).textContent = isEval
 			? 'modify'

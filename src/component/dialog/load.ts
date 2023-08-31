@@ -1,8 +1,8 @@
 import {assert} from '../../lib/assert.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import {QuadTree} from '../../lib/tree.js';
-import {closeAllDialogs, openDialog, setupDialog} from '../mode.js';
-import {replaceTree} from '../tree.js';
+import * as mode from '../mode.js';
+import * as tree from '../tree.js';
 import * as storage from '../storage.js';
 import * as dialogLoadFailed from './load-failed.js';
 import * as dialogPasteFailed from './paste-failed.js';
@@ -11,7 +11,7 @@ const dialogLoad = query('#dialog-load', HTMLDialogElement);
 const buttonPaste = query('#btn-paste', HTMLButtonElement, dialogLoad);
 
 export function setup() {
-	setupDialog(dialogLoad);
+	mode.setupDialog(dialogLoad);
 	setupDialogCloseButton(dialogLoad);
 
 	const saveBrowser = query(
@@ -26,7 +26,7 @@ export function setup() {
 
 		try {
 			storage.load(event.detail);
-			closeAllDialogs();
+			mode.closeAllDialogs();
 		} catch (error) {
 			dialogLoadFailed.open(error);
 		}
@@ -64,8 +64,8 @@ export function setup() {
 		}
 
 		try {
-			replaceTree(QuadTree.from(JSON.parse(text)));
-			closeAllDialogs();
+			tree.replaceTree(QuadTree.from(JSON.parse(text)));
+			mode.closeAllDialogs();
 		} catch (error) {
 			dialogLoadFailed.open(error);
 		}
@@ -73,7 +73,7 @@ export function setup() {
 }
 
 export function open() {
-	openDialog(dialogLoad);
+	mode.openDialog(dialogLoad);
 }
 
 export function close() {

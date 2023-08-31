@@ -1,6 +1,6 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {evaluationRate, setEvaluationRate} from '../eval.js';
-import {openDialog, setupDialog} from '../mode.js';
+import * as eval_ from '../eval.js';
+import * as mode from '../mode.js';
 import * as storage from '../storage.js';
 
 const dialogEpilepsy = query('#dialog-epilepsy', HTMLDialogElement);
@@ -24,7 +24,7 @@ function setEpilepsyWarningShown(value: boolean) {
 }
 
 export function setup() {
-	setupDialog(dialogEpilepsy);
+	mode.setupDialog(dialogEpilepsy);
 	setupDialogCloseButton(dialogEpilepsy);
 
 	setEpilepsyWarningShown(
@@ -38,15 +38,15 @@ export function setup() {
 	});
 
 	inputEvalRate.addEventListener('input', () => {
-		setEvaluationRate(inputEvalRate.valueAsNumber);
+		eval_.setEvaluationRate(inputEvalRate.valueAsNumber);
 	});
 }
 
 export function open() {
 	if (!epilepsyWarningShown) {
-		openDialog(dialogEpilepsy);
+		mode.openDialog(dialogEpilepsy);
 
-		inputEvalRate.value = String(evaluationRate);
+		inputEvalRate.value = String(eval_.evaluationRate);
 	}
 }
 

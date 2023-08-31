@@ -1,15 +1,9 @@
 import {assert} from '../../lib/assert.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import {QuadTree} from '../../lib/tree.js';
-import {openDialog, setupDialog} from '../mode.js';
-import {
-	SaveBrowserElement,
-	remove,
-	getString,
-	listStorage,
-	setString,
-} from '../storage.js';
-import {updateAutoSaveState} from '../auto-save.js';
+import * as mode from '../mode.js';
+import * as storage from '../storage.js';
+import * as autoSave from '../auto-save.js';
 import * as dialogSaveFailed from './save-failed.js';
 import * as dialogCopyFailed from './copy-failed.js';
 import * as dialogPasteFailed from './paste-failed.js';
@@ -24,10 +18,14 @@ const buttonDeleteAll = query(
 );
 
 export function setup() {
-	setupDialog(dialogBrowse);
+	mode.setupDialog(dialogBrowse);
 	setupDialogCloseButton(dialogBrowse);
 
-	const saveBrowser = query('save-browser', SaveBrowserElement, dialogBrowse);
+	const saveBrowser = query(
+		'save-browser',
+		storage.SaveBrowserElement,
+		dialogBrowse,
+	);
 
 	saveBrowser.addEventListener('primary', (event) => {
 		assert(event instanceof CustomEvent);
@@ -35,8 +33,8 @@ export function setup() {
 		assert(event.target instanceof HTMLElement);
 
 		try {
-			remove(event.detail);
-			updateAutoSaveState(event.detail);
+			storage.remove(event.detail);
+			autoSave.updateAutoSaveState(event.detail);
 			event.target.closest('li')?.remove();
 		} catch (error) {
 			dialogSaveFailed.open(error);
@@ -46,7 +44,7 @@ export function setup() {
 	saveBrowser.addEventListener('secondary', async (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
-		const json = getString(event.detail, undefined, '');
+		const json = storage.getString(event.detail, undefined, '');
 
 		try {
 			let otherError;
@@ -80,8 +78,8 @@ export function setup() {
 		// Cast safety: Procedurally populated object which will ultimately be stringified.
 		const json = Object.create(null) as Record<string, unknown>;
 
-		for (const key of listStorage()) {
-			json[key] = JSON.parse(getString(key, undefined, ''));
+		for (const key of storage.listStorage()) {
+			json[key] = JSON.parse(storage.getString(key, undefined, ''));
 		}
 
 		const text = JSON.stringify(json);
@@ -150,17 +148,17 @@ export function setup() {
 		assert(typeof json === 'object' && json !== null && !Array.isArray(json));
 
 		for (const [key, value] of Object.entries(json)) {
-			setString(key, JSON.stringify(QuadTree.from(value)));
+			storage.setString(key, JSON.stringify(QuadTree.from(value)));
 		}
 
 		saveBrowser.update();
 	});
 
 	buttonDeleteAll.addEventListener('click', () => {
-		const keys = [...listStorage()];
+		const keys = [...storage.listStorage()];
 
 		for (const key of keys) {
-			remove(key);
+			storage.remove(key);
 		}
 
 		saveBrowser.update();
@@ -168,7 +166,7 @@ export function setup() {
 }
 
 export function open() {
-	openDialog(dialogBrowse);
+	mode.openDialog(dialogBrowse);
 }
 
 export function close() {

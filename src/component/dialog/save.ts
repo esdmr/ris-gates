@@ -1,6 +1,6 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {closeAllDialogs, openDialog, setupDialog} from '../mode.js';
-import {tree} from '../tree.js';
+import * as mode from '../mode.js';
+import * as tree from '../tree.js';
 import * as storage from '../storage.js';
 import * as dialogSaveFailed from './save-failed.js';
 import * as dialogCopyFailed from './copy-failed.js';
@@ -11,7 +11,7 @@ const inputName = query('[name=name]', HTMLInputElement, form);
 const buttonCopy = query('#btn-copy', HTMLButtonElement, dialogSave);
 
 export function setup() {
-	setupDialog(dialogSave);
+	mode.setupDialog(dialogSave);
 	setupDialogCloseButton(dialogSave);
 
 	form.addEventListener('formdata', (event) => {
@@ -19,14 +19,14 @@ export function setup() {
 		if (!name || typeof name !== 'string') return;
 		try {
 			storage.save(name);
-			closeAllDialogs();
+			mode.closeAllDialogs();
 		} catch (error) {
 			dialogSaveFailed.open(error);
 		}
 	});
 
 	buttonCopy.addEventListener('click', async () => {
-		const json = JSON.stringify(tree);
+		const json = JSON.stringify(tree.tree);
 
 		try {
 			let otherError;
@@ -48,7 +48,7 @@ export function setup() {
 
 			try {
 				await navigator.clipboard.writeText(json);
-				closeAllDialogs();
+				mode.closeAllDialogs();
 			} catch (error) {
 				throw otherError ?? error;
 			}
@@ -59,7 +59,7 @@ export function setup() {
 }
 
 export function open() {
-	openDialog(dialogSave);
+	mode.openDialog(dialogSave);
 	inputName.value = '';
 }
 

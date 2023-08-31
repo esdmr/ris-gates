@@ -1,15 +1,15 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {openDialog, setupDialog} from '../mode.js';
+import * as mode from '../mode.js';
 
 const dialogSaveFailed = query('#dialog-save-failed', HTMLDialogElement);
 
 export function setup() {
-	setupDialog(dialogSaveFailed);
+	mode.setupDialog(dialogSaveFailed);
 	setupDialogCloseButton(dialogSaveFailed);
 }
 
 export function open(error?: unknown) {
-	openDialog(dialogSaveFailed);
+	mode.openDialog(dialogSaveFailed);
 	console.error('Save failed:', error);
 }
 

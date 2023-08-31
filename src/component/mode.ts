@@ -1,5 +1,5 @@
 import {queryAll} from '../lib/dom.js';
-import {SaveBrowserElement} from './storage.js';
+import * as storage from './storage.js';
 
 export type Mode =
 	| 'normal'
@@ -26,7 +26,7 @@ export function setupDialog(dialog: HTMLDialogElement) {
 
 		for (const browser of queryAll(
 			'save-browser',
-			SaveBrowserElement,
+			storage.SaveBrowserElement,
 			dialog,
 		)) {
 			browser.clear();
@@ -39,7 +39,11 @@ export function openDialog(dialog: HTMLDialogElement) {
 	openDialogs.add(dialog);
 	setMode('inert');
 
-	for (const browser of queryAll('save-browser', SaveBrowserElement, dialog)) {
+	for (const browser of queryAll(
+		'save-browser',
+		storage.SaveBrowserElement,
+		dialog,
+	)) {
 		browser.update();
 	}
 }

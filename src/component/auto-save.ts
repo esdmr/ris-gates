@@ -1,7 +1,7 @@
-import {exists, load, localStorageAvailable, save} from './storage.js';
+import * as storage from './storage.js';
 
 const autoSaveKey = '__auto_save__';
-let shouldAutoSave = localStorageAvailable;
+let shouldAutoSave = storage.localStorageAvailable;
 
 export function updateAutoSaveState(removedKey: string) {
 	if (removedKey === autoSaveKey) {
@@ -10,13 +10,13 @@ export function updateAutoSaveState(removedKey: string) {
 }
 
 export function setup() {
-	if (shouldAutoSave && exists(autoSaveKey)) {
-		load(autoSaveKey);
+	if (shouldAutoSave && storage.exists(autoSaveKey)) {
+		storage.load(autoSaveKey);
 	}
 
 	document.addEventListener('visibilitychange', function () {
 		if (document.visibilityState === 'hidden' && shouldAutoSave) {
-			save(autoSaveKey);
+			storage.save(autoSaveKey);
 		}
 	});
 }

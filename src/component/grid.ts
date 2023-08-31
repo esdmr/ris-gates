@@ -1,4 +1,4 @@
-import {setString, configPrefix, getString} from './storage.js';
+import * as storage from './storage.js';
 
 const configMinorGrid = 'minor-grid';
 const configMajorGrid = 'major-grid';
@@ -7,15 +7,27 @@ export let majorGridLength = 0n;
 
 export function setMinorGridVisibility(visible: boolean) {
 	shouldDrawMinorGrid = visible;
-	setString(configMinorGrid, shouldDrawMinorGrid ? 'y' : '', configPrefix);
+	storage.setString(
+		configMinorGrid,
+		shouldDrawMinorGrid ? 'y' : '',
+		storage.configPrefix,
+	);
 }
 
 export function setMajorGridLength(length: bigint) {
 	majorGridLength = length;
-	setString(configMajorGrid, String(majorGridLength), configPrefix);
+	storage.setString(
+		configMajorGrid,
+		String(majorGridLength),
+		storage.configPrefix,
+	);
 }
 
 export function setup() {
-	setMinorGridVisibility(Boolean(getString(configMinorGrid, configPrefix)));
-	setMajorGridLength(BigInt(getString(configMajorGrid, configPrefix, 0n)));
+	setMinorGridVisibility(
+		Boolean(storage.getString(configMinorGrid, storage.configPrefix)),
+	);
+	setMajorGridLength(
+		BigInt(storage.getString(configMajorGrid, storage.configPrefix, 0n)),
+	);
 }

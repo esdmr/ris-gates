@@ -1,4 +1,4 @@
-import {canvas} from './canvas.js';
+import * as canvas from './canvas.js';
 
 const eventCache: PointerEvent[] = [];
 const draggingThreshold = 1;
@@ -109,13 +109,13 @@ function pointerupHandler(event: PointerEvent) {
 }
 
 export function setup() {
-	canvas.addEventListener('pointerdown', pointerdownHandler);
-	canvas.addEventListener('pointermove', pointermoveHandler);
-	canvas.addEventListener('pointerover', pointermoveHandler);
-	canvas.addEventListener('pointerup', pointerupHandler);
-	canvas.addEventListener('pointercancel', pointerupHandler);
-	canvas.addEventListener('pointerout', pointerupHandler);
-	canvas.addEventListener('pointerleave', pointerupHandler);
+	canvas.canvas.addEventListener('pointerdown', pointerdownHandler);
+	canvas.canvas.addEventListener('pointermove', pointermoveHandler);
+	canvas.canvas.addEventListener('pointerover', pointermoveHandler);
+	canvas.canvas.addEventListener('pointerup', pointerupHandler);
+	canvas.canvas.addEventListener('pointercancel', pointerupHandler);
+	canvas.canvas.addEventListener('pointerout', pointerupHandler);
+	canvas.canvas.addEventListener('pointerleave', pointerupHandler);
 }
 
 export function commit() {

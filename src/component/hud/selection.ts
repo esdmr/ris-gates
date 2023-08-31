@@ -1,5 +1,5 @@
 import {query, createClickHandler} from '../../lib/dom.js';
-import {extendKeyBinds} from '../keyboard.js';
+import * as keyboard from '../keyboard.js';
 import * as selection from '../selection.js';
 
 const buttonUnselect = query('#hud-unselect', HTMLButtonElement);
@@ -9,10 +9,18 @@ const buttonCopy = query('#hud-copy', HTMLButtonElement);
 
 export function setup() {
 	/* eslint-disable @internal/no-object-literals */
-	extendKeyBinds('Escape', {selected: createClickHandler(buttonUnselect)});
-	extendKeyBinds('Control KeyX', {selected: createClickHandler(buttonCut)});
-	extendKeyBinds('Control KeyC', {selected: createClickHandler(buttonCopy)});
-	extendKeyBinds('Delete', {selected: createClickHandler(buttonDelete)});
+	keyboard.extendKeyBinds('Escape', {
+		selected: createClickHandler(buttonUnselect),
+	});
+	keyboard.extendKeyBinds('Control KeyX', {
+		selected: createClickHandler(buttonCut),
+	});
+	keyboard.extendKeyBinds('Control KeyC', {
+		selected: createClickHandler(buttonCopy),
+	});
+	keyboard.extendKeyBinds('Delete', {
+		selected: createClickHandler(buttonDelete),
+	});
 	/* eslint-enable @internal/no-object-literals */
 
 	buttonUnselect.addEventListener('click', () => {

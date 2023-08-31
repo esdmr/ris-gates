@@ -4,8 +4,8 @@ import {Schematic} from '../lib/schematic.js';
 import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
 import {WalkStep} from '../lib/walk.js';
-import {setMode} from './mode.js';
-import {tree} from './tree.js';
+import * as mode from './mode.js';
+import * as tree from './tree.js';
 
 export let firstX = 0n;
 export let firstY = 0n;
@@ -13,7 +13,7 @@ export let secondX = 0n;
 export let secondY = 0n;
 
 export function unselect() {
-	setMode('normal');
+	mode.setMode('normal');
 }
 
 export function setFirstPosition(fromX: bigint, fromY: bigint) {
@@ -21,7 +21,7 @@ export function setFirstPosition(fromX: bigint, fromY: bigint) {
 	firstY = fromY;
 	secondX = fromX;
 	secondY = fromY;
-	setMode('selected');
+	mode.setMode('selected');
 }
 
 export function setSecondPosition(toX: bigint, toY: bigint) {
@@ -47,7 +47,7 @@ function get(display: AxisAlignedBoundingBox): Schematic {
 	}).fill(tileType.empty);
 
 	const progress: WalkStep[] = [
-		new WalkStep(tree.getContainingNode(display, searchMode.find)),
+		new WalkStep(tree.tree.getContainingNode(display, searchMode.find)),
 	];
 
 	while (progress.length > 0) {
@@ -96,7 +96,7 @@ function set({tiles, width, height}: Schematic, topLeft: Point) {
 		BigInt(height),
 	);
 
-	const root = tree.getContainingNode(display, searchMode.make);
+	const root = tree.tree.getContainingNode(display, searchMode.make);
 
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {

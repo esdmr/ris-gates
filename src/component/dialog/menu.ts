@@ -1,9 +1,9 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import {QuadTree} from '../../lib/tree.js';
-import {evaluationRate, setEvaluationRate} from '../eval.js';
+import * as eval_ from '../eval.js';
 import * as grid from '../grid.js';
-import {openDialog, setupDialog} from '../mode.js';
-import {replaceTree} from '../tree.js';
+import * as mode from '../mode.js';
+import * as tree from '../tree.js';
 import * as dialogBrowse from './browse.js';
 import * as dialogLoad from './load.js';
 import * as dialogSave from './save.js';
@@ -28,7 +28,7 @@ const buttonScreenshot = query(
 );
 
 export function setup() {
-	setupDialog(dialogMenu);
+	mode.setupDialog(dialogMenu);
 	setupDialogCloseButton(dialogMenu);
 
 	checkboxMinorGrid.addEventListener('change', () => {
@@ -40,11 +40,11 @@ export function setup() {
 	});
 
 	inputEvalRate.addEventListener('input', () => {
-		setEvaluationRate(inputEvalRate.valueAsNumber);
+		eval_.setEvaluationRate(inputEvalRate.valueAsNumber);
 	});
 
 	buttonClear.addEventListener('click', () => {
-		replaceTree(new QuadTree());
+		tree.replaceTree(new QuadTree());
 	});
 
 	buttonLoad.addEventListener('click', () => {
@@ -65,11 +65,11 @@ export function setup() {
 }
 
 export function open() {
-	openDialog(dialogMenu);
+	mode.openDialog(dialogMenu);
 
 	checkboxMinorGrid.checked = grid.shouldDrawMinorGrid;
 	inputMajorGrid.value = String(grid.majorGridLength);
-	inputEvalRate.value = String(evaluationRate);
+	inputEvalRate.value = String(eval_.evaluationRate);
 }
 
 export function close() {

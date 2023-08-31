@@ -1,10 +1,10 @@
-import {mode, type Mode} from './mode.js';
+import * as mode from './mode.js';
 
-const keyBinds = new Map<string, Partial<Record<Mode, () => void>>>();
+const keyBinds = new Map<string, Partial<Record<mode.Mode, () => void>>>();
 
 export function extendKeyBinds(
 	name: string,
-	binds: Partial<Record<Mode, () => void>>,
+	binds: Partial<Record<mode.Mode, () => void>>,
 ) {
 	// eslint-disable-next-line @internal/no-object-literals
 	keyBinds.set(name, {
@@ -21,7 +21,7 @@ export function setup() {
 			(event.shiftKey ? 'Shift ' : '') +
 			event.code;
 
-		const handler = keyBinds.get(key)?.[mode];
+		const handler = keyBinds.get(key)?.[mode.mode];
 		if (!handler) return;
 
 		event.preventDefault();
