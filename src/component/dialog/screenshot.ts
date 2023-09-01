@@ -1,5 +1,5 @@
 import {nonNullable} from '../../lib/assert.js';
-import {query, setupDialogCloseButton} from '../../lib/dom.js';
+import {query, queryAll, setupDialogCloseButton} from '../../lib/dom.js';
 import * as canvas from '../canvas.js';
 import * as mode from '../mode.js';
 import * as theme from '../theme.js';
@@ -45,8 +45,7 @@ function clearScreenshotOverrides() {
 	theme.updateStylesFromCss();
 }
 
-async function takeScreenshot(formData: FormData) {
-	const type = nonNullable(formData.get('type')).toString();
+async function takeScreenshot(type: string) {
 	let data: string | Blob;
 
 	switch (type) {
@@ -102,12 +101,17 @@ export function setup() {
 		setupScreenshotOverrides();
 	});
 
-	screenshotForm.addEventListener('submit', (event) => {
-		event.preventDefault();
-		const formData = new FormData(screenshotForm, event.submitter);
-		setupScreenshotOverrides(formData);
-		void takeScreenshot(formData);
-	});
+	for (const button of queryAll(
+		'[name=type]',
+		HTMLButtonElement,
+		dialogScreenshot,
+	)) {
+		button.addEventListener('click', () => {
+			const formData = new FormData(screenshotForm);
+			setupScreenshotOverrides(formData);
+			void takeScreenshot(button.value);
+		});
+	}
 }
 
 export function open() {
