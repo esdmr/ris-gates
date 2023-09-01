@@ -17,6 +17,7 @@ const buttonDirPath = query('#hud-dir path', SVGPathElement);
 const buttonDirTitle = query('#hud-dir title', SVGTitleElement);
 
 type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
+// eslint-disable-next-line @internal/no-object-literals
 const directions = ['up', 'right', 'down', 'left'] as const;
 
 let selectedTool: ToolTypes = 'io';
@@ -89,6 +90,7 @@ export function setup() {
 		[buttonNegate, 'negate'],
 		[buttonConjoin, 'conjoin'],
 		[buttonDisjoin, 'disjoin'],
+		// eslint-disable-next-line @internal/no-object-literals
 	] satisfies Array<[HTMLElement, ToolTypes]>) {
 		// eslint-disable-next-line @typescript-eslint/no-loop-func
 		element.addEventListener('click', () => {

@@ -11,6 +11,7 @@ export const disjoinE = 21;
 export const disjoinS = 22;
 export const disjoinW = 23;
 
+// eslint-disable-next-line @internal/no-object-literals
 export const quadTreeTileType = [
 	empty,
 	io,

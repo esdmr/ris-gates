@@ -45,8 +45,12 @@ export class TilesMap {
 	}
 }
 
+export class NegateVertex {
+	constructor(public x: symbol, public y: symbol) {}
+}
+
 export class EvalGraph {
-	readonly vertices = new Map<QuadTreeNode, symbol | [h: symbol, v: symbol]>();
+	readonly vertices = new Map<QuadTreeNode, symbol | NegateVertex>();
 	readonly positiveEdges = new Map<symbol, Set<symbol>>();
 	readonly negativeEdges = new Map<symbol, Set<symbol>>();
 	protected declare _toDot?: () => string;
@@ -91,7 +95,7 @@ export class EvalGraph {
 				map.tiles.get(`${x + 1n},${y}`),
 				map.tiles.get(`${x},${y + 1n}`),
 				map.tiles.get(`${x - 1n},${y}`),
-			] as const;
+			];
 
 			for (const [dir, other] of adjacentTiles.entries()) {
 				if (!other) {
@@ -240,18 +244,18 @@ export class EvalGraph {
 		const symbol = mapGet(this.vertices, tile, () => {
 			const {x, y} = tile.bounds.topLeft;
 			return tile.type === tileType.negate
-				? ([
-						Symbol(`QTN(${x}, ${y}, H)`),
-						Symbol(`QTN(${x}, ${y}, V)`),
-				  ] as const)
+				? new NegateVertex(
+						Symbol(`QTN(${x}, ${y}, X)`),
+						Symbol(`QTN(${x}, ${y}, Y)`),
+				  )
 				: Symbol(`QTN(${x}, ${y})`);
 		});
 
 		return typeof symbol === 'symbol'
 			? symbol
 			: other.bounds.topLeft.y === tile.bounds.topLeft.y
-			? symbol[0]
-			: symbol[1];
+			? symbol.x
+			: symbol.y;
 	}
 
 	private _addEdge(from: QuadTreeNode, to: QuadTreeNode, positive = true) {
@@ -279,9 +283,9 @@ export class EvalContext {
 
 	constructor(private readonly _graph: EvalGraph) {
 		for (const symbols of _graph.vertices.values()) {
-			if (!Array.isArray(symbols)) continue;
-			this._enabled.add(symbols[0]);
-			this._enabled.add(symbols[1]);
+			if (typeof symbols === 'symbol') continue;
+			this._enabled.add(symbols.x);
+			this._enabled.add(symbols.y);
 		}
 	}
 
