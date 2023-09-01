@@ -17,7 +17,7 @@ export async function outputToSvg() {
 	const oldCanvas = canvas;
 	const olContext = context;
 	const svgCanvas = document.createElement('svg-canvas');
-	const svgContext = nonNullable(svgCanvas.getContext('2d'));
+	const svgContext = nonNullable(svgCanvas.getContext());
 
 	svgCanvas.width = oldCanvas.width;
 	svgCanvas.height = oldCanvas.height;
