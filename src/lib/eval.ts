@@ -101,9 +101,9 @@ export class EvalGraph {
 				// Cast safety: Guaranteed to be a tile.
 				const type = other.type as tileType.QuadTreeTileType;
 
-				if (tileType.isConjoin(type)) {
+				if (tileType.isRotatedFormOf(type, tileType.conjoinN)) {
 					this._processConjoin(tile, other, dir);
-				} else if (tileType.isDisjoin(type)) {
+				} else if (tileType.isRotatedFormOf(type, tileType.disjoinN)) {
 					this._processDisjoin(tile, other, dir);
 				}
 			}
