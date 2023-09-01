@@ -1,5 +1,5 @@
 const path = require('node:path');
-const {ESLintUtils} = require('@typescript-eslint/utils');
+const {ESLintUtils, AST_NODE_TYPES} = require('@typescript-eslint/utils');
 
 module.exports = ESLintUtils.RuleCreator.withoutDocs({
 	create(context) {
@@ -19,7 +19,7 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 				);
 
 				const isUsingNamespaceImport = node.specifiers.every(
-					(child) => child.type === 'ImportNamespaceSpecifier',
+					(child) => child.type === AST_NODE_TYPES.ImportNamespaceSpecifier,
 				);
 				const shouldBeUsingNamespaceImport =
 					/([/\\])src\1(?:component\1|lib\1(?:search-mode|tile-type))/.test(
