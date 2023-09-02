@@ -1,4 +1,3 @@
-/* eslint-disable @internal/no-object-literals */
 import process from 'node:process';
 import {defineConfig} from 'vite';
 import MagicString from 'magic-string';

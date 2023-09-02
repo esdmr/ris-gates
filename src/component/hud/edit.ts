@@ -20,6 +20,14 @@ type ToolTypes = 'empty' | 'io' | 'negate' | 'conjoin' | 'disjoin';
 // eslint-disable-next-line @internal/no-object-literals
 const directions = ['up', 'right', 'down', 'left'] as const;
 
+const tools = new Map<ToolTypes, HTMLElement>([
+	['empty', buttonEmpty],
+	['io', buttonIo],
+	['negate', buttonNegate],
+	['conjoin', buttonConjoin],
+	['disjoin', buttonDisjoin],
+]);
+
 let selectedTool: ToolTypes = 'io';
 let selectedDirection: (typeof directions)[number] = 'up';
 
@@ -84,14 +92,7 @@ export function setup() {
 	});
 	/* eslint-enable @internal/no-object-literals */
 
-	for (const [element, tool] of [
-		[buttonEmpty, 'empty'],
-		[buttonIo, 'io'],
-		[buttonNegate, 'negate'],
-		[buttonConjoin, 'conjoin'],
-		[buttonDisjoin, 'disjoin'],
-		// eslint-disable-next-line @internal/no-object-literals
-	] satisfies Array<[HTMLElement, ToolTypes]>) {
+	for (const [tool, element] of tools) {
 		// eslint-disable-next-line @typescript-eslint/no-loop-func
 		element.addEventListener('click', () => {
 			selectedTool = tool;

@@ -78,8 +78,9 @@ export function save(key: string) {
 
 export class SaveBrowserElement extends HTMLElement {
 	clear() {
-		// eslint-disable-next-line unicorn/no-useless-spread
-		for (const item of [...this.children]) {
+		const children = [...this.children];
+
+		for (const item of children) {
 			item.remove();
 		}
 	}

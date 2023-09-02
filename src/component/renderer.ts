@@ -167,43 +167,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	canvas.context.fillStyle = 'transparent';
 	canvas.context.strokeStyle = theme.strokeStyle;
 
-	if (grid.shouldDrawMinorGrid) {
-		canvas.context.lineWidth = minorGridStrokeWidth * dip;
-		canvas.context.beginPath();
-
-		for (let dx = 1; dx <= display.width; dx++) {
-			canvas.context.moveTo(dx * realScale - offsetX, 0);
-			canvas.context.lineTo(dx * realScale - offsetX, height);
-		}
-
-		for (let dy = 1; dy <= display.height; dy++) {
-			canvas.context.moveTo(0, dy * realScale - offsetY);
-			canvas.context.lineTo(width, dy * realScale - offsetY);
-		}
-
-		canvas.context.stroke();
-	}
-
-	if (grid.majorGridLength) {
-		canvas.context.lineWidth = majorGridStrokeWidth * dip;
-		canvas.context.beginPath();
-
-		for (let dx = 1; dx <= display.width; dx++) {
-			if ((tree.scrollX.bigint + BigInt(dx)) % grid.majorGridLength === 0n) {
-				canvas.context.moveTo(dx * realScale - offsetX, 0);
-				canvas.context.lineTo(dx * realScale - offsetX, height);
-			}
-		}
-
-		for (let dy = 1; dy <= display.height; dy++) {
-			if ((tree.scrollY.bigint + BigInt(dy)) % grid.majorGridLength === 0n) {
-				canvas.context.moveTo(0, dy * realScale - offsetY);
-				canvas.context.lineTo(width, dy * realScale - offsetY);
-			}
-		}
-
-		canvas.context.stroke();
-	}
+	drawGrid(dip, realScale, display, offsetX, offsetY, width, height);
 
 	canvas.context.lineWidth = strokeWidth * dip;
 
@@ -236,9 +200,9 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			mode.mode !== 'eval' || eval_.getEvalContext().output(node);
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
-			canvas.context.fillStyle = isActive
-				? activeFillStyles[type]
-				: passiveFillStyles[type];
+			canvas.context.fillStyle =
+				(isActive ? activeFillStyles : passiveFillStyles).get(type) ??
+				'transparent';
 			lastType = type;
 			wasActive = isActive;
 		}
@@ -343,6 +307,55 @@ function convertSizeToDisplayCoordinate(
 			max,
 		) - axisDisplay
 	);
+}
+
+// eslint-disable-next-line max-params
+function drawGrid(
+	dip: number,
+	realScale: number,
+	display: AxisAlignedBoundingBox,
+	offsetX: number,
+	offsetY: number,
+	width: number,
+	height: number,
+) {
+	if (grid.shouldDrawMinorGrid) {
+		canvas.context.lineWidth = minorGridStrokeWidth * dip;
+		canvas.context.beginPath();
+
+		for (let dx = 1; dx <= display.width; dx++) {
+			canvas.context.moveTo(dx * realScale - offsetX, 0);
+			canvas.context.lineTo(dx * realScale - offsetX, height);
+		}
+
+		for (let dy = 1; dy <= display.height; dy++) {
+			canvas.context.moveTo(0, dy * realScale - offsetY);
+			canvas.context.lineTo(width, dy * realScale - offsetY);
+		}
+
+		canvas.context.stroke();
+	}
+
+	if (grid.majorGridLength) {
+		canvas.context.lineWidth = majorGridStrokeWidth * dip;
+		canvas.context.beginPath();
+
+		for (let dx = 1; dx <= display.width; dx++) {
+			if ((tree.scrollX.bigint + BigInt(dx)) % grid.majorGridLength === 0n) {
+				canvas.context.moveTo(dx * realScale - offsetX, 0);
+				canvas.context.lineTo(dx * realScale - offsetX, height);
+			}
+		}
+
+		for (let dy = 1; dy <= display.height; dy++) {
+			if ((tree.scrollY.bigint + BigInt(dy)) % grid.majorGridLength === 0n) {
+				canvas.context.moveTo(0, dy * realScale - offsetY);
+				canvas.context.lineTo(width, dy * realScale - offsetY);
+			}
+		}
+
+		canvas.context.stroke();
+	}
 }
 
 // eslint-disable-next-line max-params

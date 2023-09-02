@@ -4,10 +4,6 @@
     "@internal"
   ],
   "rules": {
-    "@internal/explained-casts": "error",
-    "@internal/no-object-literals": "error",
-    "@internal/type-only-imports": "error",
-    "@internal/import-preference": "error",
     "import/no-mutable-exports": "off",
     "unicorn/no-this-assignment": "off",
     "@typescript-eslint/no-this-alias": "off"
@@ -17,8 +13,16 @@
       "files": "lint/**/*",
       "rules": {
         "unicorn/prefer-module": "off",
-        "@internal/no-object-literals": "off",
         "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": "src/**/*",
+      "rules": {
+        "@internal/explained-casts": "error",
+        "@internal/no-object-literals": "error",
+        "@internal/type-only-imports": "error",
+        "@internal/import-preference": "error"
       }
     }
   ]

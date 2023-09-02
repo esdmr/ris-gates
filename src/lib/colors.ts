@@ -14,32 +14,30 @@ const ioColorPassive = '#003C75';
 const conjoinColorPassive = '#00532F';
 const disjoinColorPassive = '#7D4600';
 
-// eslint-disable-next-line @internal/no-object-literals
-export const passiveFillStyles: Record<tileType.QuadTreeTileType, string> = {
-	[tileType.io]: ioColorPassive,
-	[tileType.negate]: negateColorActive,
-	[tileType.conjoinN]: conjoinColorPassive,
-	[tileType.conjoinS]: conjoinColorPassive,
-	[tileType.conjoinE]: conjoinColorPassive,
-	[tileType.conjoinW]: conjoinColorPassive,
-	[tileType.disjoinN]: disjoinColorPassive,
-	[tileType.disjoinS]: disjoinColorPassive,
-	[tileType.disjoinE]: disjoinColorPassive,
-	[tileType.disjoinW]: disjoinColorPassive,
-	[tileType.empty]: 'transparent',
-};
+export const passiveFillStyles = new Map<tileType.QuadTreeTileType, string>([
+	[tileType.io, ioColorPassive],
+	[tileType.negate, negateColorActive],
+	[tileType.conjoinN, conjoinColorPassive],
+	[tileType.conjoinS, conjoinColorPassive],
+	[tileType.conjoinE, conjoinColorPassive],
+	[tileType.conjoinW, conjoinColorPassive],
+	[tileType.disjoinN, disjoinColorPassive],
+	[tileType.disjoinS, disjoinColorPassive],
+	[tileType.disjoinE, disjoinColorPassive],
+	[tileType.disjoinW, disjoinColorPassive],
+	[tileType.empty, 'transparent'],
+]);
 
-// eslint-disable-next-line @internal/no-object-literals
-export const activeFillStyles: Record<tileType.QuadTreeTileType, string> = {
-	[tileType.io]: ioColorActive,
-	[tileType.negate]: negateColorActive,
-	[tileType.conjoinN]: conjoinColorActive,
-	[tileType.conjoinS]: conjoinColorActive,
-	[tileType.conjoinE]: conjoinColorActive,
-	[tileType.conjoinW]: conjoinColorActive,
-	[tileType.disjoinN]: disjoinColorActive,
-	[tileType.disjoinS]: disjoinColorActive,
-	[tileType.disjoinE]: disjoinColorActive,
-	[tileType.disjoinW]: disjoinColorActive,
-	[tileType.empty]: 'transparent',
-};
+export const activeFillStyles = new Map<tileType.QuadTreeTileType, string>([
+	[tileType.io, ioColorActive],
+	[tileType.negate, negateColorActive],
+	[tileType.conjoinN, conjoinColorActive],
+	[tileType.conjoinS, conjoinColorActive],
+	[tileType.conjoinE, conjoinColorActive],
+	[tileType.conjoinW, conjoinColorActive],
+	[tileType.disjoinN, disjoinColorActive],
+	[tileType.disjoinS, disjoinColorActive],
+	[tileType.disjoinE, disjoinColorActive],
+	[tileType.disjoinW, disjoinColorActive],
+	[tileType.empty, 'transparent'],
+]);
