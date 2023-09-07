@@ -38,7 +38,7 @@ function rotateDirection(offset: 1 | 3) {
 	selectedDirection = newDirection;
 	buttonDirPath.style.transform = `rotate(${newIndex / 4}turn)`;
 
-	const label = `direction: ${newDirection}`;
+	const label = `Direction: ${newDirection}`;
 	buttonDirTitle.textContent = label;
 	buttonDir.setAttribute('aria-label', label);
 }
