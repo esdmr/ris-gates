@@ -47,6 +47,10 @@ declare global {
 	}
 }
 
+function notImplemented(): never {
+	throw new Error('Not Implemented');
+}
+
 function createSvg<K extends keyof SVGElementTagNameMap>(
 	qualifiedName: K,
 	attributes: Record<string, unknown>,
@@ -178,22 +182,22 @@ export class SvgCanvasContext implements ContextLike {
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createConicGradient) */
 	createConicGradient(): CanvasGradient {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createLinearGradient) */
 	createLinearGradient(): CanvasGradient {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createPattern) */
 	createPattern(): CanvasPattern | null {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createRadialGradient) */
 	createRadialGradient(): CanvasGradient {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/lineCap) */
@@ -230,7 +234,7 @@ export class SvgCanvasContext implements ContextLike {
 	clip(fillRule?: CanvasFillRule): void;
 	clip(path: Path2D, fillRule?: CanvasFillRule): void;
 	clip() {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/fill) */
@@ -258,14 +262,14 @@ export class SvgCanvasContext implements ContextLike {
 		fillRule?: CanvasFillRule,
 	): boolean;
 	isPointInPath(): boolean {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/isPointInStroke) */
 	isPointInStroke(x: number, y: number): boolean;
 	isPointInStroke(path: Path2D, x: number, y: number): boolean;
 	isPointInStroke(): boolean {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/stroke) */
@@ -317,12 +321,12 @@ export class SvgCanvasContext implements ContextLike {
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/arcTo) */
 	arcTo(): void {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo) */
 	bezierCurveTo(): void {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/closePath) */
@@ -332,7 +336,7 @@ export class SvgCanvasContext implements ContextLike {
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/ellipse) */
 	ellipse(): void {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/lineTo) */
@@ -347,17 +351,17 @@ export class SvgCanvasContext implements ContextLike {
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/quadraticCurveTo) */
 	quadraticCurveTo(): void {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/rect) */
 	rect(): void {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/roundRect) */
 	roundRect(): void {
-		throw new Error('Not Implemented');
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/clearRect) */
