@@ -1,4 +1,4 @@
-import {query, setupDialogCloseButton} from '../../lib/dom.js';
+import {query} from '../../lib/dom.js';
 import * as eval_ from '../eval.js';
 import * as mode from '../mode.js';
 import * as storage from '../storage.js';
@@ -25,7 +25,6 @@ function setEpilepsyWarningShown(value: boolean) {
 
 export function setup() {
 	mode.setupDialog(dialogEpilepsy);
-	setupDialogCloseButton(dialogEpilepsy);
 
 	setEpilepsyWarningShown(
 		Boolean(
@@ -34,7 +33,10 @@ export function setup() {
 	);
 
 	dialogEpilepsy.addEventListener('close', () => {
-		setEpilepsyWarningShown(true);
+		if (dialogEpilepsy.returnValue === 'proceed') {
+			setEpilepsyWarningShown(true);
+			mode.setMode('eval');
+		}
 	});
 
 	inputEvalRate.addEventListener('input', () => {

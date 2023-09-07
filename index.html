@@ -177,25 +177,20 @@
 							min="1" max="30" step="1">
 					</label>
 				</fieldset>
-				<button id="btn-clear" class="full-width">clear</button>
+			</section>
+			<section class="footer">
+				<button id="btn-clear" class="full-width">Clear</button>
 				<button id="btn-load"
-					class="full-width requires-local-storage">load</button>
+					class="full-width requires-local-storage">Load</button>
 				<button id="btn-save"
-					class="full-width requires-local-storage">save</button>
+					class="full-width requires-local-storage">Save</button>
 				<button id="btn-browse"
-					class="full-width requires-local-storage">browse</button>
+					class="full-width requires-local-storage">Browse</button>
 				<button id="btn-screenshot"
-					class="full-width requires-local-storage">screenshot</button>
+					class="full-width requires-local-storage">Screenshot</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-epilepsy">
-			<button class="close" aria-label="close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
-					<title>close</title>
-					<use href="icons.svg#cross" />
-				</svg>
-			</button>
 			<h1 class="title">Epilepsy Warning</h1>
 			<section class="body">
 				<p>
@@ -209,6 +204,12 @@
 						min="1" max="30" step="1">
 				</label>
 			</section>
+			<section class="footer">
+				<form method="dialog">
+					<button value="cancel">Cancel</button>
+					<button value="proceed">Proceed</button>
+				</form>
+			</section>
 		</dialog>
 		<dialog id="dialog-load">
 			<button class="close" aria-label="close">
@@ -220,8 +221,10 @@
 			</button>
 			<h1 class="title">Load</h1>
 			<section class="body">
-				<button id="btn-paste">paste from clipboard</button>
 				<save-browser primary="load"></save-browser>
+			</section>
+			<section class="footer">
+				<button id="btn-paste">Paste</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-load-failed">
@@ -267,8 +270,7 @@
 			</button>
 			<h1 class="title">Save</h1>
 			<section class="body">
-				<button id="btn-copy">copy to clipboard</button>
-				<form method="dialog">
+				<form method="dialog" id="form-save">
 					<p>
 						<label>Name
 							<input type="text" name="name" autocomplete="off"
@@ -278,6 +280,10 @@
 				</form>
 				<h2>Other saves</h2>
 				<save-browser></save-browser>
+			</section>
+			<section class="footer">
+				<button id="btn-copy">Copy</button>
+				<button form="form-save">Save</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-save-failed">
@@ -322,11 +328,13 @@
 			</button>
 			<h1 class="title">Browse</h1>
 			<section class="body">
-				<button id="btn-export">export to clipboard</button>
-				<button id="btn-import">import from clipboard</button>
-				<button id="btn-delete-all">delete all</button>
 				<save-browser primary="delete"
 					secondary="copy to clipboard"></save-browser>
+			</section>
+			<section class="footer">
+				<button id="btn-delete-all">Delete all</button>
+				<button id="btn-import">Import</button>
+				<button id="btn-export">Export</button>
 			</section>
 		</dialog>
 		<dialog id="dialog-screenshot">
@@ -339,7 +347,7 @@
 			</button>
 			<h1 class="title">Screenshot</h1>
 			<section class="body">
-				<form method="dialog">
+				<form method="dialog" id="form-screenshot">
 					<fieldset>
 						<legend>Appearance</legend>
 						<label>
@@ -384,11 +392,15 @@
 								autocomplete="off" data-keep-value="true">
 						</label>
 					</fieldset>
-					<button type="button" class="full-width" name="type" value="png">Raster
-						(PNG)</button>
-					<button type="button" class="full-width" name="type" value="svg">Vector
-						(SVG)</button>
 				</form>
+			</section>
+			<section class="footer">
+				<button type="button" class="full-width" name="type" value="png"
+					form="form-screenshot">Raster
+					(PNG)</button>
+				<button type="button" class="full-width" name="type" value="svg"
+					form="form-screenshot">Vector
+					(SVG)</button>
 			</section>
 		</dialog>
 	</body>
