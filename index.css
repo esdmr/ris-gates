@@ -15,13 +15,13 @@
 	--font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.screenshot > canvas {
+[data-mode=screenshot] > canvas {
 	--background: var(--light-background);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
 }
 
-.screenshot.dark > canvas {
+[data-mode=screenshot].dark > canvas {
 	--background: var(--dark-background);
 	--foreground: var(--dark-foreground);
 	--selection: var(--dark-selection);
