@@ -305,7 +305,7 @@ export class EvalContext {
 		if (this._undoStack.length > maxUndoCount) this._undoStack.shift();
 
 		let anythingUpdated = false;
-		console.group('Next Tick:', ++this._tickCount);
+		if (import.meta.env.DEV) console.group('Next Tick:', ++this._tickCount);
 
 		// Make sure this loop terminates. If you created a loop with an IO
 		// tile, it would have produced a sub-tick pulse and cause this loop to
@@ -330,7 +330,7 @@ export class EvalContext {
 				}
 
 				if (this._enabled.has(to) !== value) {
-					console.log('+', from, to, value);
+					if (import.meta.env.DEV) console.log('+', from, to, value);
 					setToggle(this._enabled, to, value);
 					updated = true;
 					anythingUpdated = true;
@@ -350,13 +350,13 @@ export class EvalContext {
 			}
 
 			if (this._enabled.has(to) === value) {
-				console.log('-', from, to, !value);
+				if (import.meta.env.DEV) console.log('-', from, to, !value);
 				setToggle(this._enabled, to, !value);
 				anythingUpdated = true;
 			}
 		}
 
-		console.groupEnd();
+		if (import.meta.env.DEV) console.groupEnd();
 
 		if (!anythingUpdated) {
 			this._undoStack[this._undoStack.length - 1] = unchanged;
@@ -368,7 +368,7 @@ export class EvalContext {
 	tickBackward() {
 		const oldState = this._undoStack.pop();
 		if (!oldState) return false;
-		console.log('Previous Tick:', --this._tickCount);
+		if (import.meta.env.DEV) console.log('Previous Tick:', --this._tickCount);
 		if (oldState !== unchanged) this._enabled = oldState;
 		return oldState !== unchanged;
 	}

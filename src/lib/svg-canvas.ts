@@ -138,7 +138,8 @@ export class SvgCanvas extends HTMLElement implements CanvasLike {
 	}
 
 	clear() {
-		console.trace('Clearing SVG canvas');
+		if (import.meta.env.DEV) console.trace('Clearing SVG canvas');
+
 		for (const child of this._svg.children) {
 			child.remove();
 		}
