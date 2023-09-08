@@ -36,7 +36,7 @@ export let scale = defaultScale;
 
 export function setScale(newScale: number) {
 	scale = newScale;
-	if (!Number.isFinite) scale = defaultScale;
+	if (!Number.isFinite(scale)) scale = defaultScale;
 	else if (scale < minimumScale) scale = minimumScale;
 	else if (scale > maximumScale) scale = maximumScale;
 }
