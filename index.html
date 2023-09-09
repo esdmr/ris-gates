@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<canvas id="canvas"></canvas>
-		<div class="hud" aria-label="heads-on display">
+		<div class="hud" aria-label="Heads-on Display">
 			<div class="show-if-normal show-if-eval" role="presentation">
 				<button id="hud-eval" aria-label="evaluate" role="checkbox"
 					aria-checked="false">
@@ -23,14 +23,14 @@
 			</div>
 			<div class="show-if-eval" role="presentation">
 				<button id="hud-tick-bwd-stable"
-					aria-label="previous stable tick">
+					aria-label="Previous stable tick">
 					<svg viewBox="0 0 1 1" fill="var(--foreground)">
 						<title>Previous stable tick</title>
 						<use href="icons.svg#tick-stable"
 							style="transform-origin: center; transform: rotate(180deg)" />
 					</svg>
 				</button>
-				<button id="hud-tick-bwd" aria-label="previous tick">
+				<button id="hud-tick-bwd" aria-label="Previous tick">
 					<svg viewBox="0 0 1 1" fill="var(--foreground)">
 						<title>Previous tick</title>
 						<use href="icons.svg#tick"
@@ -38,13 +38,13 @@
 					</svg>
 				</button>
 				<div id="hud-tick-no" class="hud-message">0</div>
-				<button id="hud-tick-fwd" aria-label="next tick">
+				<button id="hud-tick-fwd" aria-label="Next tick">
 					<svg viewBox="0 0 1 1" fill="var(--foreground)">
 						<title>Next tick</title>
 						<use href="icons.svg#tick" />
 					</svg>
 				</button>
-				<button id="hud-tick-fwd-stable" aria-label="next stable tick">
+				<button id="hud-tick-fwd-stable" aria-label="Next stable tick">
 					<svg viewBox="0 0 1 1" fill="var(--foreground)">
 						<title>Next stable tick</title>
 						<use href="icons.svg#tick-stable" />
@@ -52,7 +52,7 @@
 				</button>
 			</div>
 			<div class="show-if-normal" role="presentation">
-				<button id="hud-empty" aria-label="empty">
+				<button id="hud-empty" aria-label="Empty">
 					<svg viewBox="0 0 1 1" stroke-width="0.1"
 						stroke="var(--foreground)">
 						<title>Empty</title>
@@ -65,25 +65,25 @@
 						<use href="icons.svg#tile" />
 					</svg>
 				</button>
-				<button id="hud-negate" aria-label="negate">
+				<button id="hud-negate" aria-label="Negate">
 					<svg viewBox="0 0 1 1" fill="var(--colors-negate)">
 						<title>Negate</title>
 						<use href="icons.svg#tile" />
 					</svg>
 				</button>
-				<button id="hud-conjoin" aria-label="conjoin">
+				<button id="hud-conjoin" aria-label="Conjoin">
 					<svg viewBox="0 0 1 1" fill="var(--colors-conjoin)">
 						<title>Conjoin</title>
 						<use href="icons.svg#tile" />
 					</svg>
 				</button>
-				<button id="hud-disjoin" aria-label="disjoin">
+				<button id="hud-disjoin" aria-label="Disjoin">
 					<svg viewBox="0 0 1 1" fill="var(--colors-disjoin)">
 						<title>Disjoin</title>
 						<use href="icons.svg#tile" />
 					</svg>
 				</button>
-				<button id="hud-dir" aria-label="direction: up">
+				<button id="hud-dir" aria-label="Direction: up">
 					<svg viewBox="0 0 1 1">
 						<title>Direction: up</title>
 						<path d="M0 1 .5 0 1 1Z"
@@ -93,27 +93,27 @@
 				</button>
 			</div>
 			<div class="show-if-selected" role="presentation">
-				<button id="hud-unselect" aria-label="unselect">
+				<button id="hud-unselect" aria-label="Unselect">
 					<svg viewBox="0 0 1 1" stroke-width="0.1"
 						stroke="var(--foreground)">
 						<title>Unselect</title>
 						<use href="icons.svg#cross" />
 					</svg>
 				</button>
-				<button id="hud-delete" aria-label="delete">
+				<button id="hud-delete" aria-label="Delete">
 					<svg viewBox="0 0 1 1" fill="var(--foreground)">
 						<title>Delete</title>
 						<use href="icons.svg#delete" />
 					</svg>
 				</button>
-				<button id="hud-cut" aria-label="cut">
+				<button id="hud-cut" aria-label="Cut">
 					<svg viewBox="0 0 1 1" fill="var(--foreground)"
 						stroke-width="0.1" stroke="var(--foreground)">
 						<title>Cut</title>
 						<use href="icons.svg#cut" />
 					</svg>
 				</button>
-				<button id="hud-copy" aria-label="copy">
+				<button id="hud-copy" aria-label="Copy">
 					<svg viewBox="0 0 1 1" fill="var(--background)"
 						stroke-width="0.1" stroke="var(--foreground)">
 						<title>Copy</title>
@@ -122,7 +122,7 @@
 				</button>
 			</div>
 			<div class="hud-paste" role="presentation">
-				<button id="hud-paste" aria-label="paste">
+				<button id="hud-paste" aria-label="Paste">
 					<svg viewBox="0 0 1 1" fill="var(--background)"
 						stroke-width="0.1" stroke="var(--foreground)">
 						<title>Paste</title>
@@ -131,7 +131,7 @@
 				</button>
 			</div>
 			<div class="show-if-normal" role="presentation">
-				<button id="hud-menu" aria-label="menu">
+				<button id="hud-menu" aria-label="Menu">
 					<svg viewBox="0 0 1 1" stroke-width="0.1"
 						stroke="var(--foreground)">
 						<title>Menu</title>
@@ -140,7 +140,7 @@
 				</button>
 			</div>
 			<div class="show-if-pasting" role="presentation">
-				<button id="hud-paste-cancel" aria-label="cancel pasting">
+				<button id="hud-paste-cancel" aria-label="Cancel pasting">
 					<svg viewBox="0 0 1 1" stroke-width="0.1"
 						stroke="var(--foreground)">
 						<title>Cancel pasting</title>
@@ -153,7 +153,7 @@
 			</div>
 		</div>
 		<dialog id="dialog-menu">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -161,7 +161,7 @@
 				</svg>
 			</button>
 			<h1 class="title">Menu</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<fieldset>
 					<legend>Appearance</legend>
 					<label>
@@ -179,22 +179,22 @@
 							min="1" max="30" step="1">
 					</label>
 				</fieldset>
-			</section>
-			<section class="footer">
-				<button id="btn-clear" class="full-width">Clear</button>
+			</div>
+			<div class="footer vertical" role="presentation">
+				<button id="btn-clear">Clear</button>
 				<button id="btn-load"
-					class="full-width requires-local-storage">Load</button>
+					class="requires-local-storage">Load</button>
 				<button id="btn-save"
-					class="full-width requires-local-storage">Save</button>
+					class="requires-local-storage">Save</button>
 				<button id="btn-browse"
-					class="full-width requires-local-storage">Browse</button>
+					class="requires-local-storage">Browse</button>
 				<button id="btn-screenshot"
-					class="full-width requires-local-storage">Screenshot</button>
-			</section>
+					class="requires-local-storage">Screenshot</button>
+			</div>
 		</dialog>
 		<dialog id="dialog-epilepsy">
 			<h1 class="title">Epilepsy Warning</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<p>
 					This part may display flashing lights. If you have
 					photosensitive epilepsy, you can either go back, or adjust
@@ -205,16 +205,16 @@
 					<input id="inp-eval-rate2" type="number" placeholder="15"
 						min="1" max="30" step="1">
 				</label>
-			</section>
-			<section class="footer">
+			</div>
+			<div class="footer" role="presentation">
 				<form method="dialog">
 					<button value="cancel">Cancel</button>
 					<button value="proceed">Proceed</button>
 				</form>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-load">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -222,15 +222,15 @@
 				</svg>
 			</button>
 			<h1 class="title">Load</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<save-browser primary="load"></save-browser>
-			</section>
-			<section class="footer">
+			</div>
+			<div class="footer" role="presentation">
 				<button id="btn-paste">Paste</button>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-load-failed">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -238,15 +238,15 @@
 				</svg>
 			</button>
 			<h1 class="title">Loading failed!</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<p>
 					This file is corrupted and cannot be loaded. See the console
 					for more information.
 				</p>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-paste-failed">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -254,16 +254,16 @@
 				</svg>
 			</button>
 			<h1 class="title">Paste</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<p>
 					I cannot automatically read your clipboard.<br>
 					Try pasting in the following text box instead.
 				</p>
 				<textarea class="full-width"></textarea>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-save">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -271,7 +271,7 @@
 				</svg>
 			</button>
 			<h1 class="title">Save</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<form method="dialog" id="form-save">
 					<p>
 						<label>Name
@@ -282,14 +282,14 @@
 				</form>
 				<h2>Other saves</h2>
 				<save-browser></save-browser>
-			</section>
-			<section class="footer">
+			</div>
+			<div class="footer" role="presentation">
 				<button id="btn-copy">Copy</button>
 				<button form="form-save">Save</button>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-save-failed">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -297,14 +297,14 @@
 				</svg>
 			</button>
 			<h1 class="title">Saving failed!</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<p>
 					See the console for more information.
 				</p>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-copy-failed">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -312,16 +312,16 @@
 				</svg>
 			</button>
 			<h1 class="title">Copy</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<p>
 					I cannot automatically write to your clipboard.<br>
 					Try copying from the following text box instead.
 				</p>
 				<textarea class="full-width"></textarea>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-browse">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -329,18 +329,18 @@
 				</svg>
 			</button>
 			<h1 class="title">Browse</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<save-browser primary="delete"
 					secondary="copy to clipboard"></save-browser>
-			</section>
-			<section class="footer">
+			</div>
+			<div class="footer" role="presentation">
 				<button id="btn-delete-all">Delete all</button>
 				<button id="btn-import">Import</button>
 				<button id="btn-export">Export</button>
-			</section>
+			</div>
 		</dialog>
 		<dialog id="dialog-screenshot">
-			<button class="close" aria-label="close">
+			<button class="close" aria-label="Close">
 				<svg viewBox="0 0 1 1" stroke-width="0.1"
 					stroke="var(--foreground)">
 					<title>Close</title>
@@ -348,7 +348,7 @@
 				</svg>
 			</button>
 			<h1 class="title">Screenshot</h1>
-			<section class="body">
+			<div class="body" role="presentation">
 				<form method="dialog" id="form-screenshot">
 					<fieldset>
 						<legend>Appearance</legend>
@@ -395,15 +395,15 @@
 						</label>
 					</fieldset>
 				</form>
-			</section>
-			<section class="footer">
-				<button type="button" class="full-width" name="type" value="png"
+			</div>
+			<div class="footer vertical" role="presentation">
+				<button type="button" name="type" value="png"
 					form="form-screenshot">Raster
 					(PNG)</button>
-				<button type="button" class="full-width" name="type" value="svg"
+				<button type="button" name="type" value="svg"
 					form="form-screenshot">Vector
 					(SVG)</button>
-			</section>
+			</div>
 		</dialog>
 	</body>
 </html>

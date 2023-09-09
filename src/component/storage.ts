@@ -97,8 +97,15 @@ export class SaveBrowserElement extends HTMLElement {
 
 		for (const key of listStorage()) {
 			empty = false;
+
 			const item = document.createElement('li');
-			item.textContent = key + ' ';
+			// Since `item` has `display: contents`, it might lose its
+			// semantics. <https://togithub.com/w3c/csswg-drafts/issues/3040>
+			item.setAttribute('role', 'listitem');
+
+			const name = document.createElement('span');
+			name.textContent = key;
+			item.append(name);
 
 			if (primary) {
 				const button = document.createElement('button');

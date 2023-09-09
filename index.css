@@ -144,8 +144,7 @@ dialog {
 	font-family: var(--font);
 	display: grid;
 	align-items: center;
-	grid-template-rows: min-content auto min-content;
-	grid-template-columns: auto min-content;
+	grid-template-columns: 1fr auto;
 	gap: 1em;
 }
 
@@ -181,12 +180,34 @@ dialog .body :last-child {
 dialog .footer {
 	grid-row: 3;
 	grid-column: 1 / 3;
-	text-align: right;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.25em;
 }
 
-.hide-list-bullets {
+dialog .footer.vertical {
+	flex-direction: column;
+}
+
+save-browser ul {
 	list-style: none;
 	padding: 0;
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	gap: 0.25em;
+}
+
+save-browser:not([primary][secondary]) ul {
+	grid-template-columns: 1fr auto;
+}
+
+save-browser:not([primary]):not([secondary]) ul {
+	grid-template-columns: 1fr;
+}
+
+save-browser li {
+	display: contents;
 }
 
 .full-width {
