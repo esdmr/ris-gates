@@ -1,4 +1,3 @@
-import {nonNullable} from '../../lib/assert.js';
 import {query, queryAll, setupDialogCloseButton} from '../../lib/dom.js';
 import * as canvas from '../canvas.js';
 import * as mode from '../mode.js';
@@ -17,25 +16,17 @@ const inputHeight = query('[name=height]', HTMLInputElement, screenshotForm);
 
 export let useDip = true;
 
-function setupScreenshotOverrides(formData = new FormData(screenshotForm)) {
+function setupScreenshotOverrides() {
 	if (!dialogScreenshot.open) return;
 
-	const offsetX = nonNullable(formData.get('x')).toString();
-	const offsetY = nonNullable(formData.get('y')).toString();
-	const scale = nonNullable(formData.get('scale')).toString();
-	const dip = Boolean(formData.get('dip')?.toString());
-	const darkTheme = Boolean(formData.get('dark')?.toString());
-	const width = nonNullable(formData.get('width')).toString();
-	const height = nonNullable(formData.get('height')).toString();
-
 	mode.setMode('screenshot');
-	tree.scrollX.fromString(offsetX);
-	tree.scrollY.fromString(offsetY);
-	tree.setScale(Number(scale));
-	useDip = dip;
-	document.body.classList.toggle('dark', darkTheme);
-	canvas.canvas.width = Number(width);
-	canvas.canvas.height = Number(height);
+	tree.scrollX.fromString(inputX.value);
+	tree.scrollY.fromString(inputY.value);
+	tree.setScale(inputScale.valueAsNumber);
+	useDip = inputDip.checked;
+	document.body.classList.toggle('dark', inputDark.checked);
+	canvas.canvas.width = Number(inputWidth.value);
+	canvas.canvas.height = Number(inputHeight.value);
 	theme.updateStylesFromCss();
 }
 
@@ -107,8 +98,7 @@ export function setup() {
 		dialogScreenshot,
 	)) {
 		button.addEventListener('click', () => {
-			const formData = new FormData(screenshotForm);
-			setupScreenshotOverrides(formData);
+			setupScreenshotOverrides();
 			void takeScreenshot(button.value);
 		});
 	}
