@@ -115,13 +115,15 @@ export function setup() {
 }
 
 export function open() {
-	inputX.value = String(tree.scrollX);
-	inputY.value = String(tree.scrollY);
-	inputScale.value = String(tree.scale);
+	inputX.value = tree.scrollX.toString();
+	inputY.value = tree.scrollY.toString();
+	inputScale.value = tree.scale.toFixed(1);
 	inputDip.checked = true;
 	inputDark.checked = matchMedia('(prefers-color-scheme: dark)').matches;
-	inputWidth.value = String(canvas.canvas.clientWidth * devicePixelRatio);
-	inputHeight.value = String(canvas.canvas.clientHeight * devicePixelRatio);
+	inputWidth.value = (canvas.canvas.clientWidth * devicePixelRatio).toFixed(1);
+	inputHeight.value = (canvas.canvas.clientHeight * devicePixelRatio).toFixed(
+		1,
+	);
 
 	mode.openDialog(dialogScreenshot);
 	setupScreenshotOverrides();
