@@ -22,6 +22,7 @@ export function setup() {
 		hudEval.stopStabilityInterval();
 		hudEval.updateTickNo(0n);
 
+		buttonEval.setAttribute('aria-checked', String(isEval));
 		query('title', SVGTitleElement, buttonEval).textContent = isEval
 			? 'modify'
 			: 'evaluate';
