@@ -47,7 +47,7 @@ export function copy() {
 export function remove() {
 	const {width, height} = getBox();
 	tree.tree.putSchematic(
-		new Schematic([], Number(width), Number(height)),
+		new Schematic(Number(width), Number(height), []),
 		getBox().topLeft,
 	);
 }

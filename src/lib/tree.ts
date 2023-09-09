@@ -135,7 +135,7 @@ export class QuadTree {
 			}
 		}
 
-		return new Schematic(tiles, Number(display.width), Number(display.height));
+		return new Schematic(Number(display.width), Number(display.height), tiles);
 	}
 
 	putSchematic({tiles, width, height}: Schematic, topLeft: Point) {
