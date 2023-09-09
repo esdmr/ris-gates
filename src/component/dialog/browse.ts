@@ -36,7 +36,12 @@ export function setup() {
 		try {
 			storage.remove(event.detail);
 			autoSave.updateAutoSaveState(event.detail);
-			event.target.closest('li')?.remove();
+
+			if (event.target.closest('ul')?.childElementCount === 1) {
+				saveBrowser.update();
+			} else {
+				event.target.closest('li')?.remove();
+			}
 		} catch (error) {
 			dialogSaveFailed.open(error);
 		}
