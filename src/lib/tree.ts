@@ -1,9 +1,12 @@
-import {QuadTreeBoundingBox, type AxisAlignedBoundingBox} from './aabb.js';
+import {QuadTreeBoundingBox, AxisAlignedBoundingBox} from './aabb.js';
 import {assertObject} from './assert.js';
 import {roundedSqrt} from './bigint.js';
 import {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
+import {Schematic} from './schematic.js';
 import * as searchMode from './search-mode.js';
+import {WalkStep} from './walk.js';
+import * as tileType from './tile-type.js';
 
 /**
  * Partitions space in four parts equally. If a partition does not contain any
@@ -80,6 +83,80 @@ export class QuadTree {
 		}
 
 		return this._root.getTileData(point, mode);
+	}
+
+	getSchematic(display: AxisAlignedBoundingBox): Schematic {
+		// eslint-disable-next-line @internal/no-object-literals
+		const tiles = Array.from<tileType.QuadTreeTileType>({
+			length: Number(display.width * display.height),
+		}).fill(tileType.empty);
+
+		const progress: WalkStep[] = [
+			new WalkStep(this.getContainingNode(display, searchMode.find)),
+		];
+
+		while (progress.length > 0) {
+			// Cast safety: length is at least one, so there is always a last
+			// element.
+			const {node, index} = progress.at(-1)!;
+
+			if (
+				node === undefined ||
+				index === 4 ||
+				!display.colliding(node.bounds)
+			) {
+				progress.pop();
+
+				if (progress.length > 0) {
+					// Cast safety: length is at least one, so there is always a
+					// last element.
+					progress.at(-1)!.index++;
+				}
+
+				continue;
+			}
+
+			if (node.type === tileType.branch) {
+				progress.push(new WalkStep(node[index]));
+				continue;
+			}
+
+			const i = Number(node.bounds.topLeft.x - display.topLeft.x);
+			const j = Number(node.bounds.topLeft.y - display.topLeft.y);
+
+			tiles[i + j * Number(display.width)] = node.type;
+
+			progress.pop();
+
+			if (progress.length > 0) {
+				// Cast safety: length is at least one, so there is always a last
+				// element.
+				progress.at(-1)!.index++;
+			}
+		}
+
+		return new Schematic(tiles, Number(display.width), Number(display.height));
+	}
+
+	putSchematic({tiles, width, height}: Schematic, topLeft: Point) {
+		const display = new AxisAlignedBoundingBox(
+			topLeft,
+			BigInt(width),
+			BigInt(height),
+		);
+
+		const root = this.getContainingNode(display, searchMode.make);
+
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < width; x++) {
+				// Cast safety: Point is always inside the display, and root
+				// contains the display.
+				root.getTileData(
+					new Point(topLeft.x + BigInt(x), topLeft.y + BigInt(y)),
+					searchMode.make,
+				)!.type = tiles[x + y * width] ?? tileType.empty;
+			}
+		}
 	}
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
