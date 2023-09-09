@@ -43,7 +43,7 @@ function getScaleFloatOffset(point: number, oldScale: number) {
 function commitInputs() {
 	let deltaScale = pointer.deltaScale * pointerScaleMultiplier;
 
-	if (wheel.ctrl) {
+	if (wheel.ctrl || pointer.isAuxiliaryButtonHeld) {
 		deltaScale -= (wheel.deltaX + wheel.deltaY) * wheelScaleMultiplier;
 	} else {
 		tree.scrollX.float += wheel.deltaX / tree.scale;

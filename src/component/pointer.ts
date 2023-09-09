@@ -12,6 +12,7 @@ export let isDragging = false;
 export let isSelecting = false;
 export let wasSelecting = false;
 export let hasClicked = false;
+export let isAuxiliaryButtonHeld = false;
 export let deltaX = 0;
 export let deltaY = 0;
 export let centerX = 0;
@@ -20,6 +21,11 @@ export let deltaScale = 0;
 
 function pointerdownHandler(event: PointerEvent) {
 	eventCache.push(event);
+
+	if (event.button === 1) {
+		isAuxiliaryButtonHeld = true;
+		isDragging = true;
+	}
 
 	if (timeOfInitialDelta === -1) {
 		timeOfInitialDelta = performance.now();
@@ -90,6 +96,10 @@ function pointerupHandler(event: PointerEvent) {
 	);
 
 	eventCache.splice(index, 1);
+
+	if (event.button === 1 || eventCache.length === 0) {
+		isAuxiliaryButtonHeld = false;
+	}
 
 	if (eventCache.length !== 2) {
 		oldDiff = -1;
