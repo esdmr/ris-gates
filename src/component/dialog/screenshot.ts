@@ -110,9 +110,9 @@ export function open() {
 	inputScale.value = tree.scale.toFixed(1);
 	inputDip.checked = true;
 	inputDark.checked = matchMedia('(prefers-color-scheme: dark)').matches;
-	inputWidth.value = (canvas.canvas.clientWidth * devicePixelRatio).toFixed(1);
+	inputWidth.value = (canvas.canvas.clientWidth * devicePixelRatio).toFixed(0);
 	inputHeight.value = (canvas.canvas.clientHeight * devicePixelRatio).toFixed(
-		1,
+		0,
 	);
 
 	mode.openDialog(dialogScreenshot);
