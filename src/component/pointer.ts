@@ -13,6 +13,7 @@ export let isSelecting = false;
 export let wasSelecting = false;
 export let hasClicked = false;
 export let isAuxiliaryButtonHeld = false;
+export let isSecondaryButtonHeld = false;
 export let deltaX = 0;
 export let deltaY = 0;
 export let centerX = 0;
@@ -25,6 +26,10 @@ function pointerdownHandler(event: PointerEvent) {
 	if (event.button === 1) {
 		isAuxiliaryButtonHeld = true;
 		isDragging = true;
+	}
+
+	if (event.button === 2) {
+		isSecondaryButtonHeld = true;
 	}
 
 	if (timeOfInitialDelta === -1) {
@@ -83,6 +88,7 @@ function pointermoveHandler(event: PointerEvent) {
 
 		if (
 			event.shiftKey ||
+			isSecondaryButtonHeld ||
 			timeOfInitialDelta + selectingThreshold <= performance.now()
 		) {
 			isSelecting = true;
@@ -97,10 +103,6 @@ function pointerupHandler(event: PointerEvent) {
 
 	eventCache.splice(index, 1);
 
-	if (event.button === 1 || eventCache.length === 0) {
-		isAuxiliaryButtonHeld = false;
-	}
-
 	if (eventCache.length !== 2) {
 		oldDiff = -1;
 		firstDelta = true;
@@ -108,6 +110,14 @@ function pointerupHandler(event: PointerEvent) {
 	}
 
 	if (eventCache.length === 0 && index !== -1) {
+		if (event.button === 1) {
+			isAuxiliaryButtonHeld = false;
+		}
+
+		if (event.button === 2) {
+			isSecondaryButtonHeld = false;
+		}
+
 		if (isDragging) {
 			isDragging = false;
 			wasSelecting = isSelecting;
@@ -126,6 +136,10 @@ export function setup() {
 	canvas.canvas.addEventListener('pointercancel', pointerupHandler);
 	canvas.canvas.addEventListener('pointerout', pointerupHandler);
 	canvas.canvas.addEventListener('pointerleave', pointerupHandler);
+
+	canvas.canvas.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
 }
 
 export function commit() {
