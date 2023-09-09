@@ -130,8 +130,14 @@ function commitInputs() {
 function onFrame(ms: DOMHighResTimeStamp) {
 	const dip =
 		mode.mode === 'screenshot' && !screenshot.useDip ? 1 : devicePixelRatio;
-	const width = canvas.canvas.clientWidth * dip;
-	const height = canvas.canvas.clientHeight * dip;
+	const width =
+		mode.mode === 'screenshot'
+			? canvas.canvas.width
+			: canvas.canvas.clientWidth * dip;
+	const height =
+		mode.mode === 'screenshot'
+			? canvas.canvas.height
+			: canvas.canvas.clientHeight * dip;
 
 	if (mode.mode === 'screenshot') {
 		canvas.context.fillStyle = theme.backgroundStyle;
