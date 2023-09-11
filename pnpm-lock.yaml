@@ -17,8 +17,8 @@ devDependencies:
     specifier: 8.2.0
     version: 8.2.0
   magic-string:
-    specifier: 0.30.2
-    version: 0.30.2
+    specifier: 0.30.3
+    version: 0.30.3
   typescript:
     specifier: 5.1.6
     version: 5.1.6
@@ -2151,8 +2151,8 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /magic-string@0.30.2:
-    resolution: {integrity: sha512-lNZdu7pewtq/ZvWUp9Wpf/x7WzMTsR26TWV03BRZrXFsv+BI6dy8RAiKgm1uM/kyR0rCfUcqvOlXKG66KhIGug==}
+  /magic-string@0.30.3:
+    resolution: {integrity: sha512-B7xGbll2fG/VjP+SWg4sX3JynwIU0mjoTc6MPpKNuIvftk6u6vqhDnk1R80b8C2GBR6ywqy+1DcKBrevBg+bmw==}
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
