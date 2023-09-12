@@ -28,7 +28,8 @@ export function setup() {
 		dialogBrowse,
 	);
 
-	saveBrowser.addEventListener('primary', (event) => {
+	saveBrowser.addButton('Delete', 'Delete');
+	saveBrowser.addEventListener('Delete', (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
 		assert(event.target instanceof HTMLElement);
@@ -47,7 +48,8 @@ export function setup() {
 		}
 	});
 
-	saveBrowser.addEventListener('secondary', async (event) => {
+	saveBrowser.addButton('Copy', 'Copy to clipboard');
+	saveBrowser.addEventListener('Copy', async (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
 		const json = storage.getString(event.detail, undefined, '');

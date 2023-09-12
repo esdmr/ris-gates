@@ -202,16 +202,8 @@ save-browser ul {
 	list-style: none;
 	padding: 0;
 	display: grid;
-	grid-template-columns: 1fr auto auto;
+	grid-template-columns: 1fr repeat(var(--buttons, 0), auto);
 	gap: 0.25em;
-}
-
-save-browser:not([primary][secondary]) ul {
-	grid-template-columns: 1fr auto;
-}
-
-save-browser:not([primary]):not([secondary]) ul {
-	grid-template-columns: 1fr;
 }
 
 save-browser li {

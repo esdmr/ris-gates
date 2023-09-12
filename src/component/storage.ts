@@ -77,6 +77,8 @@ export function save(key: string) {
 }
 
 export class SaveBrowserElement extends HTMLElement {
+	private readonly _buttons = new Map<string, string>();
+
 	clear() {
 		const children = [...this.children];
 
@@ -85,21 +87,20 @@ export class SaveBrowserElement extends HTMLElement {
 		}
 	}
 
+	addButton(key: string, name: string) {
+		this._buttons.set(key, name);
+	}
+
 	update() {
 		this.clear();
-		const primary = this.getAttribute('primary');
-		const secondary = this.getAttribute('secondary');
 
 		// eslint-disable-next-line @internal/no-object-literals
 		const list = create('ul', {
 			class: 'hide-list-bullets full-width',
+			style: `--buttons: ${this._buttons.size}`,
 		});
 
-		let empty = true;
-
 		for (const key of listStorage()) {
-			empty = false;
-
 			const item = create(
 				'li',
 				// eslint-disable-next-line @internal/no-object-literals
@@ -113,28 +114,14 @@ export class SaveBrowserElement extends HTMLElement {
 				create('span', {}, key),
 			);
 
-			if (primary) {
+			for (const [buttonKey, name] of this._buttons) {
 				// eslint-disable-next-line @internal/no-object-literals
-				const button = create('button', {}, primary);
+				const button = create('button', {}, name);
 
 				button.addEventListener('click', () => {
 					button.dispatchEvent(
 						// eslint-disable-next-line @internal/no-object-literals
-						new CustomEvent('primary', {detail: key, bubbles: true}),
-					);
-				});
-
-				item.append(button);
-			}
-
-			if (secondary) {
-				// eslint-disable-next-line @internal/no-object-literals
-				const button = create('button', {}, secondary);
-
-				button.addEventListener('click', () => {
-					button.dispatchEvent(
-						// eslint-disable-next-line @internal/no-object-literals
-						new CustomEvent('secondary', {detail: key, bubbles: true}),
+						new CustomEvent(buttonKey, {detail: key, bubbles: true}),
 					);
 				});
 
@@ -144,7 +131,7 @@ export class SaveBrowserElement extends HTMLElement {
 			list.append(item);
 		}
 
-		if (empty) {
+		if (list.childElementCount === 0) {
 			// eslint-disable-next-line @internal/no-object-literals
 			list.append(create('li', {}, '“There is nothing here.”'));
 		}

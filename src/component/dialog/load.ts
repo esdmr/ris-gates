@@ -21,7 +21,8 @@ export function setup() {
 		dialogLoad,
 	);
 
-	saveBrowser.addEventListener('primary', (event) => {
+	saveBrowser.addButton('Load', 'Load');
+	saveBrowser.addEventListener('Load', (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
 
