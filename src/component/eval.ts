@@ -25,8 +25,10 @@ export let evaluationRate = defaultEvaluationRate;
 export function setEvaluationRate(newRate = defaultEvaluationRate) {
 	evaluationRate = Math.ceil(newRate) || defaultEvaluationRate;
 
-	if (evaluationRate < minimumEvaluationRate) evaluationRate = minimumEvaluationRate;
-	else if (evaluationRate > maximumEvaluationRate) evaluationRate = maximumEvaluationRate;
+	if (evaluationRate < minimumEvaluationRate)
+		evaluationRate = minimumEvaluationRate;
+	else if (evaluationRate > maximumEvaluationRate)
+		evaluationRate = maximumEvaluationRate;
 
 	storage.setString(
 		configEvaluationRate,
