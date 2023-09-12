@@ -52,7 +52,6 @@ export class QuadTreeNode {
 		return node;
 	}
 
-	/** `undefined` if this node is a branch */
 	type: tileType.QuadTreeTileType | typeof tileType.branch;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
