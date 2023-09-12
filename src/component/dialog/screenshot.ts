@@ -1,4 +1,9 @@
-import {query, queryAll, setupDialogCloseButton, create} from '../../lib/dom.js';
+import {
+	query,
+	queryAll,
+	setupDialogCloseButton,
+	create,
+} from '../../lib/dom.js';
 import * as canvas from '../canvas.js';
 import * as mode from '../mode.js';
 import * as theme from '../theme.js';
