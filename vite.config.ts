@@ -1,4 +1,3 @@
-/* eslint-disable @internal/no-object-literals */
 import process from 'node:process';
 import {defineConfig} from 'vite';
 import MagicString from 'magic-string';
@@ -18,6 +17,9 @@ export default defineConfig({
 		outDir: 'build',
 		rollupOptions: {
 			input: ['index.html'],
+		},
+		modulePreload: {
+			polyfill: false,
 		},
 	},
 
@@ -55,6 +57,18 @@ export default defineConfig({
 						// Cast safety: acorn.Node is insufficiently typed.
 						if ((n as any).name === 'BigInt') {
 							s.update(n.start, n.end, 'Number');
+						}
+					},
+					BinaryExpression(n: acorn.Node) {
+						// Cast safety: acorn.Node is insufficiently typed.
+						if (
+							((n as any).operator === '==' || (n as any).operator === '===') &&
+							(n as any).left.type === 'UnaryExpression' &&
+							(n as any).left.operator === 'typeof' &&
+							(n as any).right.type === 'Literal' &&
+							(n as any).right.value === 'bigint'
+						) {
+							s.update(n.start, n.end, 'false');
 						}
 					},
 					/* eslint-enable @typescript-eslint/naming-convention */

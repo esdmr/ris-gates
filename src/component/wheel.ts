@@ -1,4 +1,4 @@
-import {canvas} from './canvas.js';
+import * as canvas from './canvas.js';
 
 const deltaLineMultiplier = 16;
 const deltaPageMultiplier = 25 * deltaLineMultiplier;
@@ -7,7 +7,7 @@ export let deltaY = 0;
 export let ctrl = false;
 
 export function setup() {
-	canvas.addEventListener(
+	canvas.canvas.addEventListener(
 		'wheel',
 		(event) => {
 			event.preventDefault();

@@ -1,5 +1,6 @@
-import {QuadTree} from './lib/tree.js';
-import {replaceTree, tree} from './tree.js';
+import {queryAll, create} from '../lib/dom.js';
+import {QuadTree} from '../lib/tree.js';
+import * as tree from './tree.js';
 
 export const localStorageAvailable = /* @__PURE__ */ (() => {
 	try {
@@ -67,68 +68,72 @@ export function* listStorage(prefix = storagePrefix) {
 
 export function load(key: string) {
 	if (!localStorageAvailable) return;
-	replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
+	tree.replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
 }
 
 export function save(key: string) {
 	if (!localStorageAvailable) return;
-	setString(key, JSON.stringify(tree));
+	setString(key, JSON.stringify(tree.tree));
 }
 
 export class SaveBrowserElement extends HTMLElement {
+	private readonly _buttons = new Map<string, string>();
+
 	clear() {
-		// eslint-disable-next-line unicorn/no-useless-spread
-		for (const item of [...this.children]) {
+		const children = [...this.children];
+
+		for (const item of children) {
 			item.remove();
 		}
 	}
 
+	addButton(key: string, name: string) {
+		this._buttons.set(key, name);
+	}
+
 	update() {
 		this.clear();
-		const primary = this.getAttribute('primary');
-		const secondary = this.getAttribute('secondary');
 
-		const list = document.createElement('ul');
-		list.classList.add('hide-list-bullets', 'full-width');
-
-		let empty = true;
+		// eslint-disable-next-line @internal/no-object-literals
+		const list = create('ul', {
+			class: 'hide-list-bullets full-width',
+			style: `--buttons: ${this._buttons.size}`,
+		});
 
 		for (const key of listStorage()) {
-			empty = false;
-			const item = document.createElement('li');
-			item.textContent = key + ' ';
+			const item = create(
+				'li',
+				// eslint-disable-next-line @internal/no-object-literals
+				{
+					// Since `item` has `display: contents`, it might lose its
+					// semantics.
+					// <https://togithub.com/w3c/csswg-drafts/issues/3040>
+					role: 'listitem',
+				},
+				// eslint-disable-next-line @internal/no-object-literals
+				create('span', {}, key),
+			);
 
-			if (primary) {
-				const button = document.createElement('button');
-				button.textContent = primary;
+			for (const [buttonKey, name] of this._buttons) {
+				// eslint-disable-next-line @internal/no-object-literals
+				const button = create('button', {}, name);
+
 				button.addEventListener('click', () => {
 					button.dispatchEvent(
 						// eslint-disable-next-line @internal/no-object-literals
-						new CustomEvent('primary', {detail: key, bubbles: true}),
+						new CustomEvent(buttonKey, {detail: key, bubbles: true}),
 					);
 				});
-				item.append(button);
-			}
 
-			if (secondary) {
-				const button = document.createElement('button');
-				button.textContent = secondary;
-				button.addEventListener('click', () => {
-					button.dispatchEvent(
-						// eslint-disable-next-line @internal/no-object-literals
-						new CustomEvent('secondary', {detail: key, bubbles: true}),
-					);
-				});
 				item.append(button);
 			}
 
 			list.append(item);
 		}
 
-		if (empty) {
-			const item = document.createElement('li');
-			item.textContent = '“There is nothing here.”';
-			list.append(item);
+		if (list.childElementCount === 0) {
+			// eslint-disable-next-line @internal/no-object-literals
+			list.append(create('li', {}, '“There is nothing here.”'));
 		}
 
 		this.append(list);
@@ -137,8 +142,9 @@ export class SaveBrowserElement extends HTMLElement {
 
 export function setup() {
 	if (!localStorageAvailable) {
-		for (const element of document.querySelectorAll<HTMLButtonElement>(
+		for (const element of queryAll(
 			'button.requires-local-storage',
+			HTMLButtonElement,
 		)) {
 			element.disabled = true;
 		}

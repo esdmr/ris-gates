@@ -1,17 +1,24 @@
 import {nonNullable} from '../lib/assert.js';
-import type {CanvasLike, ContextLike} from '../lib/svg-canvas.js';
+import {query, create} from '../lib/dom.js';
+import {
+	SvgCanvas,
+	type CanvasLike,
+	type ContextLike,
+} from '../lib/svg-canvas.js';
 
-export let canvas: CanvasLike = nonNullable(
-	document.querySelector<HTMLCanvasElement>('#canvas'),
-);
-
+export let canvas: CanvasLike = query('#canvas', HTMLCanvasElement);
 export let context: ContextLike = nonNullable(canvas.getContext('2d'));
+
+export function setup() {
+	customElements.define('svg-canvas', SvgCanvas);
+}
 
 export async function outputToSvg() {
 	const oldCanvas = canvas;
 	const olContext = context;
-	const svgCanvas = document.createElement('svg-canvas');
-	const svgContext = nonNullable(svgCanvas.getContext('2d'));
+	// eslint-disable-next-line @internal/no-object-literals
+	const svgCanvas = create('svg-canvas', {});
+	const svgContext = nonNullable(svgCanvas.getContext());
 
 	svgCanvas.width = oldCanvas.width;
 	svgCanvas.height = oldCanvas.height;

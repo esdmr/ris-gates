@@ -1,4 +1,5 @@
 /* eslint-disable @internal/no-object-literals, @typescript-eslint/member-ordering, @typescript-eslint/ban-types, max-params */
+import {create} from '../lib/dom.js';
 import {assert} from './assert.js';
 
 export type CanvasLike = HTMLElement & {
@@ -47,42 +48,14 @@ declare global {
 	}
 }
 
-export function setup() {
-	customElements.define('svg-canvas', SvgCanvas);
-}
-
-function createSvg<K extends keyof SVGElementTagNameMap>(
-	qualifiedName: K,
-	attributes: Record<string, unknown>,
-	...children: Array<Node | string>
-): SVGElementTagNameMap[K];
-function createSvg(
-	qualifiedName: string,
-	attributes: Record<string, unknown>,
-	...children: Array<Node | string>
-): SVGElement;
-function createSvg(
-	qualifiedName: string,
-	attributes: Record<string, unknown>,
-	...children: Array<Node | string>
-) {
-	const element = document.createElementNS(
-		'http://www.w3.org/2000/svg',
-		qualifiedName,
-	);
-
-	for (const [key, value] of Object.entries(attributes)) {
-		element.setAttribute(key, String(value));
-	}
-
-	element.append(...children);
-	return element;
+function notImplemented(): never {
+	throw new Error('Not Implemented');
 }
 
 const serializer = new XMLSerializer();
 
 export class SvgCanvas extends HTMLElement implements CanvasLike {
-	private readonly _svg = createSvg('svg', {
+	private readonly _svg = create('svg:svg', {
 		width: 300,
 		height: 150,
 		fill: 'none',
@@ -133,15 +106,13 @@ export class SvgCanvas extends HTMLElement implements CanvasLike {
 	 *
 	 * [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext)
 	 */
-	getContext(
-		_contextId: '2d',
-		_options?: CanvasRenderingContext2DSettings | undefined,
-	): SvgCanvasContext | null {
+	getContext() {
 		return this._context;
 	}
 
 	clear() {
-		console.trace('Clearing SVG canvas');
+		if (import.meta.env.DEV) console.trace('Clearing SVG canvas');
+
 		for (const child of this._svg.children) {
 			child.remove();
 		}
@@ -152,7 +123,7 @@ export class SvgCanvas extends HTMLElement implements CanvasLike {
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/toBlob) */
-	toBlob(_callback: BlobCallback, _type?: string, _quality?: any): void {
+	toBlob() {
 		throw new Error('Not implemented');
 	}
 }
@@ -184,42 +155,23 @@ export class SvgCanvasContext implements ContextLike {
 	strokeStyle: string | CanvasGradient | CanvasPattern = '#000';
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createConicGradient) */
-	createConicGradient(
-		_startAngle: number,
-		_x: number,
-		_y: number,
-	): CanvasGradient {
-		throw new Error('Not Implemented');
+	createConicGradient(): CanvasGradient {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createLinearGradient) */
-	createLinearGradient(
-		_x0: number,
-		_y0: number,
-		_x1: number,
-		_y1: number,
-	): CanvasGradient {
-		throw new Error('Not Implemented');
+	createLinearGradient(): CanvasGradient {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createPattern) */
-	createPattern(
-		_image: CanvasImageSource,
-		_repetition: string | null,
-	): CanvasPattern | null {
-		throw new Error('Not Implemented');
+	createPattern(): CanvasPattern | null {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/createRadialGradient) */
-	createRadialGradient(
-		_x0: number,
-		_y0: number,
-		_r0: number,
-		_x1: number,
-		_y1: number,
-		_r1: number,
-	): CanvasGradient {
-		throw new Error('Not Implemented');
+	createRadialGradient(): CanvasGradient {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/lineCap) */
@@ -236,38 +188,38 @@ export class SvgCanvasContext implements ContextLike {
 	private _lineDash: number[] = [];
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/getLineDash) */
-	getLineDash(): number[] {
+	getLineDash() {
 		return this._lineDash;
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/setLineDash) */
-	setLineDash(segments: number[]): void {
+	setLineDash(segments: number[]) {
 		this._lineDash = segments;
 	}
 
 	private _path = '';
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/beginPath) */
-	beginPath(): void {
+	beginPath() {
 		this._path = '';
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/clip) */
 	clip(fillRule?: CanvasFillRule): void;
 	clip(path: Path2D, fillRule?: CanvasFillRule): void;
-	clip(..._: unknown[]): void {
-		throw new Error('Not Implemented');
+	clip() {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/fill) */
 	fill(fillRule?: CanvasFillRule): void;
 	fill(path: Path2D, fillRule?: CanvasFillRule): void;
-	fill(..._: unknown[]): void {
+	fill(..._: unknown[]) {
 		assert(typeof _[0] !== 'object'); // Not Implemented
 		// Cast safety: Derived from overload signatures.
 		const fillRule = _[0] as CanvasFillRule | undefined;
 		this._svg.append(
-			createSvg('path', {
+			create('svg:path', {
 				...this._getFillStyle(),
 				'fill-rule': fillRule,
 				d: this._path,
@@ -283,22 +235,22 @@ export class SvgCanvasContext implements ContextLike {
 		y: number,
 		fillRule?: CanvasFillRule,
 	): boolean;
-	isPointInPath(..._: unknown[]): boolean {
-		throw new Error('Not Implemented');
+	isPointInPath(): boolean {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/isPointInStroke) */
 	isPointInStroke(x: number, y: number): boolean;
 	isPointInStroke(path: Path2D, x: number, y: number): boolean;
-	isPointInStroke(..._: unknown[]): boolean {
-		throw new Error('Not Implemented');
+	isPointInStroke(): boolean {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/stroke) */
 	stroke(path?: Path2D): void {
 		assert(!path); // Not Implemented
 		this._svg.append(
-			createSvg('path', {...this._getStrokeStyle(), d: this._path}),
+			create('svg:path', {...this._getStrokeStyle(), d: this._path}),
 		);
 	}
 
@@ -342,95 +294,67 @@ export class SvgCanvasContext implements ContextLike {
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/arcTo) */
-	arcTo(
-		_x1: number,
-		_y1: number,
-		_x2: number,
-		_y2: number,
-		_radius: number,
-	): void {
-		throw new Error('Not Implemented');
+	arcTo(): void {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo) */
-	bezierCurveTo(
-		_cp1x: number,
-		_cp1y: number,
-		_cp2x: number,
-		_cp2y: number,
-		_x: number,
-		_y: number,
-	): void {
-		throw new Error('Not Implemented');
+	bezierCurveTo(): void {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/closePath) */
-	closePath(): void {
+	closePath() {
 		this._path += 'Z';
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/ellipse) */
-	ellipse(
-		_x: number,
-		_y: number,
-		_radiusX: number,
-		_radiusY: number,
-		_rotation: number,
-		_startAngle: number,
-		_endAngle: number,
-		_counterclockwise?: boolean,
-	): void {
-		throw new Error('Not Implemented');
+	ellipse(): void {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/lineTo) */
-	lineTo(x: number, y: number): void {
+	lineTo(x: number, y: number) {
 		this._path += `L${x},${y}`;
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/moveTo) */
-	moveTo(x: number, y: number): void {
+	moveTo(x: number, y: number) {
 		this._path += `M${x},${y}`;
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/quadraticCurveTo) */
-	quadraticCurveTo(_cpx: number, _cpy: number, _x: number, _y: number): void {
-		throw new Error('Not Implemented');
+	quadraticCurveTo(): void {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/rect) */
-	rect(_x: number, _y: number, _w: number, _h: number): void {
-		throw new Error('Not Implemented');
+	rect(): void {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/roundRect) */
-	roundRect(
-		_x: number,
-		_y: number,
-		_w: number,
-		_h: number,
-		_radii?: number | DOMPointInit | Array<number | DOMPointInit>,
-	): void {
-		throw new Error('Not Implemented');
+	roundRect(): void {
+		notImplemented();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/clearRect) */
-	clearRect(x: number, y: number, w: number, h: number): void {
+	clearRect(x: number, y: number, w: number, h: number) {
 		assert(!x && !y && w === this.canvas.width && h === this.canvas.height); // Only fullscreen clear supported
 		this.canvas.clear();
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/fillRect) */
-	fillRect(x: number, y: number, width: number, height: number): void {
+	fillRect(x: number, y: number, width: number, height: number) {
 		this._svg.append(
-			createSvg('rect', {...this._getFillStyle(), x, y, width, height}),
+			create('svg:rect', {...this._getFillStyle(), x, y, width, height}),
 		);
 	}
 
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/strokeRect) */
-	strokeRect(x: number, y: number, width: number, height: number): void {
+	strokeRect(x: number, y: number, width: number, height: number) {
 		this._svg.append(
-			createSvg('rect', {...this._getStrokeStyle(), x, y, width, height}),
+			create('svg:rect', {...this._getStrokeStyle(), x, y, width, height}),
 		);
 	}
 

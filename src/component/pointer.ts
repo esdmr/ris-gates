@@ -1,4 +1,4 @@
-import {canvas} from './canvas.js';
+import * as canvas from './canvas.js';
 
 const eventCache: PointerEvent[] = [];
 const draggingThreshold = 1;
@@ -12,6 +12,8 @@ export let isDragging = false;
 export let isSelecting = false;
 export let wasSelecting = false;
 export let hasClicked = false;
+export let isAuxiliaryButtonHeld = false;
+export let isSecondaryButtonHeld = false;
 export let deltaX = 0;
 export let deltaY = 0;
 export let centerX = 0;
@@ -20,6 +22,15 @@ export let deltaScale = 0;
 
 function pointerdownHandler(event: PointerEvent) {
 	eventCache.push(event);
+
+	if (event.button === 1) {
+		isAuxiliaryButtonHeld = true;
+		isDragging = true;
+	}
+
+	if (event.button === 2) {
+		isSecondaryButtonHeld = true;
+	}
 
 	if (timeOfInitialDelta === -1) {
 		timeOfInitialDelta = performance.now();
@@ -77,6 +88,7 @@ function pointermoveHandler(event: PointerEvent) {
 
 		if (
 			event.shiftKey ||
+			isSecondaryButtonHeld ||
 			timeOfInitialDelta + selectingThreshold <= performance.now()
 		) {
 			isSelecting = true;
@@ -98,6 +110,14 @@ function pointerupHandler(event: PointerEvent) {
 	}
 
 	if (eventCache.length === 0 && index !== -1) {
+		if (event.button === 1) {
+			isAuxiliaryButtonHeld = false;
+		}
+
+		if (event.button === 2) {
+			isSecondaryButtonHeld = false;
+		}
+
 		if (isDragging) {
 			isDragging = false;
 			wasSelecting = isSelecting;
@@ -109,13 +129,17 @@ function pointerupHandler(event: PointerEvent) {
 }
 
 export function setup() {
-	canvas.addEventListener('pointerdown', pointerdownHandler);
-	canvas.addEventListener('pointermove', pointermoveHandler);
-	canvas.addEventListener('pointerover', pointermoveHandler);
-	canvas.addEventListener('pointerup', pointerupHandler);
-	canvas.addEventListener('pointercancel', pointerupHandler);
-	canvas.addEventListener('pointerout', pointerupHandler);
-	canvas.addEventListener('pointerleave', pointerupHandler);
+	canvas.canvas.addEventListener('pointerdown', pointerdownHandler);
+	canvas.canvas.addEventListener('pointermove', pointermoveHandler);
+	canvas.canvas.addEventListener('pointerover', pointermoveHandler);
+	canvas.canvas.addEventListener('pointerup', pointerupHandler);
+	canvas.canvas.addEventListener('pointercancel', pointerupHandler);
+	canvas.canvas.addEventListener('pointerout', pointerupHandler);
+	canvas.canvas.addEventListener('pointerleave', pointerupHandler);
+
+	canvas.canvas.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
 }
 
 export function commit() {

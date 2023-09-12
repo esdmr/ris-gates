@@ -1,16 +1,16 @@
-import type * as aabb from './aabb.js';
+import type {
+	QuadTreeBoundingBox,
+	QuadTreeChildIndex,
+	AxisAlignedBoundingBox,
+} from './aabb.js';
 import {assert, assertArray} from './assert.js';
-import {type Point} from './point.js';
-import {find, type Mode} from './search-mode.js';
+import type {Point} from './point.js';
+import * as searchMode from './search-mode.js';
 import * as tileType from './tile-type.js';
 
 /** Items inside the {@link QuadTree}. Could be a branch or a leaf */
 export class QuadTreeNode {
-	static from(
-		value: unknown,
-		bounds: aabb.QuadTreeBoundingBox,
-		parity: boolean,
-	) {
+	static from(value: unknown, bounds: QuadTreeBoundingBox, parity: boolean) {
 		if (value === tileType.branch) return undefined;
 
 		const node = new QuadTreeNode(bounds, parity);
@@ -41,7 +41,7 @@ export class QuadTreeNode {
 		for (let i = 0; i < 4; i++) {
 			// Cast safety: Value of i is between 0 and 3, exactly the same as
 			// QuadTreeChildIndex.
-			const index = i as aabb.QuadTreeChildIndex;
+			const index = i as QuadTreeChildIndex;
 			node[index] = QuadTreeNode.from(
 				value[index],
 				bounds.narrow(index),
@@ -52,7 +52,6 @@ export class QuadTreeNode {
 		return node;
 	}
 
-	/** `undefined` if this node is a branch */
 	type: tileType.QuadTreeTileType | typeof tileType.branch;
 
 	/* eslint-disable @typescript-eslint/naming-convention */
@@ -67,8 +66,8 @@ export class QuadTreeNode {
 	/* eslint-enable @typescript-eslint/naming-convention */
 
 	constructor(
-		readonly bounds: aabb.QuadTreeBoundingBox,
-		/** @see {@link aabb.QuadTreeBoundingBox.widen} */
+		readonly bounds: QuadTreeBoundingBox,
+		/** @see {@link QuadTreeBoundingBox.widen} */
 		readonly parity: boolean,
 	) {
 		this.type = bounds.isTile() ? tileType.empty : tileType.branch;
@@ -79,7 +78,7 @@ export class QuadTreeNode {
 	 * {@link aabb.AxisAlignedBoundingBox}. `undefined` if
 	 * {@link aabb.AxisAlignedBoundingBox} is out-of-bounds.
 	 */
-	getContainingNode(aabb: aabb.AxisAlignedBoundingBox, mode: Mode) {
+	getContainingNode(aabb: AxisAlignedBoundingBox, mode: searchMode.Mode) {
 		let node: QuadTreeNode = this;
 		let previousNode: QuadTreeNode | undefined;
 
@@ -97,7 +96,7 @@ export class QuadTreeNode {
 				previousNode = node;
 				// Cast safety: We checked for this already.
 				node = node[index]!;
-			} else if (mode === find) {
+			} else if (mode === searchMode.find) {
 				// Child node is not initialized. We will exit early.
 				return node;
 			} else {
@@ -122,7 +121,7 @@ export class QuadTreeNode {
 	 * @param mode `make` tries to create a tile if uninitialized. `find` will
 	 * just return `undefined`.
 	 */
-	getTileData(point: Point, mode: Mode) {
+	getTileData(point: Point, mode: searchMode.Mode) {
 		let node: QuadTreeNode = this;
 
 		// `childIndex` requires an explicit bound check.
@@ -136,7 +135,7 @@ export class QuadTreeNode {
 			if (node[index]) {
 				// Cast safety: We already checked for this.
 				node = node[index]!;
-			} else if (mode === find) {
+			} else if (mode === searchMode.find) {
 				// Child node is not initialized. We will exit early.
 				return undefined;
 			} else {

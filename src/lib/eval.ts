@@ -1,8 +1,8 @@
-import {type QuadTreeNode} from './node.js';
+import {mapGet, setToggle} from './map-and-set.js';
+import type {QuadTreeNode} from './node.js';
+import * as tileType from './tile-type.js';
 import type {QuadTree} from './tree.js';
 import {WalkStep} from './walk.js';
-import * as tileType from './tile-type.js';
-import {mapGet, setToggle} from './map-and-set.js';
 
 export class TilesMap {
 	readonly tiles = new Map<string, QuadTreeNode>();
@@ -45,8 +45,12 @@ export class TilesMap {
 	}
 }
 
+export class NegateVertex {
+	constructor(public x: symbol, public y: symbol) {}
+}
+
 export class EvalGraph {
-	readonly vertices = new Map<QuadTreeNode, symbol | [h: symbol, v: symbol]>();
+	readonly vertices = new Map<QuadTreeNode, symbol | NegateVertex>();
 	readonly positiveEdges = new Map<symbol, Set<symbol>>();
 	readonly negativeEdges = new Map<symbol, Set<symbol>>();
 	protected declare _toDot?: () => string;
@@ -91,7 +95,7 @@ export class EvalGraph {
 				map.tiles.get(`${x + 1n},${y}`),
 				map.tiles.get(`${x},${y + 1n}`),
 				map.tiles.get(`${x - 1n},${y}`),
-			] as const;
+			];
 
 			for (const [dir, other] of adjacentTiles.entries()) {
 				if (!other) {
@@ -101,9 +105,9 @@ export class EvalGraph {
 				// Cast safety: Guaranteed to be a tile.
 				const type = other.type as tileType.QuadTreeTileType;
 
-				if (tileType.isConjoin(type)) {
+				if (tileType.isRotatedFormOf(type, tileType.conjoinN)) {
 					this._processConjoin(tile, other, dir);
-				} else if (tileType.isDisjoin(type)) {
+				} else if (tileType.isRotatedFormOf(type, tileType.disjoinN)) {
 					this._processDisjoin(tile, other, dir);
 				}
 			}
@@ -240,18 +244,18 @@ export class EvalGraph {
 		const symbol = mapGet(this.vertices, tile, () => {
 			const {x, y} = tile.bounds.topLeft;
 			return tile.type === tileType.negate
-				? ([
-						Symbol(`QTN(${x}, ${y}, H)`),
-						Symbol(`QTN(${x}, ${y}, V)`),
-				  ] as const)
+				? new NegateVertex(
+						Symbol(`QTN(${x}, ${y}, X)`),
+						Symbol(`QTN(${x}, ${y}, Y)`),
+				  )
 				: Symbol(`QTN(${x}, ${y})`);
 		});
 
 		return typeof symbol === 'symbol'
 			? symbol
 			: other.bounds.topLeft.y === tile.bounds.topLeft.y
-			? symbol[0]
-			: symbol[1];
+			? symbol.x
+			: symbol.y;
 	}
 
 	private _addEdge(from: QuadTreeNode, to: QuadTreeNode, positive = true) {
@@ -279,9 +283,9 @@ export class EvalContext {
 
 	constructor(private readonly _graph: EvalGraph) {
 		for (const symbols of _graph.vertices.values()) {
-			if (!Array.isArray(symbols)) continue;
-			this._enabled.add(symbols[0]);
-			this._enabled.add(symbols[1]);
+			if (typeof symbols === 'symbol') continue;
+			this._enabled.add(symbols.x);
+			this._enabled.add(symbols.y);
 		}
 	}
 
@@ -301,7 +305,7 @@ export class EvalContext {
 		if (this._undoStack.length > maxUndoCount) this._undoStack.shift();
 
 		let anythingUpdated = false;
-		console.group('Next Tick:', ++this._tickCount);
+		if (import.meta.env.DEV) console.group('Next Tick:', ++this._tickCount);
 
 		// Make sure this loop terminates. If you created a loop with an IO
 		// tile, it would have produced a sub-tick pulse and cause this loop to
@@ -326,7 +330,7 @@ export class EvalContext {
 				}
 
 				if (this._enabled.has(to) !== value) {
-					console.log('+', from, to, value);
+					if (import.meta.env.DEV) console.log('+', from, to, value);
 					setToggle(this._enabled, to, value);
 					updated = true;
 					anythingUpdated = true;
@@ -346,13 +350,13 @@ export class EvalContext {
 			}
 
 			if (this._enabled.has(to) === value) {
-				console.log('-', from, to, !value);
+				if (import.meta.env.DEV) console.log('-', from, to, !value);
 				setToggle(this._enabled, to, !value);
 				anythingUpdated = true;
 			}
 		}
 
-		console.groupEnd();
+		if (import.meta.env.DEV) console.groupEnd();
 
 		if (!anythingUpdated) {
 			this._undoStack[this._undoStack.length - 1] = unchanged;
@@ -364,7 +368,7 @@ export class EvalContext {
 	tickBackward() {
 		const oldState = this._undoStack.pop();
 		if (!oldState) return false;
-		console.log('Previous Tick:', --this._tickCount);
+		if (import.meta.env.DEV) console.log('Previous Tick:', --this._tickCount);
 		if (oldState !== unchanged) this._enabled = oldState;
 		return oldState !== unchanged;
 	}

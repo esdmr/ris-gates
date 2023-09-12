@@ -1,13 +1,17 @@
-const {ESLintUtils, TSESTree} = require('@typescript-eslint/utils');
+const {
+	ESLintUtils,
+	TSESTree,
+	AST_NODE_TYPES,
+} = require('@typescript-eslint/utils');
 
 module.exports = ESLintUtils.RuleCreator.withoutDocs({
 	create(context) {
 		/** @param {TSESTree.TSNonNullExpression | TSESTree.TSAsExpression} node */
 		function cast(node) {
 			if (
-				'typeAnnotation' in node &&
-				node.typeAnnotation.type === 'TSTypeReference' &&
-				node.typeAnnotation.typeName.type === 'Identifier' &&
+				node.type === AST_NODE_TYPES.TSAsExpression &&
+				node.typeAnnotation.type === AST_NODE_TYPES.TSTypeReference &&
+				node.typeAnnotation.typeName.type === AST_NODE_TYPES.Identifier &&
 				node.typeAnnotation.typeName.name === 'const'
 			) {
 				return;

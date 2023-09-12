@@ -5,23 +5,31 @@
 	--dark-background: #282828;
 	--dark-foreground: #f0f0f0;
 	--dark-selection: #AAEEFF;
+	--active-io: #0072B2;
+	--active-negate: #D55E00;
+	--active-conjoin: #009E73;
+	--active-disjoin: #E69F00;
+	--passive-io: #003C75;
+	--passive-negate: var(--active-negate);
+	--passive-conjoin: #00532F;
+	--passive-disjoin: #7D4600;
 
 	--background: var(--light-background);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
 
-	--controls-border: gray;
-	--controls-enabled: cornflowerblue;
+	--hud-border: gray;
+	--hud-enabled: cornflowerblue;
 	--font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.screenshot > canvas {
+[data-mode=screenshot] > canvas {
 	--background: var(--light-background);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
 }
 
-.screenshot.dark > canvas {
+[data-mode=screenshot].dark > canvas {
 	--background: var(--dark-background);
 	--foreground: var(--dark-foreground);
 	--selection: var(--dark-selection);
@@ -52,7 +60,7 @@ canvas {
 	cursor: grabbing;
 }
 
-.controls {
+.hud {
 	position: fixed;
 	bottom: 0;
 	left: 50%;
@@ -60,7 +68,7 @@ canvas {
 	width: max-content;
 	transform: translate(-50%, 0);
 	box-sizing: border-box;
-	border: 0.1em var(--controls-border) solid;
+	border: 0.1em var(--hud-border) solid;
 	border-bottom: none;
 	--border-radius: 0.5em;
 	border-radius: var(--border-radius) var(--border-radius) 0 0;
@@ -68,32 +76,32 @@ canvas {
 	background: var(--background);
 	color: var(--foreground);
 	touch-action: none;
-	display: flex;
+	display: none;
 	flex-wrap: wrap;
 	justify-content: center;
 	gap: 1em;
 }
 
-.used-clipboard:not(.eval) .controls {
-	gap: 0.9em;
+:where([data-mode=normal], [data-mode=eval], [data-mode=selected], [data-mode=pasting]) .hud {
+	display: flex;
 }
 
-.controls button,
+.hud button,
 dialog button.close {
 	padding: 0;
 	border: none;
 	background: transparent;
 }
 
-.controls svg,
-.controls-message,
-.controls button,
+.hud svg,
+.hud-message,
+.hud button,
 dialog button.close {
 	width: 1em;
 	height: 1em;
 }
 
-.controls-message {
+.hud-message {
 	display: inline-block;
 	width: unset;
 	min-width: 5.75em;
@@ -102,33 +110,41 @@ dialog button.close {
 	font-size: 0.8rem;
 }
 
-:where(.eval) .enabled-if-eval {
-	--foreground: var(--controls-enabled);
+:where([data-mode=normal]) .enabled-if-normal,
+:where([data-mode=eval]) .enabled-if-eval,
+:where([data-mode=selected]) .enabled-if-selected,
+:where([data-mode=pasting]) .enabled-if-pasting,
+:where([data-mode=inert]) .enabled-if-inert,
+:where([data-mode=screenshot]) .enabled-if-screenshot {
+	--foreground: var(--hud-enabled);
 }
 
+.show-if-normal,
 .show-if-eval,
-.show-if-used-clipboard,
 .show-if-selected,
-.show-if-pasting {
+.show-if-pasting,
+.show-if-inert,
+.show-if-screenshot,
+.hud-paste {
 	display: none;
 }
 
-:where(.eval) .show-if-eval,
-:where(.used-clipboard) .show-if-used-clipboard,
-:where(.selected) .show-if-selected,
-:where(.pasting) .show-if-pasting {
-	display: unset;
+:where([data-mode=normal]) .show-if-normal,
+:where([data-mode=eval]) .show-if-eval,
+:where([data-mode=selected]) .show-if-selected,
+:where([data-mode=pasting]) .show-if-pasting,
+:where([data-mode=inert]) .show-if-inert,
+:where([data-mode=screenshot]) .show-if-screenshot {
+	display: contents;
 }
 
-:where(.eval) .hide-if-eval,
-:where(.selected) .hide-if-selected,
-:where(.pasting) .hide-if-pasting {
-	display: none;
+.used-clipboard:not([data-mode=eval]):not([data-mode=pasting]) .hud-paste {
+	display: contents;
 }
 
 dialog {
 	min-width: 25%;
-	border: 0.1em var(--controls-border) solid;
+	border: 0.1em var(--hud-border) solid;
 	border-radius: 0.5em;
 	padding: 1em;
 	background: var(--background);
@@ -136,8 +152,7 @@ dialog {
 	font-family: var(--font);
 	display: grid;
 	align-items: center;
-	grid-template-rows: min-content auto;
-	grid-template-columns: auto min-content;
+	grid-template-columns: 1fr auto;
 	gap: 1em;
 }
 
@@ -162,9 +177,37 @@ dialog .body {
 	grid-column: 1 / 3;
 }
 
-.hide-list-bullets {
+dialog .body :first-child {
+	margin-block-start: 0;
+}
+
+dialog .body :last-child {
+	margin-block-end: 0;
+}
+
+dialog .footer {
+	grid-row: 3;
+	grid-column: 1 / 3;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.25em;
+}
+
+dialog .footer.vertical {
+	flex-direction: column;
+}
+
+save-browser ul {
 	list-style: none;
 	padding: 0;
+	display: grid;
+	grid-template-columns: 1fr repeat(var(--buttons, 0), auto);
+	gap: 0.25em;
+}
+
+save-browser li {
+	display: contents;
 }
 
 .full-width {
@@ -194,18 +237,22 @@ fieldset > legend {
 }
 
 @media (pointer: coarse) {
-	.controls {
+	.hud {
 		font-size: 1.5rem;
 	}
 }
 
 @media (max-width: 24em) {
-	.controls {
+	.hud {
 		left: 0;
 		transform: none;
 		width: 100%;
 		border: none;
-		border-top: 0.1em var(--controls-border) solid;
+		border-top: 0.1em var(--hud-border) solid;
 		border-radius: 0;
+	}
+
+	.used-clipboard:not([data-mode=eval]):not([data-mode=pasting]) .hud {
+		gap: 0.9em;
 	}
 }
