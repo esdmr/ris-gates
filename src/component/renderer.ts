@@ -1,14 +1,4 @@
 import {AxisAlignedBoundingBox} from '../lib/aabb.js';
-import {
-	pointerScaleMultiplier,
-	wheelScaleMultiplier,
-	minorGridStrokeWidth,
-	majorGridStrokeWidth,
-	strokeWidth,
-	selectionStrokeWidth,
-	selectionStrokeDashLength,
-	selectionStrokeSpeed,
-} from '../lib/constants.js';
 import {Point} from '../lib/point.js';
 import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
@@ -24,6 +14,15 @@ import * as selection from './selection.js';
 import * as theme from './theme.js';
 import * as tree from './tree.js';
 import * as wheel from './wheel.js';
+
+export const pointerScaleMultiplier = 0.75;
+export const wheelScaleMultiplier = 0.2;
+export const strokeWidth = 1.5;
+export const minorGridStrokeWidth = 0.5;
+export const majorGridStrokeWidth = 1;
+export const selectionStrokeWidth = 2;
+export const selectionStrokeDashLength = 8;
+export const selectionStrokeSpeed = 2;
 
 let currentTime = /* @__PURE__ */ performance.now();
 

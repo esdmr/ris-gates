@@ -18,13 +18,15 @@ export function clearEvalContext() {
 
 const configEvaluationRate = 'eval-rate';
 const defaultEvaluationRate = 15;
+const minimumEvaluationRate = 1;
+const maximumEvaluationRate = 30;
 export let evaluationRate = defaultEvaluationRate;
 
 export function setEvaluationRate(newRate = defaultEvaluationRate) {
 	evaluationRate = Math.ceil(newRate) || defaultEvaluationRate;
 
-	if (evaluationRate < 1) evaluationRate = 1;
-	else if (evaluationRate > 30) evaluationRate = 30;
+	if (evaluationRate < minimumEvaluationRate) evaluationRate = minimumEvaluationRate;
+	else if (evaluationRate > maximumEvaluationRate) evaluationRate = maximumEvaluationRate;
 
 	storage.setString(
 		configEvaluationRate,

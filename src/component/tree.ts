@@ -1,4 +1,3 @@
-import {defaultScale, maximumScale, minimumScale} from '../lib/constants.js';
 import {FloatingBigInt} from '../lib/floating-bigint.js';
 import {Point} from '../lib/point.js';
 import {Schematic} from '../lib/schematic.js';
@@ -44,6 +43,10 @@ export function replaceTree(newTree: QuadTree) {
 
 export const scrollX = /* @__PURE__ */ new FloatingBigInt();
 export const scrollY = /* @__PURE__ */ new FloatingBigInt();
+
+export const minimumScale = 8;
+export const defaultScale = 50;
+export const maximumScale = 400;
 export let scale = defaultScale;
 
 export function setScale(newScale: number) {
