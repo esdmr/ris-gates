@@ -59,6 +59,18 @@ export default defineConfig({
 							s.update(n.start, n.end, 'Number');
 						}
 					},
+					BinaryExpression(n: acorn.Node) {
+						// Cast safety: acorn.Node is insufficiently typed.
+						if (
+							((n as any).operator === '==' || (n as any).operator === '===') &&
+							(n as any).left.type === 'UnaryExpression' &&
+							(n as any).left.operator === 'typeof' &&
+							(n as any).right.type === 'Literal' &&
+							(n as any).right.value === 'bigint'
+						) {
+							s.update(n.start, n.end, 'false');
+						}
+					},
 					/* eslint-enable @typescript-eslint/naming-convention */
 				});
 
