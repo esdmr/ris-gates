@@ -5,6 +5,14 @@
 	--dark-background: #282828;
 	--dark-foreground: #f0f0f0;
 	--dark-selection: #AAEEFF;
+	--active-io: #0072B2;
+	--active-negate: #D55E00;
+	--active-conjoin: #009E73;
+	--active-disjoin: #E69F00;
+	--passive-io: #003C75;
+	--passive-negate: var(--active-negate);
+	--passive-conjoin: #00532F;
+	--passive-disjoin: #7D4600;
 
 	--background: var(--light-background);
 	--foreground: var(--light-foreground);

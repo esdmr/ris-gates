@@ -1,5 +1,4 @@
 import {AxisAlignedBoundingBox} from '../lib/aabb.js';
-import {activeFillStyles, passiveFillStyles} from '../lib/colors.js';
 import {
 	pointerScaleMultiplier,
 	wheelScaleMultiplier,
@@ -207,8 +206,9 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
 			canvas.context.fillStyle =
-				(isActive ? activeFillStyles : passiveFillStyles).get(type) ??
-				'transparent';
+				(isActive ? theme.activeFillStyles : theme.passiveFillStyles).get(
+					type,
+				) ?? 'transparent';
 			lastType = type;
 			wasActive = isActive;
 		}
