@@ -1,5 +1,5 @@
 import {nonNullable} from '../lib/assert.js';
-import {query} from '../lib/dom.js';
+import {query, create} from '../lib/dom.js';
 import {
 	SvgCanvas,
 	type CanvasLike,
@@ -16,7 +16,8 @@ export function setup() {
 export async function outputToSvg() {
 	const oldCanvas = canvas;
 	const olContext = context;
-	const svgCanvas = document.createElement('svg-canvas');
+	// eslint-disable-next-line @internal/no-object-literals
+	const svgCanvas = create('svg-canvas', {});
 	const svgContext = nonNullable(svgCanvas.getContext());
 
 	svgCanvas.width = oldCanvas.width;

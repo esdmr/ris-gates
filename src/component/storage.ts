@@ -1,4 +1,4 @@
-import {queryAll} from '../lib/dom.js';
+import {queryAll, create} from '../lib/dom.js';
 import {QuadTree} from '../lib/tree.js';
 import * as tree from './tree.js';
 
@@ -90,44 +90,54 @@ export class SaveBrowserElement extends HTMLElement {
 		const primary = this.getAttribute('primary');
 		const secondary = this.getAttribute('secondary');
 
-		const list = document.createElement('ul');
-		list.classList.add('hide-list-bullets', 'full-width');
+		// eslint-disable-next-line @internal/no-object-literals
+		const list = create('ul', {
+			class: 'hide-list-bullets full-width',
+		});
 
 		let empty = true;
 
 		for (const key of listStorage()) {
 			empty = false;
 
-			const item = document.createElement('li');
-			// Since `item` has `display: contents`, it might lose its
-			// semantics. <https://togithub.com/w3c/csswg-drafts/issues/3040>
-			item.setAttribute('role', 'listitem');
-
-			const name = document.createElement('span');
-			name.textContent = key;
-			item.append(name);
+			const item = create(
+				'li',
+				// eslint-disable-next-line @internal/no-object-literals
+				{
+					// Since `item` has `display: contents`, it might lose its
+					// semantics.
+					// <https://togithub.com/w3c/csswg-drafts/issues/3040>
+					role: 'listitem',
+				},
+				// eslint-disable-next-line @internal/no-object-literals
+				create('span', {}, key),
+			);
 
 			if (primary) {
-				const button = document.createElement('button');
-				button.textContent = primary;
+				// eslint-disable-next-line @internal/no-object-literals
+				const button = create('button', {}, primary);
+
 				button.addEventListener('click', () => {
 					button.dispatchEvent(
 						// eslint-disable-next-line @internal/no-object-literals
 						new CustomEvent('primary', {detail: key, bubbles: true}),
 					);
 				});
+
 				item.append(button);
 			}
 
 			if (secondary) {
-				const button = document.createElement('button');
-				button.textContent = secondary;
+				// eslint-disable-next-line @internal/no-object-literals
+				const button = create('button', {}, secondary);
+
 				button.addEventListener('click', () => {
 					button.dispatchEvent(
 						// eslint-disable-next-line @internal/no-object-literals
 						new CustomEvent('secondary', {detail: key, bubbles: true}),
 					);
 				});
+
 				item.append(button);
 			}
 
@@ -135,9 +145,8 @@ export class SaveBrowserElement extends HTMLElement {
 		}
 
 		if (empty) {
-			const item = document.createElement('li');
-			item.textContent = '“There is nothing here.”';
-			list.append(item);
+			// eslint-disable-next-line @internal/no-object-literals
+			list.append(create('li', {}, '“There is nothing here.”'));
 		}
 
 		this.append(list);
