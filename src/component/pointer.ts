@@ -51,7 +51,7 @@ function pointermoveHandler(event: PointerEvent) {
 		return;
 	}
 
-	// Cast safety: length is at least one, so canvas 0 always exist.
+	// Cast safety: length is at least one, so event 0 always exists.
 	const first = eventCache[0]!;
 
 	if (!firstDelta) {
@@ -66,7 +66,7 @@ function pointermoveHandler(event: PointerEvent) {
 	firstDelta = false;
 
 	if (eventCache.length === 2) {
-		// Cast safety: length is two, so elements 1 always exist.
+		// Cast safety: length is two, so event 1 always exists.
 		const second = eventCache[1]!;
 
 		centerX = (second.clientX + first.clientX) / 2;
