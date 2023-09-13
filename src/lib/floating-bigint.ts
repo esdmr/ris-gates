@@ -1,5 +1,5 @@
 function toFixedPoint(number: number, precision: number) {
-	return Math.round(number * 10 ** precision);
+	return Math.trunc(number * 10 ** precision);
 }
 
 function abs(int: bigint) {
