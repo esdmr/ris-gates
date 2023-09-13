@@ -86,6 +86,18 @@ canvas {
 	display: flex;
 }
 
+.hud.floating {
+	top: var(--top);
+	bottom: auto;
+	left: var(--left);
+	max-width: 90%;
+	max-height: 90%;
+	transform: translate(-50%, -50%);
+	border: 0.1em var(--hud-border) solid;
+	border-radius: var(--border-radius);
+	padding: 0.5em 1em;
+}
+
 .hud button,
 dialog button.close {
 	padding: 0;
@@ -243,7 +255,7 @@ fieldset > legend {
 }
 
 @media (max-width: 24em) {
-	.hud {
+	.hud:not(.floating) {
 		left: 0;
 		transform: none;
 		width: 100%;

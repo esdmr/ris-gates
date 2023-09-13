@@ -54,14 +54,16 @@ export function setup() {
 		buttonTickNo.textContent = String(evalContext.tickCount);
 	});
 
-	buttonTickBwd.addEventListener('click', () => {
+	buttonTickBwd.addEventListener('click', (event) => {
+		event.preventDefault();
 		const evalContext = eval_.getEvalContext();
 		evalContext.tickBackward();
 		buttonTickNo.textContent = String(evalContext.tickCount);
 		stopStabilityInterval();
 	});
 
-	buttonTickFwd.addEventListener('click', () => {
+	buttonTickFwd.addEventListener('click', (event) => {
+		event.preventDefault();
 		const evalContext = eval_.getEvalContext();
 		evalContext.tickForward();
 		buttonTickNo.textContent = String(evalContext.tickCount);

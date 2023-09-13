@@ -7,6 +7,7 @@ import * as canvas from './canvas.js';
 import * as screenshot from './dialog/screenshot.js';
 import * as eval_ from './eval.js';
 import * as grid from './grid.js';
+import * as hud from './hud/index.js';
 import * as hudEdit from './hud/edit.js';
 import * as mode from './mode.js';
 import * as pointer from './pointer.js';
@@ -80,7 +81,9 @@ function commitInputs() {
 		tree.scrollY.float -= pointer.deltaY / tree.scale;
 	}
 
-	if (pointer.hasClicked) {
+	if (pointer.hasClickedSecondary) {
+		hud.float(pointer.centerX, pointer.centerY);
+	} else if (pointer.hasClicked) {
 		const currentPoint = new Point(
 			tree.scrollX.bigint +
 				BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float)),
@@ -124,6 +127,17 @@ function commitInputs() {
 	tree.scrollY.normalize();
 }
 
+function ignoreInputs() {
+	if (pointer.hasClicked || pointer.isDragging) {
+		hud.dock();
+	} else if (pointer.hasClickedSecondary) {
+		hud.float(pointer.centerX, pointer.centerY);
+	}
+
+	pointer.commit();
+	wheel.commit();
+}
+
 // eslint-disable-next-line complexity
 function onFrame(ms: DOMHighResTimeStamp) {
 	const dip =
@@ -147,7 +161,11 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		canvas.canvas.height = height;
 	}
 
-	commitInputs();
+	if (hud.isFloating) {
+		ignoreInputs();
+	} else {
+		commitInputs();
+	}
 
 	const realScale = tree.scale * dip;
 	const offsetX = Math.trunc(tree.scrollX.float * realScale);

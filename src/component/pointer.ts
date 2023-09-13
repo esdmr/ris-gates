@@ -12,6 +12,7 @@ export let isDragging = false;
 export let isSelecting = false;
 export let wasSelecting = false;
 export let hasClicked = false;
+export let hasClickedSecondary = false;
 export let isAuxiliaryButtonHeld = false;
 export let isSecondaryButtonHeld = false;
 export let deltaX = 0;
@@ -110,20 +111,22 @@ function pointerupHandler(event: PointerEvent) {
 	}
 
 	if (eventCache.length === 0 && index !== -1) {
+		if (isDragging) {
+			isDragging = false;
+			wasSelecting = isSelecting;
+			isSelecting = false;
+		} else if (isSecondaryButtonHeld) {
+			hasClickedSecondary = true;
+		} else {
+			hasClicked = true;
+		}
+
 		if (event.button === 1) {
 			isAuxiliaryButtonHeld = false;
 		}
 
 		if (event.button === 2) {
 			isSecondaryButtonHeld = false;
-		}
-
-		if (isDragging) {
-			isDragging = false;
-			wasSelecting = isSelecting;
-			isSelecting = false;
-		} else {
-			hasClicked = true;
 		}
 	}
 }
@@ -147,5 +150,6 @@ export function commit() {
 	deltaY = 0;
 	deltaScale = 0;
 	hasClicked = false;
+	hasClickedSecondary = false;
 	wasSelecting = isSelecting;
 }

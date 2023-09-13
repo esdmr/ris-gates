@@ -99,7 +99,8 @@ export function setup() {
 		});
 	}
 
-	buttonDir.addEventListener('click', () => {
+	buttonDir.addEventListener('click', (event) => {
+		event.preventDefault();
 		rotateDirection(1);
 	});
 
