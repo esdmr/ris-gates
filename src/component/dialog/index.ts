@@ -8,6 +8,7 @@ import * as dialogPasteFailed from './paste-failed.js';
 import * as dialogSaveFailed from './save-failed.js';
 import * as dialogSave from './save.js';
 import * as dialogScreenshot from './screenshot.js';
+import * as dialogSelection from './selection.js';
 
 export function setup() {
 	dialogBrowse.setup();
@@ -20,4 +21,5 @@ export function setup() {
 	dialogSaveFailed.setup();
 	dialogSave.setup();
 	dialogScreenshot.setup();
+	dialogSelection.setup();
 }

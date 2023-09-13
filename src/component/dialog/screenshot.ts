@@ -8,6 +8,7 @@ import * as canvas from '../canvas.js';
 import * as mode from '../mode.js';
 import * as theme from '../theme.js';
 import * as tree from '../tree.js';
+import * as selection from '../selection.js';
 
 const dialogScreenshot = query('#dialog-screenshot', HTMLDialogElement);
 const screenshotForm = query('form', HTMLFormElement, dialogScreenshot);
@@ -113,16 +114,31 @@ export function setup() {
 	}
 }
 
-export function open() {
-	inputX.value = tree.scrollX.toString();
-	inputY.value = tree.scrollY.toString();
+export function open(target?: 'selection') {
 	inputScale.value = tree.scale.toFixed(1);
 	inputDip.checked = true;
 	inputDark.checked = matchMedia('(prefers-color-scheme: dark)').matches;
-	inputWidth.value = (canvas.canvas.clientWidth * devicePixelRatio).toFixed(0);
-	inputHeight.value = (canvas.canvas.clientHeight * devicePixelRatio).toFixed(
-		0,
-	);
+
+	if (target === 'selection') {
+		const realScale = inputScale.valueAsNumber * devicePixelRatio;
+		inputX.value = String(selection.firstX);
+		inputY.value = String(selection.firstY);
+		inputWidth.value = String(
+			realScale * Number(selection.secondX - selection.firstX + 1n),
+		);
+		inputHeight.value = String(
+			realScale * Number(selection.secondY - selection.firstY + 1n),
+		);
+	} else {
+		inputX.value = tree.scrollX.toString();
+		inputY.value = tree.scrollY.toString();
+		inputWidth.value = (canvas.canvas.clientWidth * devicePixelRatio).toFixed(
+			0,
+		);
+		inputHeight.value = (canvas.canvas.clientHeight * devicePixelRatio).toFixed(
+			0,
+		);
+	}
 
 	mode.openDialog(dialogScreenshot);
 	setupScreenshotOverrides();

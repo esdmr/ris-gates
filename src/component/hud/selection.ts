@@ -9,7 +9,7 @@ const buttonCopy = query('#hud-copy', HTMLButtonElement);
 
 export function setup() {
 	/* eslint-disable @internal/no-object-literals */
-	keyboard.extendKeyBinds('Escape', {
+	keyboard.extendKeyBinds('KeyQ', {
 		selected: createClickHandler(buttonUnselect),
 	});
 	keyboard.extendKeyBinds('Control KeyX', {

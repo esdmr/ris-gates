@@ -148,6 +148,15 @@
 					</svg>
 				</button>
 			</div>
+			<div class="show-if-selected" role="presentation">
+				<button id="hud-menu-selection" aria-label="Menu">
+					<svg viewBox="0 0 1 1" stroke-width="0.1"
+						stroke="var(--foreground)">
+						<title>Menu</title>
+						<use href="icons.svg#menu" />
+					</svg>
+				</button>
+			</div>
 			<div class="show-if-pasting" role="presentation">
 				<button id="hud-paste-cancel" aria-label="Cancel pasting">
 					<svg viewBox="0 0 1 1" stroke-width="0.1"
@@ -198,6 +207,20 @@
 				<button id="btn-browse"
 					class="requires-local-storage">Browse</button>
 				<button id="btn-screenshot"
+					class="requires-local-storage">Screenshot</button>
+			</div>
+		</dialog>
+		<dialog id="dialog-selection">
+			<button class="close" aria-label="Close">
+				<svg viewBox="0 0 1 1" stroke-width="0.1"
+					stroke="var(--foreground)">
+					<title>Close</title>
+					<use href="icons.svg#cross" />
+				</svg>
+			</button>
+			<h1 class="title">Selection</h1>
+			<div class="footer vertical" role="presentation">
+				<button id="btn-screenshot2"
 					class="requires-local-storage">Screenshot</button>
 			</div>
 		</dialog>
