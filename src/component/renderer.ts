@@ -16,8 +16,8 @@ import * as theme from './theme.js';
 import * as tree from './tree.js';
 import * as wheel from './wheel.js';
 
-export const pointerScaleMultiplier = 0.75;
-export const wheelScaleMultiplier = 0.2;
+export const pointerScaleBase = 0.995;
+export const wheelScaleBase = 0.999;
 export const strokeWidth = 1.5;
 export const minorGridStrokeWidth = 0.5;
 export const majorGridStrokeWidth = 1;
@@ -40,18 +40,18 @@ function getScaleFloatOffset(point: number, oldScale: number) {
 }
 
 function commitInputs() {
-	let deltaScale = pointer.deltaScale * pointerScaleMultiplier;
+	let scaleFactor = pointerScaleBase ** -pointer.deltaScale;
 
 	if (wheel.ctrl || pointer.isAuxiliaryButtonHeld) {
-		deltaScale -= (wheel.deltaX + wheel.deltaY) * wheelScaleMultiplier;
+		scaleFactor *= wheelScaleBase ** (wheel.deltaX + wheel.deltaY);
 	} else {
 		tree.scrollX.float += wheel.deltaX / tree.scale;
 		tree.scrollY.float += wheel.deltaY / tree.scale;
 	}
 
-	if (deltaScale) {
+	if (scaleFactor) {
 		const oldScale = tree.scale;
-		tree.setScale(tree.scale + deltaScale);
+		tree.setScale(tree.scale * scaleFactor);
 		tree.scrollX.bigint += getScaleIntOffset(pointer.centerX, oldScale);
 		tree.scrollY.bigint += getScaleIntOffset(pointer.centerY, oldScale);
 		tree.scrollX.float += getScaleFloatOffset(pointer.centerX, oldScale);
