@@ -31,6 +31,7 @@ export function setup() {
 
 		try {
 			await copyText(json);
+			mode.closeAllDialogs();
 		} catch (error) {
 			dialogCopyFailed.open(json, error);
 		}
