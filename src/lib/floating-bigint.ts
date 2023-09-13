@@ -7,7 +7,10 @@ function abs(int: bigint) {
 }
 
 export class FloatingBigInt {
-	constructor(public bigint = 0n, public float = 0) {}
+	constructor(
+		public bigint = 0n,
+		public float = 0,
+	) {}
 
 	normalize() {
 		if (!Number.isFinite(this.float)) {

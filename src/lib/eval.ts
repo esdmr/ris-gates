@@ -46,7 +46,10 @@ export class TilesMap {
 }
 
 export class NegateVertex {
-	constructor(public x: symbol, public y: symbol) {}
+	constructor(
+		public x: symbol,
+		public y: symbol,
+	) {}
 }
 
 export class EvalGraph {
