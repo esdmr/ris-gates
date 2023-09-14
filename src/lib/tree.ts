@@ -23,7 +23,7 @@ export class QuadTree {
 		try {
 			assertObject(json);
 
-			const {version = currentSaveVersion} = json;
+			const {version = [1, 0]} = json;
 			assertArray(version);
 			assert(
 				version[0] === currentSaveVersion[0] &&
