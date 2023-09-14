@@ -61,37 +61,39 @@
 				</button>
 			</div>
 			<div class="show-if-normal" role="presentation">
-				<button id="hud-empty" aria-label="Empty">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
-						<title>Empty</title>
-						<use href="icons.svg#cross" />
-					</svg>
-				</button>
-				<button id="hud-io" aria-label="IO">
-					<svg viewBox="0 0 1 1" fill="var(--active-io)">
-						<title>IO</title>
-						<use href="icons.svg#tile" />
-					</svg>
-				</button>
-				<button id="hud-negate" aria-label="Negate">
-					<svg viewBox="0 0 1 1" fill="var(--active-negate)">
-						<title>Negate</title>
-						<use href="icons.svg#tile" />
-					</svg>
-				</button>
-				<button id="hud-conjoin" aria-label="Conjoin">
-					<svg viewBox="0 0 1 1" fill="var(--active-conjoin)">
-						<title>Conjoin</title>
-						<use href="icons.svg#tile" />
-					</svg>
-				</button>
-				<button id="hud-disjoin" aria-label="Disjoin">
-					<svg viewBox="0 0 1 1" fill="var(--active-disjoin)">
-						<title>Disjoin</title>
-						<use href="icons.svg#tile" />
-					</svg>
-				</button>
+				<div class="hud-group" role="radiogroup">
+					<button id="hud-empty" aria-label="Empty" role="radio" aria-checked="false">
+						<svg viewBox="0 0 1 1" stroke-width="0.1"
+							stroke="var(--foreground)">
+							<title>Empty</title>
+							<use href="icons.svg#cross" />
+						</svg>
+					</button>
+					<button id="hud-io" aria-label="IO" role="radio" aria-checked="false">
+						<svg viewBox="0 0 1 1" fill="var(--active-io)">
+							<title>IO</title>
+							<use href="icons.svg#tile" />
+						</svg>
+					</button>
+					<button id="hud-negate" aria-label="Negate" role="radio" aria-checked="false">
+						<svg viewBox="0 0 1 1" fill="var(--active-negate)">
+							<title>Negate</title>
+							<use href="icons.svg#tile" />
+						</svg>
+					</button>
+					<button id="hud-conjoin" aria-label="Conjoin" role="radio" aria-checked="false">
+						<svg viewBox="0 0 1 1" fill="var(--active-conjoin)">
+							<title>Conjoin</title>
+							<use href="icons.svg#tile" />
+						</svg>
+					</button>
+					<button id="hud-disjoin" aria-label="Disjoin" role="radio" aria-checked="false">
+						<svg viewBox="0 0 1 1" fill="var(--active-disjoin)">
+							<title>Disjoin</title>
+							<use href="icons.svg#tile" />
+						</svg>
+					</button>
+				</div>
 				<button id="hud-dir" aria-label="Direction: up">
 					<svg viewBox="0 0 1 1">
 						<title>Direction: up</title>
@@ -291,7 +293,8 @@
 					I cannot automatically read your clipboard.<br>
 					Try pasting in the following text box instead.
 				</p>
-				<textarea id="inp-paste" class="full-width" autocomplete="off"></textarea>
+				<textarea id="inp-paste" class="full-width"
+					autocomplete="off"></textarea>
 			</div>
 		</dialog>
 		<dialog id="dialog-save">
@@ -349,7 +352,8 @@
 					I cannot automatically write to your clipboard.<br>
 					Try copying from the following text box instead.
 				</p>
-				<textarea id="inp-copy" class="full-width" autocomplete="off"></textarea>
+				<textarea id="inp-copy" class="full-width"
+					autocomplete="off"></textarea>
 			</div>
 		</dialog>
 		<dialog id="dialog-browse">

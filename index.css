@@ -79,7 +79,7 @@ canvas {
 	display: none;
 	flex-wrap: wrap;
 	justify-content: center;
-	gap: 1em;
+	gap: 0.8em;
 }
 
 :where([data-mode=normal], [data-mode=eval], [data-mode=selected], [data-mode=pasting]) .hud {
@@ -100,9 +100,20 @@ canvas {
 
 .hud button,
 dialog button.close {
-	padding: 0;
+	padding: 0.2em;
 	border: none;
 	background: transparent;
+	box-sizing: content-box;
+}
+
+.hud .active {
+	border: 0.1em var(--selection) solid;
+	padding: 0.1em;
+	border-radius: 0.1em;
+}
+
+button svg {
+	vertical-align: super;
 }
 
 .hud svg,
@@ -146,10 +157,8 @@ dialog button.close {
 :where([data-mode=selected]) .show-if-selected,
 :where([data-mode=pasting]) .show-if-pasting,
 :where([data-mode=inert]) .show-if-inert,
-:where([data-mode=screenshot]) .show-if-screenshot {
-	display: contents;
-}
-
+:where([data-mode=screenshot]) .show-if-screenshot,
+.hud-group,
 .used-clipboard:not([data-mode=eval]):not([data-mode=pasting]) .hud-paste {
 	display: contents;
 }
@@ -265,6 +274,6 @@ fieldset > legend {
 	}
 
 	.used-clipboard:not([data-mode=eval]):not([data-mode=pasting]) .hud {
-		gap: 0.9em;
+		gap: 0.6em;
 	}
 }

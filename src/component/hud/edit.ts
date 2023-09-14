@@ -28,7 +28,7 @@ const tools = new Map<ToolTypes, HTMLElement>([
 	['disjoin', buttonDisjoin],
 ]);
 
-let selectedTool: ToolTypes = 'io';
+let selectedTool: ToolTypes = 'empty';
 let selectedDirection: (typeof directions)[number] = 'up';
 
 function rotateDirection(offset: 1 | 3) {
@@ -92,10 +92,18 @@ export function setup() {
 	});
 	/* eslint-enable @internal/no-object-literals */
 
+	buttonEmpty.classList.add('active');
+	buttonEmpty.setAttribute('aria-checked', 'true');
+
 	for (const [tool, element] of tools) {
 		// eslint-disable-next-line @typescript-eslint/no-loop-func
 		element.addEventListener('click', () => {
 			selectedTool = tool;
+
+			for (const [otherTool, element] of tools) {
+				element.classList.toggle('active', tool === otherTool);
+				element.setAttribute('aria-checked', String(tool === otherTool));
+			}
 		});
 	}
 
