@@ -25,8 +25,8 @@ export function setupDialog(dialog: HTMLDialogElement) {
 		setMode(openDialogs.size > 0 ? 'inert' : 'normal');
 
 		for (const browser of queryAll(
-			'save-browser',
-			storage.SaveBrowserElement,
+			'storage-browser',
+			storage.StorageBrowserElement,
 			dialog,
 		)) {
 			browser.clear();
@@ -40,8 +40,8 @@ export function openDialog(dialog: HTMLDialogElement) {
 	setMode('inert');
 
 	for (const browser of queryAll(
-		'save-browser',
-		storage.SaveBrowserElement,
+		'storage-browser',
+		storage.StorageBrowserElement,
 		dialog,
 	)) {
 		browser.update();

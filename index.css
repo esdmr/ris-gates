@@ -210,7 +210,7 @@ dialog .footer.vertical {
 	flex-direction: column;
 }
 
-save-browser ul {
+storage-browser ul {
 	list-style: none;
 	padding: 0;
 	display: grid;
@@ -218,7 +218,7 @@ save-browser ul {
 	gap: 0.25em;
 }
 
-save-browser li {
+storage-browser li {
 	display: contents;
 }
 

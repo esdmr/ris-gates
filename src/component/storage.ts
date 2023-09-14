@@ -19,7 +19,8 @@ export const localStorageAvailable = /* @__PURE__ */ (() => {
 	}
 })();
 
-export const storagePrefix = 'risg/';
+export const oldSavePrefix = 'risg/';
+export const savePrefix = 'save/';
 export const configPrefix = 'conf/';
 
 export function getString(key: string, prefix?: string): string | undefined;
@@ -32,7 +33,7 @@ export function getString<F>(
 
 export function getString(
 	key: string,
-	prefix = storagePrefix,
+	prefix = savePrefix,
 	fallback = undefined,
 ) {
 	return localStorageAvailable
@@ -40,21 +41,21 @@ export function getString(
 		: fallback;
 }
 
-export function setString(key: string, string: string, prefix = storagePrefix) {
+export function setString(key: string, string: string, prefix = savePrefix) {
 	if (!localStorageAvailable) return;
 	localStorage.setItem(prefix + key, string);
 }
 
-export function exists(key: string, prefix = storagePrefix) {
+export function exists(key: string, prefix = savePrefix) {
 	return getString(key, prefix) !== undefined;
 }
 
-export function remove(key: string, prefix = storagePrefix) {
+export function remove(key: string, prefix = savePrefix) {
 	if (!localStorageAvailable) return;
 	localStorage.removeItem(prefix + key);
 }
 
-export function* listStorage(prefix = storagePrefix) {
+export function* listStorage(prefix = savePrefix) {
 	if (!localStorageAvailable) return;
 	const length = localStorage.length;
 
@@ -76,7 +77,8 @@ export function save(key: string) {
 	setString(key, JSON.stringify(tree.tree));
 }
 
-export class SaveBrowserElement extends HTMLElement {
+export class StorageBrowserElement extends HTMLElement {
+	storagePrefix = savePrefix;
 	private readonly _buttons = new Map<string, string>();
 
 	clear() {
@@ -100,7 +102,7 @@ export class SaveBrowserElement extends HTMLElement {
 			style: `--buttons: ${this._buttons.size}`,
 		});
 
-		for (const key of listStorage()) {
+		for (const key of listStorage(this.storagePrefix)) {
 			const item = create(
 				'li',
 				// eslint-disable-next-line @internal/no-object-literals
@@ -150,5 +152,12 @@ export function setup() {
 		}
 	}
 
-	customElements.define('save-browser', SaveBrowserElement);
+	const keys = [...listStorage(oldSavePrefix)];
+
+	for (const key of keys) {
+		setString(key, getString(key, oldSavePrefix, ''));
+		remove(key, oldSavePrefix);
+	}
+
+	customElements.define('storage-browser', StorageBrowserElement);
 }

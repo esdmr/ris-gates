@@ -15,14 +15,14 @@ export function setup() {
 	mode.setupDialog(dialogLoad);
 	setupDialogCloseButton(dialogLoad);
 
-	const saveBrowser = query(
-		'save-browser',
-		storage.SaveBrowserElement,
+	const storageBrowser = query(
+		'storage-browser',
+		storage.StorageBrowserElement,
 		dialogLoad,
 	);
 
-	saveBrowser.addButton('Load', 'Load');
-	saveBrowser.addEventListener('Load', (event) => {
+	storageBrowser.addButton('Load', 'Load');
+	storageBrowser.addEventListener('Load', (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
 

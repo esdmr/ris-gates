@@ -22,14 +22,14 @@ export function setup() {
 	mode.setupDialog(dialogBrowse);
 	setupDialogCloseButton(dialogBrowse);
 
-	const saveBrowser = query(
-		'save-browser',
-		storage.SaveBrowserElement,
+	const storageBrowser = query(
+		'storage-browser',
+		storage.StorageBrowserElement,
 		dialogBrowse,
 	);
 
-	saveBrowser.addButton('Delete', 'Delete');
-	saveBrowser.addEventListener('Delete', (event) => {
+	storageBrowser.addButton('Delete', 'Delete');
+	storageBrowser.addEventListener('Delete', (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
 		assert(event.target instanceof HTMLElement);
@@ -39,7 +39,7 @@ export function setup() {
 			autoSave.updateAutoSaveState(event.detail);
 
 			if (event.target.closest('ul')?.childElementCount === 1) {
-				saveBrowser.update();
+				storageBrowser.update();
 			} else {
 				event.target.closest('li')?.remove();
 			}
@@ -48,8 +48,8 @@ export function setup() {
 		}
 	});
 
-	saveBrowser.addButton('Copy', 'Copy to clipboard');
-	saveBrowser.addEventListener('Copy', async (event) => {
+	storageBrowser.addButton('Copy', 'Copy to clipboard');
+	storageBrowser.addEventListener('Copy', async (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
 		const json = storage.getString(event.detail, undefined, '');
@@ -96,7 +96,7 @@ export function setup() {
 			storage.setString(key, JSON.stringify(QuadTree.from(value)));
 		}
 
-		saveBrowser.update();
+		storageBrowser.update();
 	});
 
 	buttonDeleteAll.addEventListener('click', () => {
@@ -106,7 +106,7 @@ export function setup() {
 			storage.remove(key);
 		}
 
-		saveBrowser.update();
+		storageBrowser.update();
 	});
 }
 
