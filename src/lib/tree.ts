@@ -1,5 +1,5 @@
 import {QuadTreeBoundingBox, AxisAlignedBoundingBox} from './aabb.js';
-import {assertObject} from './assert.js';
+import {assert, assertArray, assertObject} from './assert.js';
 import {roundedSqrt} from './bigint.js';
 import {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
@@ -7,6 +7,9 @@ import {Schematic} from './schematic.js';
 import * as searchMode from './search-mode.js';
 import {WalkStep} from './walk.js';
 import * as tileType from './tile-type.js';
+
+// eslint-disable-next-line @internal/no-object-literals
+const currentSaveVersion = [1, 0] as const;
 
 /**
  * Partitions space in four parts equally. If a partition does not contain any
@@ -20,8 +23,15 @@ export class QuadTree {
 		try {
 			assertObject(json);
 
+			const {version = currentSaveVersion} = json;
+			assertArray(version);
+			assert(
+				version[0] === currentSaveVersion[0] &&
+					typeof version[1] === 'number' &&
+					version[1] <= currentSaveVersion[1],
+			);
+
 			const bounds = QuadTreeBoundingBox.from(json.bounds);
-			const {root} = json;
 
 			// To avoid data manipulation/duplication errors, we manually
 			// calculate the parity. If the width was an odd power of two (odd
@@ -29,7 +39,7 @@ export class QuadTree {
 			// by that rounding indicates that parity is odd or `true`.
 			const parity = roundedSqrt(bounds.width) ** 2n !== bounds.width;
 
-			const node = QuadTreeNode.from(root, bounds, parity);
+			const node = QuadTreeNode.from(json.root, bounds, parity);
 			const tree = new QuadTree();
 			if (node) tree._root = node;
 			return tree;
@@ -163,6 +173,7 @@ export class QuadTree {
 	toJSON() {
 		// eslint-disable-next-line @internal/no-object-literals
 		return {
+			version: currentSaveVersion,
 			root: this._root.toJSON(),
 			bounds: this._root.bounds.toJSON(),
 		};
