@@ -1,4 +1,4 @@
-import {assert} from '../../lib/assert.js';
+import {assert, assertObject} from '../../lib/assert.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import {QuadTree} from '../../lib/tree.js';
 import * as mode from '../mode.js';
@@ -84,13 +84,12 @@ export function setup() {
 		try {
 			text = await pasteText();
 		} catch (error) {
-			dialogPasteFailed.open('import', error);
-			return;
+			text = await dialogPasteFailed.open(error);
 		}
 
 		// Cast safety: Avoid any. Also causes the eslint error to go away.
 		const json = JSON.parse(text) as unknown;
-		assert(typeof json === 'object' && json !== null && !Array.isArray(json));
+		assertObject(json);
 
 		for (const [key, value] of Object.entries(json)) {
 			storage.setString(key, JSON.stringify(QuadTree.from(value)));

@@ -1,60 +1,46 @@
-import {assert} from '../../lib/assert.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {QuadTree} from '../../lib/tree.js';
 import * as mode from '../mode.js';
-import * as storage from '../storage.js';
-import * as tree from '../tree.js';
-import * as dialogBrowse from './browse.js';
 import * as dialogLoadFailed from './load-failed.js';
 
 const dialogPasteFailed = query('#dialog-paste-failed', HTMLDialogElement);
 const textarea = query('textarea', HTMLTextAreaElement, dialogPasteFailed);
 
-let pasteKind: 'load' | 'import' = 'load';
+let resolve: ((value: string) => void) | undefined;
+let reject: ((reason?: unknown) => void) | undefined;
 
 export function setup() {
 	mode.setupDialog(dialogPasteFailed);
 	setupDialogCloseButton(dialogPasteFailed);
 
+	dialogPasteFailed.addEventListener('close', () => {
+		reject?.();
+		resolve = undefined;
+		reject = undefined;
+	});
+
 	textarea.addEventListener('paste', (event) => {
 		try {
 			const text = event.clipboardData?.getData('Text') ?? 'null';
+			resolve?.(text);
+			resolve = undefined;
+			reject = undefined;
 
-			if (pasteKind === 'load') {
-				tree.replaceTree(QuadTree.from(JSON.parse(text)));
-
-				// Firefox is weird. It does not like closing the dialogs in
-				// the paste event handler. So we do it in the next
-				// microtask.
-				queueMicrotask(() => {
-					mode.closeAllDialogs();
-				});
-			} else {
-				// Cast safety: Avoid any. Also causes the eslint error to go away.
-				const json = JSON.parse(text) as unknown;
-				assert(
-					typeof json === 'object' && json !== null && !Array.isArray(json),
-				);
-
-				for (const [key, value] of Object.entries(json)) {
-					storage.setString(key, JSON.stringify(QuadTree.from(value)));
-				}
-
-				dialogBrowse.open();
-
-				queueMicrotask(() => {
-					dialogPasteFailed.close();
-				});
-			}
+			queueMicrotask(() => {
+				dialogPasteFailed.close();
+			});
 		} catch (error) {
 			dialogLoadFailed.open(error);
 		}
 	});
 }
 
-export function open(kind: 'load' | 'import', error?: unknown) {
+export async function open(error?: unknown): Promise<string> {
 	mode.openDialog(dialogPasteFailed);
-	pasteKind = kind;
 	textarea.value = '';
 	console.error('Paste failed:', error);
+
+	return new Promise((resolve_, reject_) => {
+		resolve = resolve_;
+		reject = reject_;
+	});
 }

@@ -40,8 +40,7 @@ export function setup() {
 		try {
 			text = await pasteText();
 		} catch (error) {
-			dialogPasteFailed.open('load', error);
-			return;
+			text = await dialogPasteFailed.open(error);
 		}
 
 		try {
