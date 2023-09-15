@@ -1,10 +1,8 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import * as mode from '../mode.js';
-import * as storage from '../storage.js';
 import * as selection from '../selection.js';
-import {Schematic} from '../../lib/schematic.js';
+import * as storage from '../storage.js';
 import * as dialogSave from './save.js';
-import * as dialogBrowse from './browse.js';
 import * as dialogScreenshot from './screenshot.js';
 
 const dialogSelection = query('#dialog-selection', HTMLDialogElement);
