@@ -1,6 +1,5 @@
 import {assert, assertObject} from '../../lib/assert.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {QuadTree} from '../../lib/tree.js';
 import * as mode from '../mode.js';
 import * as storage from '../storage.js';
 import * as autoSave from '../auto-save.js';
@@ -17,6 +16,9 @@ const buttonDeleteAll = query(
 	HTMLButtonElement,
 	dialogBrowse,
 );
+
+let prefix: string;
+let constructor: (json: unknown) => unknown;
 
 export function setup() {
 	mode.setupDialog(dialogBrowse);
@@ -35,7 +37,7 @@ export function setup() {
 		assert(event.target instanceof HTMLElement);
 
 		try {
-			storage.remove(event.detail);
+			storage.remove(event.detail, prefix);
 			autoSave.updateAutoSaveState(event.detail);
 
 			if (event.target.closest('ul')?.childElementCount === 1) {
@@ -52,7 +54,7 @@ export function setup() {
 	storageBrowser.addEventListener('Copy', async (event) => {
 		assert(event instanceof CustomEvent);
 		assert(typeof event.detail === 'string');
-		const json = storage.getString(event.detail, undefined, '');
+		const json = storage.getString(event.detail, prefix, '');
 
 		try {
 			await copyText(json);
@@ -65,8 +67,8 @@ export function setup() {
 		// Cast safety: Procedurally populated object which will ultimately be stringified.
 		const json = Object.create(null) as Record<string, unknown>;
 
-		for (const key of storage.listStorage()) {
-			json[key] = JSON.parse(storage.getString(key, undefined, ''));
+		for (const key of storage.listStorage(prefix)) {
+			json[key] = JSON.parse(storage.getString(key, prefix, ''));
 		}
 
 		const text = JSON.stringify(json);
@@ -92,23 +94,35 @@ export function setup() {
 		assertObject(json);
 
 		for (const [key, value] of Object.entries(json)) {
-			storage.setString(key, JSON.stringify(QuadTree.from(value)));
+			storage.setString(key, JSON.stringify(constructor(value)), prefix);
 		}
 
 		storageBrowser.update();
 	});
 
 	buttonDeleteAll.addEventListener('click', () => {
-		const keys = [...storage.listStorage()];
+		const keys = [...storage.listStorage(prefix)];
 
 		for (const key of keys) {
-			storage.remove(key);
+			storage.remove(key, prefix);
 		}
 
 		storageBrowser.update();
 	});
 }
 
-export function open() {
+export function open(
+	prefix_: string,
+	constructor_: (json: unknown) => unknown,
+) {
+	prefix = prefix_;
+	constructor = constructor_;
+
+	query(
+		'storage-browser',
+		storage.StorageBrowserElement,
+		dialogBrowse,
+	).storagePrefix = prefix_;
+
 	mode.openDialog(dialogBrowse);
 }

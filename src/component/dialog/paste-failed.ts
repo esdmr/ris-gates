@@ -13,7 +13,7 @@ export function setup() {
 	setupDialogCloseButton(dialogPasteFailed);
 
 	dialogPasteFailed.addEventListener('close', () => {
-		reject?.();
+		reject?.('Dialog closed');
 		resolve = undefined;
 		reject = undefined;
 	});
@@ -34,12 +34,12 @@ export function setup() {
 	});
 }
 
-export async function open(error?: unknown): Promise<string> {
+export async function open(error?: unknown) {
 	mode.openDialog(dialogPasteFailed);
 	textarea.value = '';
 	console.error('Paste failed:', error);
 
-	return new Promise((resolve_, reject_) => {
+	return new Promise<string>((resolve_, reject_) => {
 		resolve = resolve_;
 		reject = reject_;
 	});

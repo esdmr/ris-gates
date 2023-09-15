@@ -13,13 +13,13 @@ export function setup() {
 	});
 
 	buttonPaste.addEventListener('click', () => {
-		if (!selection.hasSchematic()) return;
+		if (!selection.clipboard) return;
 		mode.setMode('pasting');
 	});
 
 	buttonPaste.addEventListener('contextmenu', (event) => {
-		if (selection.hasSchematic()) {
-			selection.discard();
+		if (selection.clipboard) {
+			selection.setClipboard(undefined);
 			event.preventDefault();
 		}
 	});

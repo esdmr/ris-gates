@@ -37,11 +37,19 @@ export function getBox() {
 	);
 }
 
-let schematic: Schematic | undefined;
+export function toSchematic() {
+	return tree.tree.getSchematic(getBox());
+}
+
+export let clipboard: Schematic | undefined;
+
+export function setClipboard(content: Schematic | undefined) {
+	clipboard = content;
+	document.body.classList.toggle('used-clipboard', Boolean(content));
+}
 
 export function copy() {
-	schematic = tree.tree.getSchematic(getBox());
-	document.body.classList.add('used-clipboard');
+	setClipboard(toSchematic());
 }
 
 export function remove() {
@@ -59,19 +67,10 @@ export function cut() {
 }
 
 export function paste(point: Point) {
-	if (!schematic) return;
-	tree.tree.putSchematic(schematic, point);
+	if (!clipboard) return;
+	tree.tree.putSchematic(clipboard, point);
 	firstX = point.x;
 	firstY = point.y;
-	secondX = firstX + BigInt(schematic.width) - 1n;
-	secondY = firstY + BigInt(schematic.height) - 1n;
-}
-
-export function hasSchematic() {
-	return Boolean(schematic);
-}
-
-export function discard() {
-	schematic = undefined;
-	document.body.classList.remove('used-clipboard');
+	secondX = firstX + BigInt(clipboard.width) - 1n;
+	secondY = firstY + BigInt(clipboard.height) - 1n;
 }

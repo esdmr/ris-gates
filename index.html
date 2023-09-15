@@ -62,32 +62,37 @@
 			</div>
 			<div class="show-if-normal" role="presentation">
 				<div class="hud-group" role="radiogroup">
-					<button id="hud-empty" aria-label="Empty" role="radio" aria-checked="false">
+					<button id="hud-empty" aria-label="Empty" role="radio"
+						aria-checked="false">
 						<svg viewBox="0 0 1 1" stroke-width="0.1"
 							stroke="var(--foreground)">
 							<title>Empty</title>
 							<use href="icons.svg#cross" />
 						</svg>
 					</button>
-					<button id="hud-io" aria-label="IO" role="radio" aria-checked="false">
+					<button id="hud-io" aria-label="IO" role="radio"
+						aria-checked="false">
 						<svg viewBox="0 0 1 1" fill="var(--active-io)">
 							<title>IO</title>
 							<use href="icons.svg#tile" />
 						</svg>
 					</button>
-					<button id="hud-negate" aria-label="Negate" role="radio" aria-checked="false">
+					<button id="hud-negate" aria-label="Negate" role="radio"
+						aria-checked="false">
 						<svg viewBox="0 0 1 1" fill="var(--active-negate)">
 							<title>Negate</title>
 							<use href="icons.svg#tile" />
 						</svg>
 					</button>
-					<button id="hud-conjoin" aria-label="Conjoin" role="radio" aria-checked="false">
+					<button id="hud-conjoin" aria-label="Conjoin" role="radio"
+						aria-checked="false">
 						<svg viewBox="0 0 1 1" fill="var(--active-conjoin)">
 							<title>Conjoin</title>
 							<use href="icons.svg#tile" />
 						</svg>
 					</button>
-					<button id="hud-disjoin" aria-label="Disjoin" role="radio" aria-checked="false">
+					<button id="hud-disjoin" aria-label="Disjoin" role="radio"
+						aria-checked="false">
 						<svg viewBox="0 0 1 1" fill="var(--active-disjoin)">
 							<title>Disjoin</title>
 							<use href="icons.svg#tile" />
@@ -208,6 +213,12 @@
 					class="requires-local-storage">Save</button>
 				<button id="btn-browse"
 					class="requires-local-storage">Browse</button>
+				<button id="btn-load-schm" class="requires-local-storage">Load
+					clipboard</button>
+				<button id="btn-save-schm" class="requires-local-storage">Save
+					clipboard</button>
+				<button id="btn-browse-schm"
+					class="requires-local-storage">Browse schematics</button>
 				<button id="btn-screenshot"
 					class="requires-local-storage">Screenshot</button>
 			</div>
@@ -222,8 +233,10 @@
 			</button>
 			<h1 class="title">Selection</h1>
 			<div class="footer vertical" role="presentation">
+				<button id="btn-save-schm2" class="requires-local-storage">Save
+					selection</button>
 				<button id="btn-screenshot2"
-					class="requires-local-storage">Screenshot</button>
+					class="requires-local-storage">Screenshot selection</button>
 			</div>
 		</dialog>
 		<dialog id="dialog-epilepsy">

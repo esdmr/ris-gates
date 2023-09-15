@@ -1,8 +1,6 @@
 import {assert} from '../../lib/assert.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
-import {QuadTree} from '../../lib/tree.js';
 import * as mode from '../mode.js';
-import * as tree from '../tree.js';
 import * as storage from '../storage.js';
 import {pasteText} from '../../lib/clipboard.js';
 import * as dialogLoadFailed from './load-failed.js';
@@ -11,9 +9,19 @@ import * as dialogPasteFailed from './paste-failed.js';
 const dialogLoad = query('#dialog-load', HTMLDialogElement);
 const buttonPaste = query('#btn-paste', HTMLButtonElement, dialogLoad);
 
+let resolve: ((value: string) => void) | undefined;
+let reject: ((reason?: unknown) => void) | undefined;
+let prefix: string;
+
 export function setup() {
 	mode.setupDialog(dialogLoad);
 	setupDialogCloseButton(dialogLoad);
+
+	dialogLoad.addEventListener('close', () => {
+		reject?.('Dialog closed');
+		resolve = undefined;
+		reject = undefined;
+	});
 
 	const storageBrowser = query(
 		'storage-browser',
@@ -27,7 +35,9 @@ export function setup() {
 		assert(typeof event.detail === 'string');
 
 		try {
-			storage.load(event.detail);
+			resolve?.(storage.getString(event.detail, prefix, 'null'));
+			resolve = undefined;
+			reject = undefined;
 			mode.closeAllDialogs();
 		} catch (error) {
 			dialogLoadFailed.open(error);
@@ -44,7 +54,9 @@ export function setup() {
 		}
 
 		try {
-			tree.replaceTree(QuadTree.from(JSON.parse(text)));
+			resolve?.(text);
+			resolve = undefined;
+			reject = undefined;
 			mode.closeAllDialogs();
 		} catch (error) {
 			dialogLoadFailed.open(error);
@@ -52,6 +64,19 @@ export function setup() {
 	});
 }
 
-export function open() {
+export async function open(prefix_: string) {
+	prefix = prefix_;
+
+	query(
+		'storage-browser',
+		storage.StorageBrowserElement,
+		dialogLoad,
+	).storagePrefix = prefix_;
+
 	mode.openDialog(dialogLoad);
+
+	return new Promise<string>((resolve_, reject_) => {
+		resolve = resolve_;
+		reject = reject_;
+	});
 }

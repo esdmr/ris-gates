@@ -4,6 +4,9 @@ import * as eval_ from '../eval.js';
 import * as grid from '../grid.js';
 import * as mode from '../mode.js';
 import * as tree from '../tree.js';
+import * as selection from '../selection.js';
+import * as storage from '../storage.js';
+import {Schematic} from '../../lib/schematic.js';
 import * as dialogBrowse from './browse.js';
 import * as dialogLoad from './load.js';
 import * as dialogSave from './save.js';
@@ -21,6 +24,21 @@ const buttonClear = query('#btn-clear', HTMLButtonElement, dialogMenu);
 const buttonLoad = query('#btn-load', HTMLButtonElement, dialogMenu);
 const buttonSave = query('#btn-save', HTMLButtonElement, dialogMenu);
 const buttonBrowse = query('#btn-browse', HTMLButtonElement, dialogMenu);
+const buttonLoadClipboard = query(
+	'#btn-load-schm',
+	HTMLButtonElement,
+	dialogMenu,
+);
+const buttonSaveClipboard = query(
+	'#btn-save-schm',
+	HTMLButtonElement,
+	dialogMenu,
+);
+const buttonBrowseSchematics = query(
+	'#btn-browse-schm',
+	HTMLButtonElement,
+	dialogMenu,
+);
 const buttonScreenshot = query(
 	'#btn-screenshot',
 	HTMLButtonElement,
@@ -47,26 +65,44 @@ export function setup() {
 		tree.replaceTree(new QuadTree());
 	});
 
-	buttonLoad.addEventListener('click', () => {
-		dialogLoad.open();
+	buttonLoad.addEventListener('click', async () => {
+		const json = await dialogLoad.open(storage.savePrefix);
+		tree.replaceTree(QuadTree.from(JSON.parse(json)));
 	});
 
 	buttonSave.addEventListener('click', () => {
-		dialogSave.open();
+		dialogSave.open(storage.savePrefix, () => JSON.stringify(tree.tree));
 	});
 
 	buttonBrowse.addEventListener('click', () => {
-		dialogBrowse.open();
+		dialogBrowse.open(storage.savePrefix, QuadTree.from);
 	});
 
 	buttonScreenshot.addEventListener('click', () => {
 		dialogScreenshot.open();
+	});
+
+	buttonLoadClipboard.addEventListener('click', async () => {
+		const json = await dialogLoad.open(storage.schematicPrefix);
+		selection.setClipboard(Schematic.from(JSON.parse(json)));
+	});
+
+	buttonSaveClipboard.addEventListener('click', () => {
+		dialogSave.open(storage.schematicPrefix, () =>
+			JSON.stringify(selection.clipboard),
+		);
+	});
+
+	buttonBrowseSchematics.addEventListener('click', () => {
+		dialogBrowse.open(storage.schematicPrefix, Schematic.from);
 	});
 }
 
 export function open() {
 	mode.openDialog(dialogMenu);
 
+	buttonSaveClipboard.disabled =
+		!selection.clipboard || !storage.localStorageAvailable;
 	checkboxMinorGrid.checked = grid.shouldDrawMinorGrid;
 	inputMajorGrid.value = String(grid.majorGridLength);
 	inputEvalRate.value = String(eval_.evaluationRate);

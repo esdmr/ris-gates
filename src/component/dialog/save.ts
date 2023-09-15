@@ -1,6 +1,5 @@
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import * as mode from '../mode.js';
-import * as tree from '../tree.js';
 import * as storage from '../storage.js';
 import {copyText} from '../../lib/clipboard.js';
 import * as dialogSaveFailed from './save-failed.js';
@@ -11,6 +10,9 @@ const form = query('form', HTMLFormElement, dialogSave);
 const inputName = query('[name=name]', HTMLInputElement, form);
 const buttonCopy = query('#btn-copy', HTMLButtonElement, dialogSave);
 
+let prefix: string;
+let getData: () => string;
+
 export function setup() {
 	mode.setupDialog(dialogSave);
 	setupDialogCloseButton(dialogSave);
@@ -19,7 +21,7 @@ export function setup() {
 		const name = event.formData.get('name');
 		if (!name || typeof name !== 'string') return;
 		try {
-			storage.save(name);
+			storage.setString(name, getData(), prefix);
 			mode.closeAllDialogs();
 		} catch (error) {
 			dialogSaveFailed.open(error);
@@ -27,18 +29,27 @@ export function setup() {
 	});
 
 	buttonCopy.addEventListener('click', async () => {
-		const json = JSON.stringify(tree.tree);
+		const data = getData();
 
 		try {
-			await copyText(json);
+			await copyText(data);
 			mode.closeAllDialogs();
 		} catch (error) {
-			dialogCopyFailed.open(json, error);
+			dialogCopyFailed.open(data, error);
 		}
 	});
 }
 
-export function open() {
+export function open(prefix_: string, getData_: () => string) {
+	prefix = prefix_;
+	getData = getData_;
+
+	query(
+		'storage-browser',
+		storage.StorageBrowserElement,
+		dialogSave,
+	).storagePrefix = prefix_;
+
 	mode.openDialog(dialogSave);
 	inputName.value = '';
 }

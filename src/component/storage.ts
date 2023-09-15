@@ -1,6 +1,6 @@
-import {queryAll, create} from '../lib/dom.js';
-import {QuadTree} from '../lib/tree.js';
-import * as tree from './tree.js';
+import {create, queryAll} from '../lib/dom.js';
+import {Schematic} from '../lib/schematic.js';
+import * as selection from './selection.js';
 
 export const localStorageAvailable = /* @__PURE__ */ (() => {
 	try {
@@ -22,6 +22,7 @@ export const localStorageAvailable = /* @__PURE__ */ (() => {
 export const oldSavePrefix = 'risg/';
 export const savePrefix = 'save/';
 export const configPrefix = 'conf/';
+export const schematicPrefix = 'schm/';
 
 export function getString(key: string, prefix?: string): string | undefined;
 
@@ -67,14 +68,16 @@ export function* listStorage(prefix = savePrefix) {
 	}
 }
 
-export function load(key: string) {
+export function loadSchematic(key: string) {
 	if (!localStorageAvailable) return;
-	tree.replaceTree(QuadTree.from(JSON.parse(getString(key) ?? 'null')));
+	selection.setClipboard(
+		Schematic.from(JSON.parse(getString(key, schematicPrefix, 'null'))),
+	);
 }
 
-export function save(key: string) {
+export function saveSchematic(key: string) {
 	if (!localStorageAvailable) return;
-	setString(key, JSON.stringify(tree.tree));
+	setString(key, JSON.stringify(selection.clipboard), schematicPrefix);
 }
 
 export class StorageBrowserElement extends HTMLElement {
