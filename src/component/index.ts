@@ -1,0 +1,25 @@
+import * as autoSave from './auto-save.js';
+import * as canvas from './canvas.js';
+import * as dialogs from './dialog/index.js';
+import * as eval_ from './eval.js';
+import * as grid from './grid.js';
+import * as hud from './hud/index.js';
+import * as keyboard from './keyboard.js';
+import * as pointer from './pointer.js';
+import * as renderer from './renderer.js';
+import * as storage from './storage.js';
+import * as theme from './theme.js';
+import * as wheel from './wheel.js';
+
+storage.setup();
+autoSave.setup();
+grid.setup();
+eval_.setup();
+canvas.setup();
+pointer.setup();
+wheel.setup();
+keyboard.setup();
+theme.setup();
+dialogs.setup();
+hud.setup();
+renderer.setup();
