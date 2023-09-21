@@ -8,7 +8,7 @@ let context: EvalContext | undefined;
 
 export function getEvalContext() {
 	assert(mode.mode === 'eval');
-	if (!context) context = EvalContext.for(tree.tree);
+	if (!context) context = new EvalContext(tree.tree);
 	return context;
 }
 

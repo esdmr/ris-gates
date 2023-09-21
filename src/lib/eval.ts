@@ -272,10 +272,6 @@ const maxUndoCount = 128;
 const unchanged = Symbol('unchanged');
 
 export class EvalContext {
-	static for(tree: QuadTree) {
-		return new EvalContext(new EvalGraph(new TilesMap(tree)));
-	}
-
 	private _enabled = new Set<symbol>();
 	private readonly _undoStack: Array<Set<symbol> | typeof unchanged> = [];
 	private _tickCount = 0n;
@@ -284,8 +280,13 @@ export class EvalContext {
 		return this._tickCount;
 	}
 
-	constructor(private readonly _graph: EvalGraph) {
-		for (const symbols of _graph.vertices.values()) {
+	private readonly _graph: EvalGraph;
+
+	constructor(tree: QuadTree) {
+		const graph = new EvalGraph(new TilesMap(tree));
+		this._graph = graph;
+
+		for (const symbols of graph.vertices.values()) {
 			if (typeof symbols === 'symbol') continue;
 			this._enabled.add(symbols.x);
 			this._enabled.add(symbols.y);
