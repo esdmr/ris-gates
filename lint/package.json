@@ -3,6 +3,6 @@
   "name": "@internal/eslint-plugin",
   "version": "0.0.0",
   "dependencies": {
-    "@typescript-eslint/utils": "6.5.0"
+    "@typescript-eslint/utils": "6.6.0"
   }
 }
