@@ -20,6 +20,7 @@
       "files": "src/**/*",
       "rules": {
         "@internal/explained-casts": "error",
+        "@internal/global-matchall": "error",
         "@internal/no-object-literals": "error",
         "@internal/type-only-imports": "error",
         "@internal/import-preference": "error"
