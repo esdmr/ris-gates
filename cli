@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+file="$(echo build/assets/cli-*.js)"
+if test -f "${file}"; then
+	node --enable-source-maps "${file}" "$@"
+else
+	echo CLI not found. Have you built the project yet? >&2
+	echo Run: RISG_CLI=y pnpm vite build >&2
+	exit 1
+fi

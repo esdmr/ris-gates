@@ -16,14 +16,31 @@ export default defineConfig({
 		target: ['firefox103', 'chrome104'],
 		outDir: 'build',
 		rollupOptions: {
-			input: ['index.html'],
+			input: ['index.html', process.env.RISG_CLI ? 'src/cli.ts' : ''].filter(
+				Boolean,
+			),
 		},
 		modulePreload: {
 			polyfill: false,
 		},
+		sourcemap: process.env.NODE_ENV !== 'production',
+		minify: process.env.NODE_ENV === 'production',
 	},
-
 	plugins: [
+		Boolean(process.env.RISG_CLI) && {
+			name: 'cli',
+			enforce: 'pre',
+			resolveId(source, _importer, _options) {
+				if (source.startsWith('node:')) {
+					return {
+						external: true,
+						id: source,
+					};
+				}
+
+				return null;
+			},
+		},
 		{
 			name: 'bigint to number',
 			enforce: 'post',

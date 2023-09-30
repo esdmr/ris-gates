@@ -165,7 +165,7 @@ export class SequencerContext extends EvalContext {
 
 		this.monitoredTiles = [
 			...this._monitored.calculateSet(this._graph.map.ioTiles, (i) =>
-				this._getTile(i),
+				this.getTile(i),
 			),
 		];
 
@@ -180,7 +180,7 @@ export class SequencerContext extends EvalContext {
 		}
 
 		for (const monitored of this._monitored) {
-			const tile = this._getTile(monitored);
+			const tile = this.getTile(monitored);
 			this.tileNames.set(tile, monitored);
 		}
 	}
@@ -193,6 +193,12 @@ export class SequencerContext extends EvalContext {
 		}
 
 		return observation;
+	}
+
+	getTile(name: string) {
+		return nonNullable(
+			this._graph.map.getTile(nonNullable(this._tiles.get(name))),
+		);
 	}
 
 	protected override _step() {
@@ -261,7 +267,7 @@ export class SequencerContext extends EvalContext {
 				this.status = 'yielded';
 				const tiles = new AdmissionSet(args.slice(1));
 				this.yieldedTiles = tiles.calculateSet(this._graph.inputTiles, (i) =>
-					this._getTile(i),
+					this.getTile(i),
 				);
 				break;
 			}
@@ -271,7 +277,7 @@ export class SequencerContext extends EvalContext {
 				const tiles = new AdmissionSet(args.slice(1));
 				tiles.isExcludeList = true;
 				this.yieldedTiles = tiles.calculateSet(this._graph.inputTiles, (i) =>
-					this._getTile(i),
+					this.getTile(i),
 				);
 				break;
 			}
@@ -290,12 +296,6 @@ export class SequencerContext extends EvalContext {
 
 			// No default
 		}
-	}
-
-	private _getTile(name: string) {
-		return nonNullable(
-			this._graph.map.getTile(nonNullable(this._tiles.get(name))),
-		);
 	}
 
 	private _populate(lines: SequencerLine[]) {
@@ -439,7 +439,7 @@ export class SequencerContext extends EvalContext {
 
 		try {
 			this._assert(
-				this._graph.inputTiles.has(this._getTile(tile)),
+				this._graph.inputTiles.has(this.getTile(tile)),
 				line,
 				`Tile ${tile} is not an input`,
 			);
@@ -451,7 +451,7 @@ export class SequencerContext extends EvalContext {
 
 		try {
 			this._assert(
-				!this._graph.inputTiles.has(this._getTile(tile)),
+				!this._graph.inputTiles.has(this.getTile(tile)),
 				line,
 				`Tile ${tile} is not an output`,
 			);
