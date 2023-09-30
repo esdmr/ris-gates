@@ -68,9 +68,7 @@ export function setup() {
 		/* eslint-enable @internal/no-object-literals */
 		body.append(row);
 
-		for (const tile of context.monitoredTiles) {
-			const value = context.output(tile);
-
+		for (const value of context.observe()) {
 			// eslint-disable-next-line @internal/no-object-literals
 			row.append(create('td', value ? {'data-v': ''} : {}, value ? '1' : '0'));
 		}
