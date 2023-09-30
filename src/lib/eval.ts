@@ -1,11 +1,14 @@
 import {mapGet, setToggle} from './map-and-set.js';
 import type {QuadTreeNode} from './node.js';
+import type {Point} from './point.js';
 import * as tileType from './tile-type.js';
+import {Interval, type Timer} from './timer.js';
 import type {QuadTree} from './tree.js';
 import {WalkStep} from './walk.js';
 
 export class TilesMap {
 	readonly tiles = new Map<string, QuadTreeNode>();
+	readonly ioTiles = new Set<QuadTreeNode>();
 
 	constructor(readonly tree: QuadTree) {
 		const progress: WalkStep[] = [new WalkStep(tree.root)];
@@ -32,6 +35,10 @@ export class TilesMap {
 				continue;
 			}
 
+			if (node.type === tileType.io) {
+				this.ioTiles.add(node);
+			}
+
 			const {x, y} = node.bounds.topLeft;
 			this.tiles.set(`${x},${y}`, node);
 			progress.pop();
@@ -42,6 +49,10 @@ export class TilesMap {
 				progress.at(-1)!.index++;
 			}
 		}
+	}
+
+	getTile(point: Point) {
+		return this.tiles.get(`${point.x},${point.y}`);
 	}
 }
 
@@ -56,6 +67,7 @@ export class EvalGraph {
 	readonly vertices = new Map<QuadTreeNode, symbol | NegateVertex>();
 	readonly positiveEdges = new Map<symbol, Set<symbol>>();
 	readonly negativeEdges = new Map<symbol, Set<symbol>>();
+	readonly inputTiles = new Set<QuadTreeNode>();
 	protected declare _toDot?: () => string;
 
 	static {
@@ -113,6 +125,18 @@ export class EvalGraph {
 				} else if (tileType.isRotatedFormOf(type, tileType.disjoinN)) {
 					this._processDisjoin(tile, other, dir);
 				}
+			}
+		}
+
+		for (const tile of map.ioTiles) {
+			const vertex = this.vertices.get(tile);
+
+			if (
+				typeof vertex === 'symbol' &&
+				!this.positiveEdges.has(vertex) &&
+				!this.negativeEdges.has(vertex)
+			) {
+				this.inputTiles.add(tile);
 			}
 		}
 	}
@@ -247,11 +271,8 @@ export class EvalGraph {
 		const symbol = mapGet(this.vertices, tile, () => {
 			const {x, y} = tile.bounds.topLeft;
 			return tile.type === tileType.negate
-				? new NegateVertex(
-						Symbol(`QTN(${x}, ${y}, X)`),
-						Symbol(`QTN(${x}, ${y}, Y)`),
-				  )
-				: Symbol(`QTN(${x}, ${y})`);
+				? new NegateVertex(Symbol(`X(${x}, ${y})`), Symbol(`Y(${x}, ${y})`))
+				: Symbol(`Q(${x}, ${y})`);
 		});
 
 		return typeof symbol === 'symbol'
@@ -270,21 +291,42 @@ export class EvalGraph {
 
 const maxUndoCount = 128;
 const unchanged = Symbol('unchanged');
+export const evalEvents = new EventTarget();
+
+export class EvalEvent extends Event {
+	constructor(
+		readonly context: EvalContext,
+		type: string,
+		eventInitDict?: EventInit,
+	) {
+		super(type, eventInitDict);
+	}
+}
+
+export class EvalStepEvent extends EvalEvent {
+	constructor(
+		context: EvalContext,
+		readonly isStable: boolean,
+		eventInitDict?: EventInit,
+	) {
+		super(context, 'update', eventInitDict);
+	}
+}
 
 export class EvalContext {
-	private _enabled = new Set<symbol>();
+	tickCount = 0n;
+	tickType: 'tickForward' | 'tickBackward' | undefined;
+	targetTick = -1n;
+	readonly yieldedTiles;
+	protected _enabled = new Set<symbol>();
+	protected _timer: Timer | undefined;
+	protected readonly _graph: EvalGraph;
 	private readonly _undoStack: Array<Set<symbol> | typeof unchanged> = [];
-	private _tickCount = 0n;
-
-	get tickCount() {
-		return this._tickCount;
-	}
-
-	private readonly _graph: EvalGraph;
 
 	constructor(tree: QuadTree) {
 		const graph = new EvalGraph(new TilesMap(tree));
 		this._graph = graph;
+		this.yieldedTiles = this._graph.inputTiles;
 
 		for (const symbols of graph.vertices.values()) {
 			if (typeof symbols === 'symbol') continue;
@@ -309,8 +351,8 @@ export class EvalContext {
 		if (this._undoStack.length > maxUndoCount) this._undoStack.shift();
 
 		let anythingUpdated = false;
-		this._tickCount++;
-		if (import.meta.env.DEV) console.group('Next Tick:', this._tickCount);
+		this.tickCount++;
+		if (import.meta.env.DEV) console.group('Next Tick:', this.tickCount);
 
 		// Make sure this loop terminates. If you created a loop with an IO
 		// tile, it would have produced a sub-tick pulse and cause this loop to
@@ -335,7 +377,7 @@ export class EvalContext {
 				}
 
 				if (this._enabled.has(to) !== value) {
-					if (import.meta.env.DEV) console.log('+', from, to, value);
+					if (import.meta.env.DEV) console.log('+', to, value, from);
 					setToggle(this._enabled, to, value);
 					updated = true;
 					anythingUpdated = true;
@@ -355,7 +397,7 @@ export class EvalContext {
 			}
 
 			if (this._enabled.has(to) === value) {
-				if (import.meta.env.DEV) console.log('-', from, to, !value);
+				if (import.meta.env.DEV) console.log('-', to, !value, from);
 				setToggle(this._enabled, to, !value);
 				anythingUpdated = true;
 			}
@@ -367,15 +409,37 @@ export class EvalContext {
 			this._undoStack[this._undoStack.length - 1] = unchanged;
 		}
 
+		evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
 		return anythingUpdated;
 	}
 
 	tickBackward() {
 		const oldState = this._undoStack.pop();
 		if (!oldState) return false;
-		this._tickCount--;
-		if (import.meta.env.DEV) console.log('Previous Tick:', this._tickCount);
+		this.tickCount--;
+		if (import.meta.env.DEV) console.log('Previous Tick:', this.tickCount);
 		if (oldState !== unchanged) this._enabled = oldState;
+		evalEvents.dispatchEvent(new EvalStepEvent(this, oldState === unchanged));
 		return oldState !== unchanged;
+	}
+
+	stop() {
+		this._timer?.stop();
+		this._timer = undefined;
+	}
+
+	start(rate: number | 0) {
+		this.stop();
+		this._timer = new Interval(1000 / rate, () => {
+			this._step();
+		});
+	}
+
+	protected _step() {
+		if (!this.tickType) return;
+		const updated = this[this.tickType]();
+		if (this.targetTick > 0 ? --this.targetTick === 0n : !updated) {
+			this.tickType = undefined;
+		}
 	}
 }

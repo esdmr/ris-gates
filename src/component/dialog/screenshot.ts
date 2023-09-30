@@ -9,6 +9,7 @@ import * as mode from '../mode.js';
 import * as theme from '../theme.js';
 import * as tree from '../tree.js';
 import * as selection from '../selection.js';
+import {Timeout} from '../../lib/timer.js';
 
 const dialogScreenshot = query('#dialog-screenshot', HTMLDialogElement);
 const screenshotForm = query('form', HTMLFormElement, dialogScreenshot);
@@ -79,11 +80,9 @@ async function takeScreenshot(type: string) {
 
 	document.body.append(link);
 	link.click();
-
-	setTimeout(() => {
-		link.remove();
-		URL.revokeObjectURL(url);
-	}, 100);
+	await new Timeout(100).promise;
+	link.remove();
+	URL.revokeObjectURL(url);
 }
 
 export function setup() {

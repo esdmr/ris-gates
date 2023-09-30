@@ -1,8 +1,10 @@
 :root {
 	--light-background: #e8e8e8;
+	--light-background-error: #e8a8a8;
 	--light-foreground: black;
 	--light-selection: #005794;
 	--dark-background: #282828;
+	--dark-background-error: #682828;
 	--dark-foreground: #f0f0f0;
 	--dark-selection: #AAEEFF;
 	--active-io: #0072B2;
@@ -15,22 +17,26 @@
 	--passive-disjoin: #7D4600;
 
 	--background: var(--light-background);
+	--background-error: var(--light-background-error);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
 
 	--hud-border: gray;
 	--hud-enabled: cornflowerblue;
 	--font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 }
 
 [data-mode=screenshot] > canvas {
 	--background: var(--light-background);
+	--background-error: var(--light-background-error);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
 }
 
 [data-mode=screenshot].dark > canvas {
 	--background: var(--dark-background);
+	--background-error: var(--dark-background-error);
 	--foreground: var(--dark-foreground);
 	--selection: var(--dark-selection);
 }
@@ -38,6 +44,7 @@
 @media (prefers-color-scheme: dark) {
 	:root {
 		--background: var(--dark-background);
+		--background-error: var(--dark-background-error);
 		--foreground: var(--dark-foreground);
 		--selection: var(--dark-selection);
 		color-scheme: dark;
@@ -54,6 +61,12 @@ canvas {
 	overflow: hidden;
 	background: var(--background);
 	font-family: var(--font);
+}
+
+textarea,
+pre,
+code {
+	font-family: var(--font-mono);
 }
 
 .dragging {
@@ -82,7 +95,7 @@ canvas {
 	gap: 0.8em;
 }
 
-:where([data-mode=normal], [data-mode=eval], [data-mode=selected], [data-mode=pasting]) .hud {
+:where([data-mode=normal], [data-mode=eval], [data-mode=automated], [data-mode=picking], [data-mode=selected], [data-mode=pasting]) .hud {
 	display: flex;
 }
 
@@ -100,16 +113,20 @@ canvas {
 
 .hud button,
 dialog button.close {
-	padding: 0.2em;
-	border: none;
+	padding: 0.1em;
+	border: 0.1em transparent solid;
+	border-radius: 0.1em;
 	background: transparent;
 	box-sizing: content-box;
 }
 
+:focus-visible {
+	outline: 1px var(--selection) solid;
+	outline-offset: 1px;
+}
+
 .hud .active {
-	border: 0.1em var(--selection) solid;
-	padding: 0.1em;
-	border-radius: 0.1em;
+	border-color: var(--selection);
 }
 
 button svg {
@@ -127,7 +144,7 @@ dialog button.close {
 .hud-message {
 	display: inline-block;
 	width: unset;
-	min-width: 5.75em;
+	min-width: 5em;
 	text-align: center;
 	line-height: 1rem;
 	font-size: 0.8rem;
@@ -135,6 +152,8 @@ dialog button.close {
 
 :where([data-mode=normal]) .enabled-if-normal,
 :where([data-mode=eval]) .enabled-if-eval,
+:where([data-mode=automated]) .enabled-if-automated,
+:where([data-mode=picking]) .enabled-if-picking,
 :where([data-mode=selected]) .enabled-if-selected,
 :where([data-mode=pasting]) .enabled-if-pasting,
 :where([data-mode=inert]) .enabled-if-inert,
@@ -144,6 +163,8 @@ dialog button.close {
 
 .show-if-normal,
 .show-if-eval,
+.show-if-automated,
+.show-if-picking,
 .show-if-selected,
 .show-if-pasting,
 .show-if-inert,
@@ -154,12 +175,14 @@ dialog button.close {
 
 :where([data-mode=normal]) .show-if-normal,
 :where([data-mode=eval]) .show-if-eval,
+:where([data-mode=automated]) .show-if-automated,
+:where([data-mode=picking]) .show-if-picking,
 :where([data-mode=selected]) .show-if-selected,
 :where([data-mode=pasting]) .show-if-pasting,
 :where([data-mode=inert]) .show-if-inert,
 :where([data-mode=screenshot]) .show-if-screenshot,
 .hud-group,
-.used-clipboard:not([data-mode=eval]):not([data-mode=pasting]) .hud-paste {
+.used-clipboard:not([data-mode=eval]):not([data-mode=automated]):not([data-mode=picking]):not([data-mode=pasting]) .hud-paste {
 	display: contents;
 }
 
@@ -257,6 +280,62 @@ fieldset > legend {
 	margin-inline-start: calc(-1 * var(--padding));
 }
 
+.lineno::before {
+	content: ' (line ';
+}
+
+.lineno::after {
+	content: ')';
+}
+
+.line {
+	margin-block: 0;
+	margin-inline-start: 1em;
+}
+
+.taller {
+	height: 7.5em;
+}
+
+:where(.monitor, .asserts) {
+	min-width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+	--border: 1px solid var(--foreground);
+}
+
+:where(.monitor, .asserts) th {
+	border-block-end: var(--border);
+}
+
+:where(.monitor, .asserts) :where(th, td) {
+	text-align: center;
+	border-inline-start: var(--border);
+}
+
+:where(.monitor, .asserts) :where(th, td):first-child {
+	border-inline-start: none;
+}
+
+:where(.monitor, .asserts):not([data-stable-only]) .stable {
+	border-block-end: var(--border);
+}
+
+.monitor[data-stable-only] tbody tr:not(.stable) {
+	display: none;
+}
+
+.monitor[data-high-contrast] td[data-v] {
+	--border: 1px solid var(--background);
+	background-color: var(--foreground);
+	color: var(--background);
+}
+
+.asserts tr[data-e] {
+	--background: var(--background-error);
+	background-color: var(--background);
+}
+
 @media (pointer: coarse) {
 	.hud {
 		font-size: 1.5rem;
@@ -273,7 +352,7 @@ fieldset > legend {
 		border-radius: 0;
 	}
 
-	.used-clipboard:not([data-mode=eval]):not([data-mode=pasting]) .hud {
+	.used-clipboard:not([data-mode=eval]):not([data-mode=automated]):not([data-mode=picking]):not([data-mode=pasting]) .hud {
 		gap: 0.6em;
 	}
 }

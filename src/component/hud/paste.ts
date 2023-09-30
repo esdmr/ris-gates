@@ -9,8 +9,8 @@ export function setup() {
 	keyboard.extendKeyBinds('Escape', {
 		pasting: createClickHandler(buttonPasteCancel),
 	});
-}
 
-buttonPasteCancel.addEventListener('click', () => {
-	mode.setMode('normal');
-});
+	buttonPasteCancel.addEventListener('click', () => {
+		mode.setMode('normal');
+	});
+}

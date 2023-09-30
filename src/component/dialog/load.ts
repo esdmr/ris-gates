@@ -18,7 +18,7 @@ export function setup() {
 	setupDialogCloseButton(dialogLoad);
 
 	dialogLoad.addEventListener('close', () => {
-		reject?.('Dialog closed');
+		reject?.(new Error('Load dialog closed'));
 		resolve = undefined;
 		reject = undefined;
 	});

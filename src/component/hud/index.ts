@@ -1,24 +1,28 @@
 import {query} from '../../lib/dom.js';
-import * as edit from './edit.js';
-import * as evalToggle from './eval-toggle.js';
-import * as eval_ from './eval.js';
-import * as menu from './menu.js';
-import * as pasteToggle from './paste-toggle.js';
-import * as paste from './paste.js';
-import * as selection from './selection.js';
+import * as hudAutomated from './automated.js';
+import * as hudEdit from './edit.js';
+import * as hudEvalToggle from './eval-toggle.js';
+import * as hudEval from './eval.js';
+import * as hudMenu from './menu.js';
+import * as hudPasteToggle from './paste-toggle.js';
+import * as hudPaste from './paste.js';
+import * as hudPick from './pick.js';
+import * as hudSelection from './selection.js';
 
 const hud = query('.hud', HTMLDivElement);
 
 export let isFloating = false;
 
 export function setup() {
-	edit.setup();
-	evalToggle.setup();
-	eval_.setup();
-	menu.setup();
-	pasteToggle.setup();
-	paste.setup();
-	selection.setup();
+	hudAutomated.setup();
+	hudEdit.setup();
+	hudEvalToggle.setup();
+	hudEval.setup();
+	hudMenu.setup();
+	hudPasteToggle.setup();
+	hudPaste.setup();
+	hudPick.setup();
+	hudSelection.setup();
 
 	hud.addEventListener('click', (event) => {
 		if (isFloating && !event.defaultPrevented) {

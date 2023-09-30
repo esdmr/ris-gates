@@ -9,7 +9,7 @@ import {WalkStep} from './walk.js';
 import * as tileType from './tile-type.js';
 
 // eslint-disable-next-line @internal/no-object-literals
-const currentSaveVersion = [1, 0] as const;
+const currentSaveVersion = [1, 1] as const;
 
 /**
  * Partitions space in four parts equally. If a partition does not contain any
@@ -23,12 +23,13 @@ export class QuadTree {
 		try {
 			assertObject(json);
 
-			const {version = [1, 0]} = json;
+			const {version = [1, 0], sequence = ''} = json;
 			assertArray(version);
 			assert(
 				version[0] === currentSaveVersion[0] &&
 					typeof version[1] === 'number' &&
-					version[1] <= currentSaveVersion[1],
+					version[1] <= currentSaveVersion[1] &&
+					typeof sequence === 'string',
 			);
 
 			const bounds = QuadTreeBoundingBox.from(json.bounds);
@@ -41,7 +42,8 @@ export class QuadTree {
 
 			const node = QuadTreeNode.from(json.root, bounds, parity);
 			const tree = new QuadTree();
-			if (node) tree._root = node;
+			tree.sequence = sequence;
+			if (node) tree.root = node;
 			return tree;
 		} catch (error) {
 			// eslint-disable-next-line @internal/no-object-literals
@@ -49,14 +51,12 @@ export class QuadTree {
 		}
 	}
 
-	private _root = new QuadTreeNode(
+	root = new QuadTreeNode(
 		new QuadTreeBoundingBox(new Point(0n, 0n), 1n),
 		false,
 	);
 
-	get root() {
-		return this._root;
-	}
+	sequence = '';
 
 	/** @see {@link QuadTreeNode.getContainingNode} */
 	getContainingNode(
@@ -76,7 +76,7 @@ export class QuadTree {
 			this._expandToFit(aabb.getBottomRight());
 		}
 
-		return this._root.getContainingNode(aabb, mode) ?? this._root;
+		return this.root.getContainingNode(aabb, mode) ?? this.root;
 	}
 
 	/** @see {@link QuadTreeNode.getTileData} */
@@ -92,7 +92,7 @@ export class QuadTree {
 			this._expandToFit(point);
 		}
 
-		return this._root.getTileData(point, mode);
+		return this.root.getTileData(point, mode);
 	}
 
 	getSchematic(display: AxisAlignedBoundingBox): Schematic {
@@ -174,17 +174,18 @@ export class QuadTree {
 		// eslint-disable-next-line @internal/no-object-literals
 		return {
 			version: currentSaveVersion,
-			root: this._root.toJSON(),
-			bounds: this._root.bounds.toJSON(),
+			root: this.root.toJSON(),
+			bounds: this.root.bounds.toJSON(),
+			sequence: this.sequence,
 		};
 	}
 
 	private _expandToFit(point: Point) {
-		while (!this._root.bounds.has(point)) {
-			const parity = !this._root.parity;
-			const node = new QuadTreeNode(this._root.bounds.widen(parity), parity);
-			node[parity ? 0 : 3] = this._root;
-			this._root = node;
+		while (!this.root.bounds.has(point)) {
+			const parity = !this.root.parity;
+			const node = new QuadTreeNode(this.root.bounds.widen(parity), parity);
+			node[parity ? 0 : 3] = this.root;
+			this.root = node;
 		}
 	}
 }

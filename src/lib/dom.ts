@@ -65,7 +65,7 @@ export function setupDialogCloseButton(dialog: HTMLDialogElement) {
 	const button = query('.close', HTMLButtonElement, dialog);
 
 	button.addEventListener('click', () => {
-		dialog.close();
+		dialog.close('');
 	});
 }
 

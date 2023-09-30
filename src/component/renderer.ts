@@ -3,12 +3,14 @@ import {Point} from '../lib/point.js';
 import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
 import {WalkStep} from '../lib/walk.js';
+import type {QuadTreeNode} from '../lib/node.js';
 import * as canvas from './canvas.js';
 import * as screenshot from './dialog/screenshot.js';
 import * as eval_ from './eval.js';
 import * as grid from './grid.js';
 import * as hud from './hud/index.js';
 import * as hudEdit from './hud/edit.js';
+import * as hudPick from './hud/pick.js';
 import * as mode from './mode.js';
 import * as pointer from './pointer.js';
 import * as selection from './selection.js';
@@ -63,7 +65,11 @@ function commitInputs() {
 		pointer.isDragging && !pointer.isSelecting,
 	);
 
-	if (mode.mode !== 'eval' && pointer.isSelecting) {
+	if (
+		mode.mode !== 'eval' &&
+		mode.mode !== 'automated' &&
+		pointer.isSelecting
+	) {
 		const x =
 			tree.scrollX.bigint +
 			BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float));
@@ -92,10 +98,11 @@ function commitInputs() {
 		);
 
 		switch (mode.mode) {
-			case 'eval': {
+			case 'eval':
+			case 'automated': {
 				const tile = tree.tree.getTileData(currentPoint, searchMode.find);
 
-				if (tile?.type === tileType.io) {
+				if (tile && eval_.getEvalContext().yieldedTiles.has(tile)) {
 					const context = eval_.getEvalContext();
 					context.input(tile, !context.output(tile));
 				}
@@ -106,6 +113,16 @@ function commitInputs() {
 			case 'pasting': {
 				selection.paste(currentPoint);
 				mode.setMode('selected');
+				break;
+			}
+
+			case 'picking': {
+				const tile = tree.tree.getTileData(currentPoint, searchMode.find);
+
+				if (tile?.type === tileType.io) {
+					hudPick.done(currentPoint);
+				}
+
 				break;
 			}
 
@@ -219,7 +236,8 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		}
 
 		const isActive =
-			mode.mode !== 'eval' || eval_.getEvalContext().output(node);
+			(mode.mode !== 'eval' && mode.mode !== 'automated') ||
+			eval_.getEvalContext().output(node);
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
 			canvas.context.fillStyle =
@@ -230,7 +248,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			wasActive = isActive;
 		}
 
-		drawTile(realScale, offsetX, offsetY, i, j, lastType);
+		drawTile(realScale, offsetX, offsetY, i, j, node);
 
 		progress.pop();
 
@@ -388,7 +406,7 @@ function drawTile(
 	offsetY: number,
 	i: number,
 	j: number,
-	type: number,
+	node: QuadTreeNode,
 ) {
 	canvas.context.fillRect(
 		i * realScale - offsetX,
@@ -397,7 +415,7 @@ function drawTile(
 		Math.ceil(realScale),
 	);
 
-	switch (type) {
+	switch (node.type) {
 		case tileType.conjoinN:
 		case tileType.disjoinN: {
 			canvas.context.beginPath();
@@ -469,22 +487,28 @@ function drawTile(
 		}
 
 		case tileType.io: {
+			const radius =
+				!eval_.context || eval_.context.yieldedTiles.has(node)
+					? realScale / 2
+					: realScale / 4;
+
 			canvas.context.beginPath();
 			canvas.context.arc(
 				(i + 0.5) * realScale - offsetX,
 				(j + 0.5) * realScale - offsetY,
-				realScale / 2,
+				radius,
 				0,
 				2 * Math.PI,
 			);
 			canvas.context.stroke();
+
 			break;
 		}
 
-		// No default
+		default: // Do nothing.
 	}
 
-	if (type !== tileType.empty) {
+	if (node.type !== tileType.empty) {
 		canvas.context.strokeRect(
 			i * realScale - offsetX,
 			j * realScale - offsetY,

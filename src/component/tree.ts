@@ -3,6 +3,7 @@ import {Point} from '../lib/point.js';
 import {Schematic} from '../lib/schematic.js';
 import * as tileType from '../lib/tile-type.js';
 import {QuadTree} from '../lib/tree.js';
+import * as dialogSequence from './dialog/sequence.js';
 
 const defaultTree = new Schematic(5, 5, [
 	tileType.empty,
@@ -39,6 +40,7 @@ tree.putSchematic(defaultTree, new Point(1n, 1n));
 
 export function replaceTree(newTree: QuadTree) {
 	tree = newTree;
+	dialogSequence.loadSequence();
 }
 
 export const scrollX = /* @__PURE__ */ new FloatingBigInt();

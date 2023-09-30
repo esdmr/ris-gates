@@ -13,7 +13,7 @@ export function setup() {
 	setupDialogCloseButton(dialogPasteFailed);
 
 	dialogPasteFailed.addEventListener('close', () => {
-		reject?.('Dialog closed');
+		reject?.(new Error('Paste dialog closed'));
 		resolve = undefined;
 		reject = undefined;
 	});

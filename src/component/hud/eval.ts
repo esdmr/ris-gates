@@ -1,40 +1,15 @@
 import {createClickHandler, query} from '../../lib/dom.js';
+import {evalEvents} from '../../lib/eval.js';
 import * as eval_ from '../eval.js';
 import * as keyboard from '../keyboard.js';
-import * as mode from '../mode.js';
+import * as dialogSequence from '../dialog/sequence.js';
 
 const buttonTickBwdStable = query('#hud-tick-bwd-stable', HTMLButtonElement);
 const buttonTickBwd = query('#hud-tick-bwd', HTMLButtonElement);
-const buttonTickNo = query('#hud-tick-no', HTMLDivElement);
+const tickCountDisplay = query('#hud-tick-no', HTMLDivElement);
 const buttonTickFwd = query('#hud-tick-fwd', HTMLButtonElement);
 const buttonTickFwdStable = query('#hud-tick-fwd-stable', HTMLButtonElement);
-
-let stabilityInterval: ReturnType<typeof setInterval> | undefined;
-
-export function stopStabilityInterval() {
-	if (stabilityInterval) {
-		clearInterval(stabilityInterval);
-		stabilityInterval = undefined;
-	}
-}
-
-function startStabilityInterval(type: 'tickForward' | 'tickBackward') {
-	stopStabilityInterval();
-
-	stabilityInterval = setInterval(() => {
-		const evalContext = eval_.getEvalContext();
-
-		if (mode.mode !== 'eval' || !evalContext[type]()) {
-			stopStabilityInterval();
-		}
-
-		updateTickNo();
-	}, 1000 / eval_.evaluationRate);
-}
-
-export function updateTickNo(count = eval_.getEvalContext().tickCount) {
-	buttonTickNo.textContent = String(count);
-}
+const buttonAutomate = query('#hud-automate', HTMLButtonElement);
 
 export function setup() {
 	/* eslint-disable @internal/no-object-literals */
@@ -46,33 +21,46 @@ export function setup() {
 	keyboard.extendKeyBinds('Digit4', {
 		eval: createClickHandler(buttonTickFwdStable),
 	});
+	keyboard.extendKeyBinds('KeyR', {
+		eval: createClickHandler(buttonAutomate),
+	});
 	/* eslint-enable @internal/no-object-literals */
+
+	evalEvents.addEventListener('update', () => {
+		tickCountDisplay.textContent = String(eval_.context?.tickCount ?? 0n);
+	});
+
+	evalEvents.addEventListener('reset', () => {
+		tickCountDisplay.textContent = '0';
+	});
 
 	buttonTickBwdStable.addEventListener('click', () => {
 		const evalContext = eval_.getEvalContext();
-		if (evalContext.tickBackward()) startStabilityInterval('tickBackward');
-		buttonTickNo.textContent = String(evalContext.tickCount);
+		evalContext.tickType = 'tickBackward';
+		evalContext.targetTick = -1n;
 	});
 
 	buttonTickBwd.addEventListener('click', (event) => {
 		event.preventDefault();
 		const evalContext = eval_.getEvalContext();
-		evalContext.tickBackward();
-		buttonTickNo.textContent = String(evalContext.tickCount);
-		stopStabilityInterval();
+		evalContext.tickType = 'tickBackward';
+		evalContext.targetTick = 1n;
 	});
 
 	buttonTickFwd.addEventListener('click', (event) => {
 		event.preventDefault();
 		const evalContext = eval_.getEvalContext();
-		evalContext.tickForward();
-		buttonTickNo.textContent = String(evalContext.tickCount);
-		stopStabilityInterval();
+		evalContext.tickType = 'tickForward';
+		evalContext.targetTick = 1n;
 	});
 
 	buttonTickFwdStable.addEventListener('click', () => {
 		const evalContext = eval_.getEvalContext();
-		if (evalContext.tickForward()) startStabilityInterval('tickForward');
-		buttonTickNo.textContent = String(evalContext.tickCount);
+		evalContext.tickType = 'tickForward';
+		evalContext.targetTick = -1n;
+	});
+
+	buttonAutomate.addEventListener('click', () => {
+		dialogSequence.open();
 	});
 }

@@ -4,6 +4,8 @@ import * as storage from './storage.js';
 export type Mode =
 	| 'normal'
 	| 'eval'
+	| 'automated'
+	| 'picking'
 	| 'selected'
 	| 'pasting'
 	| 'inert'
@@ -35,6 +37,7 @@ export function setupDialog(dialog: HTMLDialogElement) {
 }
 
 export function openDialog(dialog: HTMLDialogElement) {
+	dialog.returnValue = '';
 	dialog.showModal();
 	openDialogs.add(dialog);
 	setMode('inert');

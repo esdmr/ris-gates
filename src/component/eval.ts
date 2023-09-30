@@ -1,19 +1,23 @@
 import {assert} from '../lib/assert.js';
-import {EvalContext} from '../lib/eval.js';
+import {EvalContext, evalEvents} from '../lib/eval.js';
 import * as mode from './mode.js';
 import * as storage from './storage.js';
 import * as tree from './tree.js';
 
-let context: EvalContext | undefined;
+export let context: EvalContext | undefined;
 
 export function getEvalContext() {
-	assert(mode.mode === 'eval');
-	if (!context) context = new EvalContext(tree.tree);
-	return context;
+	assert(mode.mode === 'eval' || mode.mode === 'automated');
+	if (!context) setEvalContext(new EvalContext(tree.tree));
+	// Cast safety: Assigned above.
+	return context!;
 }
 
-export function clearEvalContext() {
-	context = undefined;
+export function setEvalContext(newContext: EvalContext | undefined) {
+	context?.stop();
+	context = newContext;
+	evalEvents.dispatchEvent(new Event('reset'));
+	newContext?.start(evaluationRate);
 }
 
 const configEvaluationRate = 'eval-rate';
