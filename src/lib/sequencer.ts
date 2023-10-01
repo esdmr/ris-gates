@@ -2,6 +2,7 @@ import {assert, nonNullable} from './assert.js';
 import {EvalContext, EvalEvent, evalEvents} from './eval.js';
 import type {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
+import {RingBuffer} from './ring.js';
 import type {QuadTree} from './tree.js';
 
 const operationJump = 'j';
@@ -116,6 +117,7 @@ export class SequencerContext extends EvalContext {
 	readonly publicLabels = new Map<string, number>();
 	readonly tileNames = new Map<QuadTreeNode, string>();
 	readonly monitoredTiles: readonly QuadTreeNode[];
+	protected override readonly _undoStack = new RingBuffer<never>(0);
 	private _monitoring = false;
 	private readonly _tiles = new Map<string, Point>();
 	private readonly _monitored = new AdmissionSet<string>();

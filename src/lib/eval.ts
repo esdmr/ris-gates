@@ -1,6 +1,7 @@
 import {mapGet, setToggle} from './map-and-set.js';
 import type {QuadTreeNode} from './node.js';
 import type {Point} from './point.js';
+import {RingBuffer} from './ring.js';
 import * as tileType from './tile-type.js';
 import {Interval, type Timer} from './timer.js';
 import type {QuadTree} from './tree.js';
@@ -321,7 +322,9 @@ export class EvalContext {
 	protected _enabled = new Set<symbol>();
 	protected _timer: Timer | undefined;
 	protected readonly _graph: EvalGraph;
-	private readonly _undoStack: Array<Set<symbol> | typeof unchanged> = [];
+	protected readonly _undoStack = new RingBuffer<
+		Set<symbol> | typeof unchanged
+	>(maxUndoCount);
 
 	constructor(tree: QuadTree) {
 		const graph = new EvalGraph(new TilesMap(tree));
@@ -348,7 +351,6 @@ export class EvalContext {
 
 	tickForward() {
 		this._undoStack.push(new Set(this._enabled));
-		if (this._undoStack.length > maxUndoCount) this._undoStack.shift();
 
 		let anythingUpdated = false;
 		this.tickCount++;
@@ -406,7 +408,7 @@ export class EvalContext {
 		if (import.meta.env.DEV) console.groupEnd();
 
 		if (!anythingUpdated) {
-			this._undoStack[this._undoStack.length - 1] = unchanged;
+			this._undoStack.updateLast(unchanged);
 		}
 
 		evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
