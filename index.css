@@ -158,7 +158,7 @@ dialog button.close {
 :where([data-mode=pasting]) .enabled-if-pasting,
 :where([data-mode=inert]) .enabled-if-inert,
 :where([data-mode=screenshot]) .enabled-if-screenshot {
-	--foreground: var(--hud-enabled);
+	color: var(--hud-enabled);
 }
 
 .show-if-normal,

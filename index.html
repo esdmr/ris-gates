@@ -22,9 +22,7 @@
 			<div class="show-if-normal show-if-eval" role="presentation">
 				<button id="hud-eval" aria-label="evaluate" role="checkbox"
 					aria-checked="false">
-					<svg viewBox="0 0 1 1" fill="var(--background)"
-						stroke-width="0.1" stroke="var(--foreground)"
-						class="enabled-if-eval">
+					<svg viewBox="0 0 1 1" class="enabled-if-eval">
 						<title>Evaluate</title>
 						<use href="icons.svg#eval" />
 					</svg>
@@ -33,34 +31,32 @@
 			<div class="show-if-eval" role="presentation">
 				<button id="hud-tick-bwd-stable"
 					aria-label="Previous stable tick">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Previous stable tick</title>
-						<use href="icons.svg#tick-stable"
-							style="transform-origin: center; transform: rotate(180deg)" />
+						<use href="icons.svg#tick-bwd-stable" />
 					</svg>
 				</button>
 				<button id="hud-tick-bwd" aria-label="Previous tick">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Previous tick</title>
-						<use href="icons.svg#tick"
-							style="transform-origin: center; transform: rotate(180deg)" />
+						<use href="icons.svg#tick-bwd" />
 					</svg>
 				</button>
 				<div id="hud-tick-no" class="hud-message">0</div>
 				<button id="hud-tick-fwd" aria-label="Next tick">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Next tick</title>
 						<use href="icons.svg#tick" />
 					</svg>
 				</button>
 				<button id="hud-tick-fwd-stable" aria-label="Next stable tick">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Next stable tick</title>
 						<use href="icons.svg#tick-stable" />
 					</svg>
 				</button>
 				<button id="hud-automate" aria-label="Automate">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Automate</title>
 						<use href="icons.svg#automation" />
 					</svg>
@@ -68,28 +64,26 @@
 			</div>
 			<div class="show-if-automated" role="presentation">
 				<button id="hud-return" aria-label="Return">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Return</title>
 						<use href="icons.svg#cross" />
 					</svg>
 				</button>
 				<button id="hud-monitor" aria-label="Monitor">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Monitor</title>
 						<use href="icons.svg#monitor" />
 					</svg>
 				</button>
 				<button id="hud-assert" aria-label="Assertions">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)" fill="none">
+					<svg viewBox="0 0 1 1">
 						<title>Assertions</title>
 						<use href="icons.svg#assert" />
 					</svg>
 				</button>
 				<div id="hud-tick-no2" class="hud-message">0</div>
 				<button id="hud-next" aria-label="Next">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Next</title>
 						<use href="icons.svg#tick" />
 					</svg>
@@ -99,38 +93,41 @@
 				<div class="hud-group" role="radiogroup">
 					<button id="hud-empty" aria-label="Empty" role="radio"
 						aria-checked="false">
-						<svg viewBox="0 0 1 1" stroke-width="0.1"
-							stroke="var(--foreground)">
+						<svg viewBox="0 0 1 1">
 							<title>Empty</title>
 							<use href="icons.svg#cross" />
 						</svg>
 					</button>
 					<button id="hud-io" aria-label="IO" role="radio"
 						aria-checked="false">
-						<svg viewBox="0 0 1 1" fill="var(--active-io)">
+						<svg viewBox="0 0 1 1">
 							<title>IO</title>
-							<use href="icons.svg#tile" />
+							<use href="icons.svg#tile"
+								color="var(--active-io)" />
 						</svg>
 					</button>
 					<button id="hud-negate" aria-label="Negate" role="radio"
 						aria-checked="false">
-						<svg viewBox="0 0 1 1" fill="var(--active-negate)">
+						<svg viewBox="0 0 1 1">
 							<title>Negate</title>
-							<use href="icons.svg#tile" />
+							<use href="icons.svg#tile"
+								color="var(--active-negate)" />
 						</svg>
 					</button>
 					<button id="hud-conjoin" aria-label="Conjoin" role="radio"
 						aria-checked="false">
-						<svg viewBox="0 0 1 1" fill="var(--active-conjoin)">
+						<svg viewBox="0 0 1 1">
 							<title>Conjoin</title>
-							<use href="icons.svg#tile" />
+							<use href="icons.svg#tile"
+								color="var(--active-conjoin)" />
 						</svg>
 					</button>
 					<button id="hud-disjoin" aria-label="Disjoin" role="radio"
 						aria-checked="false">
-						<svg viewBox="0 0 1 1" fill="var(--active-disjoin)">
+						<svg viewBox="0 0 1 1">
 							<title>Disjoin</title>
-							<use href="icons.svg#tile" />
+							<use href="icons.svg#tile"
+								color="var(--active-disjoin)" />
 						</svg>
 					</button>
 				</div>
@@ -145,28 +142,25 @@
 			</div>
 			<div class="show-if-selected" role="presentation">
 				<button id="hud-unselect" aria-label="Unselect">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Unselect</title>
 						<use href="icons.svg#cross" />
 					</svg>
 				</button>
 				<button id="hud-delete" aria-label="Delete">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Delete</title>
 						<use href="icons.svg#delete" />
 					</svg>
 				</button>
 				<button id="hud-cut" aria-label="Cut">
-					<svg viewBox="0 0 1 1" fill="var(--foreground)"
-						stroke-width="0.1" stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Cut</title>
 						<use href="icons.svg#cut" />
 					</svg>
 				</button>
 				<button id="hud-copy" aria-label="Copy">
-					<svg viewBox="0 0 1 1" fill="var(--background)"
-						stroke-width="0.1" stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Copy</title>
 						<use href="icons.svg#copy" />
 					</svg>
@@ -174,8 +168,7 @@
 			</div>
 			<div class="hud-paste" role="presentation">
 				<button id="hud-paste" aria-label="Paste">
-					<svg viewBox="0 0 1 1" fill="var(--background)"
-						stroke-width="0.1" stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Paste</title>
 						<use href="icons.svg#paste" />
 					</svg>
@@ -183,8 +176,7 @@
 			</div>
 			<div class="show-if-normal" role="presentation">
 				<button id="hud-menu" aria-label="Menu">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Menu</title>
 						<use href="icons.svg#menu" />
 					</svg>
@@ -192,8 +184,7 @@
 			</div>
 			<div class="show-if-selected" role="presentation">
 				<button id="hud-menu-selection" aria-label="Menu">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Menu</title>
 						<use href="icons.svg#menu" />
 					</svg>
@@ -201,8 +192,7 @@
 			</div>
 			<div class="show-if-pasting" role="presentation">
 				<button id="hud-paste-cancel" aria-label="Cancel pasting">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Cancel pasting</title>
 						<use href="icons.svg#cross" />
 					</svg>
@@ -213,8 +203,7 @@
 			</div>
 			<div class="show-if-picking" role="presentation">
 				<button id="hud-pick-cancel" aria-label="Cancel picking">
-					<svg viewBox="0 0 1 1" stroke-width="0.1"
-						stroke="var(--foreground)">
+					<svg viewBox="0 0 1 1">
 						<title>Cancel picking</title>
 						<use href="icons.svg#cross" />
 					</svg>
@@ -226,8 +215,7 @@
 		</div>
 		<dialog id="dialog-menu">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -271,8 +259,7 @@
 		</dialog>
 		<dialog id="dialog-selection">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -307,8 +294,7 @@
 		</dialog>
 		<dialog id="dialog-load">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -323,8 +309,7 @@
 		</dialog>
 		<dialog id="dialog-load-failed">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -339,8 +324,7 @@
 		</dialog>
 		<dialog id="dialog-paste-failed">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -357,8 +341,7 @@
 		</dialog>
 		<dialog id="dialog-save">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -383,8 +366,7 @@
 		</dialog>
 		<dialog id="dialog-save-failed">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -398,8 +380,7 @@
 		</dialog>
 		<dialog id="dialog-copy-failed">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -416,8 +397,7 @@
 		</dialog>
 		<dialog id="dialog-browse">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -434,8 +414,7 @@
 		</dialog>
 		<dialog id="dialog-screenshot">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -497,8 +476,7 @@
 		</dialog>
 		<dialog id="dialog-sequence">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -516,8 +494,7 @@
 		</dialog>
 		<dialog id="dialog-sequence-failed">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -530,8 +507,7 @@
 		</dialog>
 		<dialog id="dialog-entry">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -544,8 +520,7 @@
 		</dialog>
 		<dialog id="dialog-monitor">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
@@ -571,8 +546,7 @@
 		</dialog>
 		<dialog id="dialog-assert">
 			<button class="close" aria-label="Close">
-				<svg viewBox="0 0 1 1" stroke-width="0.1"
-					stroke="var(--foreground)">
+				<svg viewBox="0 0 1 1">
 					<title>Close</title>
 					<use href="icons.svg#cross" />
 				</svg>
