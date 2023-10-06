@@ -148,23 +148,23 @@ export class QuadTree {
 		return new Schematic(Number(display.width), Number(display.height), tiles);
 	}
 
-	putSchematic({tiles, width, height}: Schematic, topLeft: Point) {
+	putSchematic(schematic: Schematic, topLeft: Point) {
 		const display = new AxisAlignedBoundingBox(
 			topLeft,
-			BigInt(width),
-			BigInt(height),
+			BigInt(schematic.realWidth),
+			BigInt(schematic.realHeight),
 		);
 
 		const root = this.getContainingNode(display, searchMode.make);
 
-		for (let y = 0; y < height; y++) {
-			for (let x = 0; x < width; x++) {
+		for (let y = 0; y < schematic.height; y++) {
+			for (let x = 0; x < schematic.width; x++) {
 				// Cast safety: Point is always inside the display, and root
 				// contains the display.
 				root.getTileData(
-					new Point(topLeft.x + BigInt(x), topLeft.y + BigInt(y)),
+					schematic.transform(x, y, topLeft),
 					searchMode.make,
-				)!.type = tiles[x + y * width] ?? tileType.empty;
+				)!.type = schematic.tiles[x + y * schematic.width] ?? tileType.empty;
 			}
 		}
 	}

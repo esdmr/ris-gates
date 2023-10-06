@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg">
 	<symbol viewBox="0 0 1 1" id="cross" stroke-width="0.1"
 		stroke="currentcolor">
-		<line x2="1" y2="1" />
-		<line x1="1" y1="0" x2="0" y2="1" />
+		<line x1="0.05" y1="0.05" x2="0.95" y2="0.95" />
+		<line x1="0.95" y1="0.05" x2="0.05" y2="0.95" />
 	</symbol>
 	<symbol viewBox="0 0 1 1" id="tile">
 		<rect width="1" height="1" fill="currentcolor" />
@@ -69,5 +69,28 @@
 	<symbol viewBox="0 0 1 1" id="assert">
 		<path stroke-width="0.1" stroke="currentcolor" fill="none"
 			d="m.07.49.25.25.61-.6" />
+	</symbol>
+	<symbol viewBox="0 0 1 1" id="rot90">
+		<path fill="currentcolor"
+			d="M.5.15V.25C.64.25.75.36.75.5H.6L.8.7 1 .5H.85C.85.31.69.15.5.15Z" />
+	</symbol>
+	<symbol viewBox="0 0 1 1" id="rot180">
+		<path fill="currentcolor"
+			d="M.5.15.5.25C.64.25.75.36.75.5.75.64.64.75.5.75L.5.6.3.8.5 1 .5.85C.69.85.85.69.85.5.85.31.69.15.5.15Z" />
+	</symbol>
+	<symbol viewBox="0 0 1 1" id="rot270">
+		<path fill="currentcolor"
+			d="M.5.15.5.25C.6.25.69.31.73.4.77.5.75.61.68.68.61.75.5.77.4.73.31.69.25.6.25.5L.4.5.2.3 0 .5.15.5C.15.64.23.77.37.82.5.88.65.85.75.75.85.65.88.5.82.37.77.23.64.15.5.15Z" />
+	</symbol>
+	<symbol viewBox="0 0 1 1" id="rot0">
+		<path fill="currentcolor"
+			d="M.5 0 .5.15C.35.15.2.26.16.41.12.54.17.7.29.78.39.86.54.88.65.82.78.75.86.61.85.47.84.39.81.31.75.25L.68.32C.76.4.77.54.71.63.65.74.5.78.39.72.28.67.22.53.27.41.3.31.4.25.5.25L.5.4.7.2.5 0Z" />
+	</symbol>
+	<symbol viewBox="0 0 1 1" id="hrefl">
+		<path fill="currentcolor"
+			d="M.234.151C.183.156.145.206.15.257V.768C.155.818.202.86.252.854H.766C.816.849.855.8.85.75V.236C.845.187.798.145.748.15L.234.151ZM.5.25H.75V.75H.5Z" />
+	</symbol>
+	<symbol viewBox="0 0 1 1" id="vrefl">
+		<use href="#hrefl" transform-origin="center" transform="rotate(90)" />
 	</symbol>
 </svg>

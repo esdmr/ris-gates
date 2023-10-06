@@ -71,6 +71,6 @@ export function paste(point: Point) {
 	tree.tree.putSchematic(clipboard, point);
 	firstX = point.x;
 	firstY = point.y;
-	secondX = firstX + BigInt(clipboard.width) - 1n;
-	secondY = firstY + BigInt(clipboard.height) - 1n;
+	secondX = firstX + BigInt(clipboard.realWidth) - 1n;
+	secondY = firstY + BigInt(clipboard.realHeight) - 1n;
 }

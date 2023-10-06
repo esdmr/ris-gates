@@ -157,7 +157,8 @@ dialog button.close {
 :where([data-mode=selected]) .enabled-if-selected,
 :where([data-mode=pasting]) .enabled-if-pasting,
 :where([data-mode=inert]) .enabled-if-inert,
-:where([data-mode=screenshot]) .enabled-if-screenshot {
+:where([data-mode=screenshot]) .enabled-if-screenshot,
+.enabled {
 	color: var(--hud-enabled);
 }
 
@@ -354,5 +355,9 @@ fieldset > legend {
 
 	.used-clipboard:not([data-mode=eval]):not([data-mode=automated]):not([data-mode=picking]):not([data-mode=pasting]) .hud {
 		gap: 0.6em;
+	}
+
+	[data-mode=pasting] .hud {
+		gap: 0.5em;
 	}
 }

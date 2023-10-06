@@ -1,4 +1,5 @@
 import {assertObject, assertArray, assert} from './assert.js';
+import {Point} from './point.js';
 import * as tileType from './tile-type.js';
 
 // eslint-disable-next-line @internal/no-object-literals
@@ -35,11 +36,117 @@ export class Schematic {
 		return new Schematic(width, height, tiles as tileType.QuadTreeTileType[]);
 	}
 
+	// Note: These are intentionally not serialized.
+	rotation = 0;
+	horizontalReflection = false;
+	verticalReflection = false;
+
+	get realWidth() {
+		return this.rotation === 0 || this.rotation === 0.5
+			? this.width
+			: this.height;
+	}
+
+	get realHeight() {
+		return this.rotation === 0 || this.rotation === 0.5
+			? this.height
+			: this.width;
+	}
+
 	constructor(
 		readonly width: number,
 		readonly height: number,
 		readonly tiles: readonly tileType.QuadTreeTileType[],
 	) {}
+
+	transform(x: number, y: number, topLeft: Point) {
+		const {width, height, realWidth, realHeight} = this;
+		const sin = Math.sin(this.rotation * 2 * Math.PI);
+		const cos = Math.cos(this.rotation * 2 * Math.PI);
+
+		let xNew;
+		let yNew;
+
+		// These equations are generated via Wolfram Mathematica. See
+		// [transform-matrix script](/transform-matrix.wls) for its source.
+		switch (
+			Number(this.horizontalReflection) +
+			Number(this.verticalReflection) * 2
+		) {
+			case 0: {
+				xNew =
+					(-1 +
+						realWidth +
+						cos * (1 - width + 2 * x) +
+						sin * (-1 + height - 2 * y)) /
+					2;
+				yNew =
+					(-1 + cos - cos * height + realHeight + sin - sin * width) / 2 +
+					sin * x +
+					cos * y;
+				break;
+			}
+
+			case 1: {
+				xNew =
+					(-1 +
+						realWidth +
+						sin -
+						height * sin +
+						cos * (-1 + width - 2 * x) +
+						2 * sin * y) /
+					2;
+				yNew =
+					(-1 + cos - cos * height + realHeight + sin - sin * width) / 2 +
+					sin * x +
+					cos * y;
+				break;
+			}
+
+			case 2: {
+				xNew =
+					(-1 +
+						realWidth +
+						cos * (1 - width + 2 * x) +
+						sin * (-1 + height - 2 * y)) /
+					2;
+				yNew =
+					(-1 +
+						realHeight +
+						sin * (-1 + width - 2 * x) +
+						cos * (-1 + height - 2 * y)) /
+					2;
+				break;
+			}
+
+			case 3: {
+				xNew =
+					(-1 +
+						realWidth +
+						sin -
+						height * sin +
+						cos * (-1 + width - 2 * x) +
+						2 * sin * y) /
+					2;
+				yNew =
+					(-1 +
+						realHeight +
+						sin * (-1 + width - 2 * x) +
+						cos * (-1 + height - 2 * y)) /
+					2;
+				break;
+			}
+
+			default: {
+				throw new RangeError('Invalid reflection');
+			}
+		}
+
+		return new Point(
+			topLeft.x + BigInt(Math.round(xNew)),
+			topLeft.y + BigInt(Math.round(yNew)),
+		);
+	}
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	toJSON() {

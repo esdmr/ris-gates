@@ -1,11 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="512"
-	height="512" color="black">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="111"
+	height="111" color="black">
 	<use href="icons.svg#eval" x="0" y="0" width="1" height="1" />
 	<use href="icons.svg#cross" x="1" y="0" width="1" height="1" />
 	<use href="icons.svg#tile" color="blue" x="2" y="0" width="1" height="1" />
 	<use href="icons.svg#tile" color="red" x="3" y="0" width="1" height="1" />
 	<use href="icons.svg#tile" color="green" x="4" y="0" width="1" height="1" />
-	<use href="icons.svg#tile" color="yellow" x="5" y="0" width="1" height="1" />
+	<use href="icons.svg#tile" color="yellow" x="5" y="0" width="1"
+		height="1" />
 	<use href="icons.svg#paste" x="6" y="0" width="1" height="1" />
 	<use href="icons.svg#menu" x="7" y="0" width="1" height="1" />
 
@@ -27,4 +28,12 @@
 	<use href="icons.svg#monitor" x="2" y="3" width="1" height="1" />
 	<use href="icons.svg#assert" x="3" y="3" width="1" height="1" />
 	<use href="icons.svg#tick" x="4" y="3" width="1" height="1" />
+
+	<use href="icons.svg#cross" x="1" y="4" width="1" height="1" />
+	<use href="icons.svg#rot90" x="2" y="4" width="1" height="1" />
+	<use href="icons.svg#rot180" x="3" y="4" width="1" height="1" />
+	<use href="icons.svg#rot270" x="4" y="4" width="1" height="1" />
+	<use href="icons.svg#rot0" x="5" y="4" width="1" height="1" />
+	<use href="icons.svg#hrefl" x="6" y="4" width="1" height="1" />
+	<use href="icons.svg#vrefl" x="7" y="4" width="1" height="1" />
 </svg>
