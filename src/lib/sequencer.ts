@@ -482,16 +482,26 @@ export class SequencerContext extends EvalContext {
 					break;
 				}
 
-				case operationSet:
-				case operationAssert: {
+				case operationSet: {
 					this._assertInput(args[1], line);
 					this._assertOutput(args[2], line);
 					break;
 				}
 
-				case operationSetConstant:
-				case operationAssertConstant: {
+				case operationAssert: {
+					this._assertOutput(args[1], line);
+					this._assertOutput(args[2], line);
+					break;
+				}
+
+				case operationSetConstant: {
 					this._assertInput(args[1], line);
+					break;
+				}
+
+
+				case operationAssertConstant: {
+					this._assertOutput(args[1], line);
 					break;
 				}
 
