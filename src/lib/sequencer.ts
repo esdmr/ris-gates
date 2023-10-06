@@ -499,7 +499,6 @@ export class SequencerContext extends EvalContext {
 					break;
 				}
 
-
 				case operationAssertConstant: {
 					this._assertOutput(args[1], line);
 					break;
