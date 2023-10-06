@@ -1,4 +1,4 @@
-import {assert} from '../../lib/assert.js';
+import {assert, nonNullable} from '../../lib/assert.js';
 import {
 	createClickHandler,
 	createContextMenuHandler,
@@ -14,6 +14,22 @@ const rotationTitle = query('title', SVGTitleElement, buttonRotate);
 const rotationIcon = query('use', SVGUseElement, buttonRotate);
 const buttonHorizontalReflection = query('#hud-hrefl', HTMLButtonElement);
 const buttonVerticalReflection = query('#hud-vrefl', HTMLButtonElement);
+
+function updateRotation(amount: number) {
+	assert(selection.clipboard);
+	selection.clipboard.rotation = (selection.clipboard.rotation + amount) % 1;
+
+	const message = `Rotation: ${selection.clipboard.rotation * 360} degrees`;
+	buttonRotate.setAttribute('aria-label', message);
+	rotationTitle.textContent = message;
+
+	const url = new URL(
+		nonNullable(rotationIcon.getAttribute('href')),
+		location.href,
+	);
+	url.hash = `#rot${selection.clipboard.rotation * 360}`;
+	rotationIcon.setAttribute('href', url.href);
+}
 
 export function setup() {
 	/* eslint-disable @internal/no-object-literals */
@@ -40,32 +56,12 @@ export function setup() {
 
 	buttonRotate.addEventListener('click', (event) => {
 		event.preventDefault();
-		assert(selection.clipboard);
-		selection.clipboard.rotation = (selection.clipboard.rotation + 0.25) % 1;
-
-		const message = `Rotation: ${selection.clipboard.rotation * 360} degrees`;
-		buttonRotate.setAttribute('aria-label', message);
-		rotationTitle.textContent = message;
-
-		rotationIcon.setAttribute(
-			'href',
-			`icons.svg#rot${selection.clipboard.rotation * 360}`,
-		);
+		updateRotation(0.25);
 	});
 
 	buttonRotate.addEventListener('contextmenu', (event) => {
 		event.preventDefault();
-		assert(selection.clipboard);
-		selection.clipboard.rotation = (selection.clipboard.rotation + 0.75) % 1;
-
-		const message = `Rotation: ${selection.clipboard.rotation * 360} degrees`;
-		buttonRotate.setAttribute('aria-label', message);
-		rotationTitle.textContent = message;
-
-		rotationIcon.setAttribute(
-			'href',
-			`icons.svg#rot${selection.clipboard.rotation * 360}`,
-		);
+		updateRotation(0.75);
 	});
 
 	buttonHorizontalReflection.addEventListener('click', (event) => {
