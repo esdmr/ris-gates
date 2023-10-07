@@ -59,7 +59,7 @@ export class Schematic {
 		readonly tiles: readonly tileType.QuadTreeTileType[],
 	) {}
 
-	transform(x: number, y: number, topLeft: Point) {
+	transformPoint(x: number, y: number, topLeft: Point) {
 		const {width, height, realWidth, realHeight} = this;
 		const sin = Math.sin(this.rotation * 2 * Math.PI);
 		const cos = Math.cos(this.rotation * 2 * Math.PI);
@@ -146,6 +146,38 @@ export class Schematic {
 			topLeft.x + BigInt(Math.round(xNew)),
 			topLeft.y + BigInt(Math.round(yNew)),
 		);
+	}
+
+	transformTile(x: number, y: number): tileType.QuadTreeTileType {
+		const tile = this.tiles[x + y * this.width] ?? tileType.empty;
+
+		if (
+			!tileType.isRotatedFormOf(tile, tileType.conjoinN) &&
+			!tileType.isRotatedFormOf(tile, tileType.disjoinN)
+		) {
+			return tile;
+		}
+
+		const type = Math.trunc(tile / 10) * 10;
+		let dir = tile % 10;
+
+		dir += this.rotation * 4;
+
+		if (this.horizontalReflection) {
+			dir = 4 - (dir % 4);
+		}
+
+		if (this.verticalReflection) {
+			dir = 6 - (dir % 4);
+		}
+
+		const newTile = type + (dir % 4);
+		// Cast safety: Array.includes is too narrowly typed.
+		assert(
+			tileType.quadTreeTileType.includes(newTile as tileType.QuadTreeTileType),
+		);
+		// Cast safety: Asserted above.
+		return newTile as tileType.QuadTreeTileType;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention

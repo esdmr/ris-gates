@@ -162,9 +162,9 @@ export class QuadTree {
 				// Cast safety: Point is always inside the display, and root
 				// contains the display.
 				root.getTileData(
-					schematic.transform(x, y, topLeft),
+					schematic.transformPoint(x, y, topLeft),
 					searchMode.make,
-				)!.type = schematic.tiles[x + y * schematic.width] ?? tileType.empty;
+				)!.type = schematic.transformTile(x, y);
 			}
 		}
 	}
