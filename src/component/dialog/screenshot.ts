@@ -120,14 +120,11 @@ export function open(target?: 'selection') {
 
 	if (target === 'selection') {
 		const realScale = inputScale.valueAsNumber * devicePixelRatio;
-		inputX.value = String(selection.firstX);
-		inputY.value = String(selection.firstY);
-		inputWidth.value = String(
-			realScale * Number(selection.secondX - selection.firstX + 1n),
-		);
-		inputHeight.value = String(
-			realScale * Number(selection.secondY - selection.firstY + 1n),
-		);
+		const box = selection.getBox();
+		inputX.value = String(box.topLeft.x);
+		inputY.value = String(box.topLeft.y);
+		inputWidth.value = String(realScale * Number(box.width));
+		inputHeight.value = String(realScale * Number(box.height));
 	} else {
 		inputX.value = tree.scrollX.toString();
 		inputY.value = tree.scrollY.toString();
