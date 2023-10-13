@@ -15,11 +15,12 @@ const rotationIcon = query('use', SVGUseElement, buttonRotate);
 const buttonHorizontalReflection = query('#hud-hrefl', HTMLButtonElement);
 const buttonVerticalReflection = query('#hud-vrefl', HTMLButtonElement);
 
-function updateRotation(amount: number) {
+function setRotation(newValue: number) {
 	assert(selection.clipboard);
-	selection.clipboard.rotation = (selection.clipboard.rotation + amount) % 1;
+	newValue %= 1;
+	selection.clipboard.rotation = newValue;
 
-	const message = `Rotation: ${selection.clipboard.rotation * 360} degrees`;
+	const message = `Rotation: ${newValue * 360} degrees`;
 	buttonRotate.setAttribute('aria-label', message);
 	rotationTitle.textContent = message;
 
@@ -27,8 +28,22 @@ function updateRotation(amount: number) {
 		nonNullable(rotationIcon.getAttribute('href')),
 		location.href,
 	);
-	url.hash = `#rot${selection.clipboard.rotation * 360}`;
+	url.hash = `#rot${newValue * 360}`;
 	rotationIcon.setAttribute('href', url.href);
+}
+
+function setHorizontalReflection(newValue: boolean) {
+	assert(selection.clipboard);
+	selection.clipboard.horizontalReflection = newValue;
+	buttonHorizontalReflection.setAttribute('aria-checked', String(newValue));
+	buttonHorizontalReflection.classList.toggle('enabled', newValue);
+}
+
+function setVerticalReflection(newValue: boolean) {
+	assert(selection.clipboard);
+	selection.clipboard.verticalReflection = newValue;
+	buttonVerticalReflection.setAttribute('aria-checked', String(newValue));
+	buttonVerticalReflection.classList.toggle('enabled', newValue);
 }
 
 export function setup() {
@@ -56,41 +71,32 @@ export function setup() {
 
 	buttonRotate.addEventListener('click', (event) => {
 		event.preventDefault();
-		updateRotation(0.25);
+		assert(selection.clipboard);
+		setRotation(selection.clipboard.rotation + 0.25);
 	});
 
 	buttonRotate.addEventListener('contextmenu', (event) => {
 		event.preventDefault();
-		updateRotation(0.75);
+		assert(selection.clipboard);
+		setRotation(selection.clipboard.rotation + 0.75);
 	});
 
 	buttonHorizontalReflection.addEventListener('click', (event) => {
 		event.preventDefault();
 		assert(selection.clipboard);
-		selection.clipboard.horizontalReflection =
-			!selection.clipboard.horizontalReflection;
-		buttonHorizontalReflection.setAttribute(
-			'aria-checked',
-			String(selection.clipboard.horizontalReflection),
-		);
-		buttonHorizontalReflection.classList.toggle(
-			'enabled',
-			selection.clipboard.horizontalReflection,
-		);
+		setHorizontalReflection(!selection.clipboard.horizontalReflection);
 	});
 
 	buttonVerticalReflection.addEventListener('click', (event) => {
 		event.preventDefault();
 		assert(selection.clipboard);
-		selection.clipboard.verticalReflection =
-			!selection.clipboard.verticalReflection;
-		buttonVerticalReflection.setAttribute(
-			'aria-checked',
-			String(selection.clipboard.verticalReflection),
-		);
-		buttonVerticalReflection.classList.toggle(
-			'enabled',
-			selection.clipboard.verticalReflection,
-		);
+		setVerticalReflection(!selection.clipboard.verticalReflection);
 	});
+}
+
+export function update() {
+	assert(selection.clipboard);
+	setRotation(selection.clipboard.rotation);
+	setHorizontalReflection(selection.clipboard.horizontalReflection);
+	setVerticalReflection(selection.clipboard.verticalReflection);
 }
