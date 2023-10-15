@@ -259,8 +259,27 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		}
 	}
 
-	if (mode.mode === 'selected') {
-		const box = selection.getBox();
+	if (
+		mode.mode === 'selected' ||
+		(mode.mode === 'pasting' && pointer.isHovering)
+	) {
+		const box =
+			mode.mode === 'selected'
+				? selection.getBox()
+				: new AxisAlignedBoundingBox(
+						new Point(
+							tree.scrollX.bigint +
+								BigInt(
+									Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
+								),
+							tree.scrollY.bigint +
+								BigInt(
+									Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
+								),
+						),
+						BigInt(selection.clipboard?.realWidth ?? 0),
+						BigInt(selection.clipboard?.realHeight ?? 0),
+				  );
 		const x = convertAxisToDisplayCoordinate(
 			box.topLeft.x,
 			tree.scrollX.bigint,
@@ -296,7 +315,10 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 		if (w && h) {
 			canvas.context.lineWidth = selectionStrokeWidth * dip;
-			canvas.context.strokeStyle = theme.selectionStrokeStyle;
+			canvas.context.strokeStyle =
+				mode.mode === 'selected'
+					? theme.selectionStrokeStyle
+					: theme.ghostStrokeStyle;
 			canvas.context.lineDashOffset =
 				(ms % selectionStrokeDashLength) * selectionStrokeSpeed * dip;
 			canvas.context.setLineDash([

@@ -3,10 +3,12 @@
 	--light-background-error: #e8a8a8;
 	--light-foreground: black;
 	--light-selection: #005794;
+	--light-ghost: darkgray;
 	--dark-background: #282828;
 	--dark-background-error: #682828;
 	--dark-foreground: #f0f0f0;
 	--dark-selection: #AAEEFF;
+	--dark-ghost: lightgray;
 	--active-io: #0072B2;
 	--active-negate: #D55E00;
 	--active-conjoin: #009E73;
@@ -20,6 +22,7 @@
 	--background-error: var(--light-background-error);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
+	--ghost: var(--light-ghost);
 
 	--hud-border: gray;
 	--hud-enabled: cornflowerblue;
@@ -32,6 +35,7 @@
 	--background-error: var(--light-background-error);
 	--foreground: var(--light-foreground);
 	--selection: var(--light-selection);
+	--ghost: var(--light-ghost);
 }
 
 [data-mode=screenshot].dark > canvas {
@@ -39,6 +43,8 @@
 	--background-error: var(--dark-background-error);
 	--foreground: var(--dark-foreground);
 	--selection: var(--dark-selection);
+	--ghost: var(--dark-ghost);
+	color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +53,7 @@
 		--background-error: var(--dark-background-error);
 		--foreground: var(--dark-foreground);
 		--selection: var(--dark-selection);
+		--ghost: var(--dark-ghost);
 		color-scheme: dark;
 	}
 }

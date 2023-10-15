@@ -15,6 +15,7 @@ export let hasClicked = false;
 export let hasClickedSecondary = false;
 export let isAuxiliaryButtonHeld = false;
 export let isSecondaryButtonHeld = false;
+export let isHovering = false;
 export let deltaX = 0;
 export let deltaY = 0;
 export let centerX = 0;
@@ -23,6 +24,7 @@ export let deltaScale = 0;
 
 function pointerdownHandler(event: PointerEvent) {
 	eventCache.push(event);
+	isHovering = false;
 
 	if (event.button === 1) {
 		isAuxiliaryButtonHeld = true;
@@ -43,7 +45,11 @@ function pointermoveHandler(event: PointerEvent) {
 		(cachedEvent) => cachedEvent.pointerId === event.pointerId,
 	);
 
-	eventCache[index] = event;
+	if (index === -1) {
+		isHovering = true;
+	} else {
+		eventCache[index] = event;
+	}
 
 	if (eventCache.length === 0) {
 		centerX = event.clientX;
@@ -102,13 +108,17 @@ function pointerupHandler(event: PointerEvent) {
 		(cachedEvent) => cachedEvent.pointerId === event.pointerId,
 	);
 
-	eventCache.splice(index, 1);
+	if (index !== -1) {
+		eventCache.splice(index, 1);
+	}
 
 	if (eventCache.length !== 2) {
 		oldDiff = -1;
 		firstDelta = true;
 		timeOfInitialDelta = -1;
 	}
+
+	isHovering = false;
 
 	if (eventCache.length === 0 && index !== -1) {
 		if (isDragging) {
