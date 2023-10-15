@@ -261,7 +261,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 	if (
 		mode.mode === 'selected' ||
-		(mode.mode === 'pasting' && pointer.isHovering)
+		(mode.mode === 'pasting' && pointer.isHovering && !hud.isFloating)
 	) {
 		const box =
 			mode.mode === 'selected'
