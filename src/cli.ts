@@ -4,7 +4,7 @@ import process from 'node:process';
 import {createInterface} from 'node:readline/promises';
 import {parseArgs} from 'node:util';
 import {assert, nonNullable} from './lib/assert.js';
-import {evalEvents} from './lib/eval.js';
+import {EvalStepEvent, evalEvents} from './lib/eval.js';
 import {SequencerAssertion, SequencerContext} from './lib/sequencer.js';
 import {QuadTree} from './lib/tree.js';
 
@@ -33,9 +33,13 @@ const {
 	strict: true,
 });
 
+const print = (...args: unknown[]) => {
+	console.error(...args);
+};
+
 const rl = createInterface({
 	input: process.stdin,
-	output: process.stdout,
+	output: process.stderr,
 });
 
 const json = input
@@ -57,7 +61,7 @@ while (!context.publicLabels.has(target ?? '')) {
 context.index = nonNullable(context.publicLabels.get(target ?? ''));
 
 evalEvents.addEventListener('yielded', async () => {
-	console.log('Yielded.');
+	print('Yielded.');
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
@@ -70,28 +74,28 @@ evalEvents.addEventListener('yielded', async () => {
 		if ((match = /^([_a-z]\w*) ?= ?(0|1)$/i.exec(action))) {
 			context.input(context.getTile(match[1]!), match[2] === '1');
 		} else if (/^(?:h|help|\?)$/i.test(action)) {
-			console.log('Syntax:');
-			console.log('Set a tile: tile = 0');
-			console.log('            tile = 1');
-			console.log('Syntax guide: help');
-			console.log('              h');
-			console.log('              ?');
-			console.log('Next: next');
-			console.log('      continue');
-			console.log('      yield');
-			console.log('      n');
+			print('Syntax:');
+			print('Set a tile: tile = 0');
+			print('            tile = 1');
+			print('Syntax guide: help');
+			print('              h');
+			print('              ?');
+			print('Next: next');
+			print('      continue');
+			print('      yield');
+			print('      n');
 		} else if (/^(?:n|next|continue|yield)$/i.test(action)) {
 			context.status = 'running';
 			break;
 		} else {
-			console.log('Invalid syntax. Type help for syntax guide.');
+			print('Invalid syntax. Type help for syntax guide.');
 		}
 	}
 });
 
 evalEvents.addEventListener('assert', (event) => {
 	assert(event instanceof SequencerAssertion);
-	console.log(
+	print(
 		'Assert:',
 		event.actualTile,
 		event.actual,
@@ -105,10 +109,16 @@ evalEvents.addEventListener('assert', (event) => {
 	}
 });
 
-evalEvents.addEventListener('update', () => {
+evalEvents.addEventListener('update', (event) => {
+	assert(event instanceof EvalStepEvent);
+
 	if (context.monitoredTiles.length > 0) {
 		console.log(
-			context.tickCount + ', ' + context.observe().map(Number).join(', '),
+			context.tickCount +
+				',' +
+				(event.isStable ? '*' : ' ') +
+				', ' +
+				context.observe().map(Number).join(', '),
 		);
 	}
 });
@@ -117,7 +127,7 @@ if (context.monitoredTiles.length > 0) {
 	// Cast safety: monitoredTiles is a subset of TilesMap.ioTiles.
 	// tileNames also contains a mapping for every item in TilesMap.ioTiles.`
 	const names = context.monitoredTiles.map((i) => context.tileNames.get(i)!);
-	console.log('#, ' + names.join(', '));
+	console.log('#,*, ' + names.join(', '));
 }
 
 context.start(Number(rate));
