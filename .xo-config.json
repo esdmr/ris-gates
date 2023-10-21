@@ -6,6 +6,7 @@
   "rules": {
     "import/no-mutable-exports": "off",
     "unicorn/no-this-assignment": "off",
+    "no-await-in-loop": "off",
     "@typescript-eslint/no-this-alias": "off"
   },
   "overrides": [

@@ -1,4 +1,4 @@
-/* eslint-disable no-await-in-loop, @internal/no-object-literals */
+/* eslint-disable @internal/no-object-literals */
 import {readFile} from 'node:fs/promises';
 import process from 'node:process';
 import {createInterface} from 'node:readline/promises';
