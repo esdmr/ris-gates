@@ -54,6 +54,11 @@ export function remove(key: string, prefix = savePrefix) {
 	localStorage.removeItem(prefix + key);
 }
 
+export function removeEverything() {
+	if (!localStorageAvailable) return;
+	localStorage.clear();
+}
+
 export function* listStorage(prefix = savePrefix) {
 	if (!localStorageAvailable) return;
 	const length = localStorage.length;

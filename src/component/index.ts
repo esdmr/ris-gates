@@ -9,6 +9,7 @@ import * as pointer from './pointer.js';
 import * as renderer from './renderer.js';
 import * as storage from './storage.js';
 import * as theme from './theme.js';
+import * as version from './version.js';
 import * as wheel from './wheel.js';
 
 storage.setup();
@@ -23,3 +24,4 @@ theme.setup();
 dialogs.setup();
 hud.setup();
 renderer.setup();
+await version.setup();

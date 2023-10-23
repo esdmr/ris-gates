@@ -3,6 +3,7 @@ import * as dialogBrowse from './browse.js';
 import * as dialogCopyFailed from './copy-failed.js';
 import * as dialogEntry from './entry.js';
 import * as dialogEpilepsy from './epilepsy.js';
+import * as dialogIncompatible from './incompatible.js';
 import * as dialogLoadFailed from './load-failed.js';
 import * as dialogLoad from './load.js';
 import * as dialogMenu from './menu.js';
@@ -21,6 +22,7 @@ export function setup() {
 	dialogCopyFailed.setup();
 	dialogEntry.setup();
 	dialogEpilepsy.setup();
+	dialogIncompatible.setup();
 	dialogLoadFailed.setup();
 	dialogLoad.setup();
 	dialogMenu.setup();
