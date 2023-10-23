@@ -11,17 +11,17 @@ const inputName = query('[name=name]', HTMLInputElement, form);
 const buttonCopy = query('#btn-copy', HTMLButtonElement, dialogSave);
 
 let prefix: string;
-let getData: () => string;
+let getData: () => string | Promise<string>;
 
 export function setup() {
 	mode.setupDialog(dialogSave);
 	setupDialogCloseButton(dialogSave);
 
-	form.addEventListener('formdata', (event) => {
+	form.addEventListener('formdata', async (event) => {
 		const name = event.formData.get('name');
 		if (!name || typeof name !== 'string') return;
 		try {
-			storage.setString(name, getData(), prefix);
+			storage.setString(name, await getData(), prefix);
 			mode.closeAllDialogs();
 		} catch (error) {
 			dialogSaveFailed.open(error);
@@ -29,7 +29,7 @@ export function setup() {
 	});
 
 	buttonCopy.addEventListener('click', async () => {
-		const data = getData();
+		const data = await getData();
 
 		try {
 			await copyText(data);
@@ -40,7 +40,10 @@ export function setup() {
 	});
 }
 
-export function open(prefix_: string, getData_: () => string) {
+export function open(
+	prefix_: string,
+	getData_: () => string | Promise<string>,
+) {
 	prefix = prefix_;
 	getData = getData_;
 

@@ -1,9 +1,7 @@
 import {assertObject, assertArray, assert} from './assert.js';
 import {Point} from './point.js';
 import * as tileType from './tile-type.js';
-
-// eslint-disable-next-line @internal/no-object-literals
-const currentSchematicVersion = [1, 0] as const;
+import {currentSaveVersion} from './tree.js';
 
 export class Schematic {
 	static from(json: unknown) {
@@ -13,9 +11,9 @@ export class Schematic {
 
 		assertArray(version);
 		assert(
-			version[0] === currentSchematicVersion[0] &&
+			version[0] === currentSaveVersion[0] &&
 				typeof version[1] === 'number' &&
-				version[1] <= currentSchematicVersion[1],
+				version[1] <= currentSaveVersion[1],
 		);
 
 		const {width, tiles} = json;
@@ -191,7 +189,7 @@ export class Schematic {
 
 		// eslint-disable-next-line @internal/no-object-literals
 		return {
-			version: currentSchematicVersion,
+			version: currentSaveVersion,
 			width: this.width,
 			tiles,
 		};

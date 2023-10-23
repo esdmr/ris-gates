@@ -1,3 +1,4 @@
+import {maybeCompress} from '../../lib/compress.js';
 import {query, setupDialogCloseButton} from '../../lib/dom.js';
 import * as mode from '../mode.js';
 import * as selection from '../selection.js';
@@ -18,8 +19,8 @@ export function setup() {
 	});
 
 	buttonSaveSchematic.addEventListener('click', () => {
-		dialogSave.open(storage.schematicPrefix, () =>
-			JSON.stringify(selection.toSchematic()),
+		dialogSave.open(storage.schematicPrefix, async () =>
+			maybeCompress(selection.toSchematic()),
 		);
 	});
 

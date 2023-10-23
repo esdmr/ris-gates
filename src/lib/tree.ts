@@ -9,7 +9,7 @@ import {WalkStep} from './walk.js';
 import * as tileType from './tile-type.js';
 
 // eslint-disable-next-line @internal/no-object-literals
-const currentSaveVersion = [1, 1] as const;
+export const currentSaveVersion = [1, 1] as const;
 
 /**
  * Partitions space in four parts equally. If a partition does not contain any

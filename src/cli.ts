@@ -7,6 +7,7 @@ import {assert, nonNullable} from './lib/assert.js';
 import {EvalStepEvent, evalEvents} from './lib/eval.js';
 import {SequencerAssertion, SequencerContext} from './lib/sequencer.js';
 import {QuadTree} from './lib/tree.js';
+import {maybeDecompress} from './lib/compress.js';
 
 const {
 	values: {input, label, rate, strict},
@@ -46,7 +47,7 @@ const json = input
 	? await readFile(input, 'utf8')
 	: await rl.question('Import: ');
 
-const tree = QuadTree.from(JSON.parse(json));
+const tree = QuadTree.from(await maybeDecompress(json));
 const context = new SequencerContext(tree);
 
 let target = label;

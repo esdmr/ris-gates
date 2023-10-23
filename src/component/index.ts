@@ -12,7 +12,7 @@ import * as theme from './theme.js';
 import * as wheel from './wheel.js';
 
 storage.setup();
-autoSave.setup();
+await autoSave.setup();
 grid.setup();
 eval_.setup();
 canvas.setup();

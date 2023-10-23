@@ -1,6 +1,4 @@
 import {create, queryAll} from '../lib/dom.js';
-import {Schematic} from '../lib/schematic.js';
-import * as selection from './selection.js';
 
 export const localStorageAvailable = /* @__PURE__ */ (() => {
 	try {
@@ -66,18 +64,6 @@ export function* listStorage(prefix = savePrefix) {
 		const key = localStorage.key(i)!;
 		if (key.startsWith(prefix)) yield key.slice(prefix.length);
 	}
-}
-
-export function loadSchematic(key: string) {
-	if (!localStorageAvailable) return;
-	selection.setClipboard(
-		Schematic.from(JSON.parse(getString(key, schematicPrefix, 'null'))),
-	);
-}
-
-export function saveSchematic(key: string) {
-	if (!localStorageAvailable) return;
-	setString(key, JSON.stringify(selection.clipboard), schematicPrefix);
 }
 
 export class StorageBrowserElement extends HTMLElement {

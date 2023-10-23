@@ -1,4 +1,5 @@
 import {QuadTree} from '../lib/tree.js';
+import {maybeCompress, maybeDecompress} from '../lib/compress.js';
 import * as storage from './storage.js';
 import * as tree from './tree.js';
 import * as dialogSequence from './dialog/sequence.js';
@@ -12,19 +13,23 @@ export function updateAutoSaveState(removedKey: string) {
 	}
 }
 
-export function setup() {
+export async function setup() {
 	if (shouldAutoSave && storage.exists(autoSaveKey)) {
-		tree.replaceTree(
-			QuadTree.from(
-				JSON.parse(storage.getString(autoSaveKey, undefined, 'null')),
-			),
-		);
+		try {
+			tree.replaceTree(
+				QuadTree.from(
+					await maybeDecompress(storage.getString(autoSaveKey, undefined, '')),
+				),
+			);
+		} catch (error) {
+			console.error('Auto-load failed:', error);
+		}
 	}
 
-	document.addEventListener('visibilitychange', function () {
+	document.addEventListener('visibilitychange', async () => {
 		if (document.visibilityState === 'hidden' && shouldAutoSave) {
 			dialogSequence.saveSequence();
-			storage.setString(autoSaveKey, JSON.stringify(tree.tree));
+			storage.setString(autoSaveKey, await maybeCompress(tree.tree));
 		}
 	});
 }

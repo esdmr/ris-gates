@@ -4,6 +4,7 @@ import * as mode from '../mode.js';
 import * as storage from '../storage.js';
 import * as autoSave from '../auto-save.js';
 import {copyText, pasteText} from '../../lib/clipboard.js';
+import {maybeCompress, maybeDecompress} from '../../lib/compress.js';
 import * as dialogSaveFailed from './save-failed.js';
 import * as dialogCopyFailed from './copy-failed.js';
 import * as dialogPasteFailed from './paste-failed.js';
@@ -68,10 +69,10 @@ export function setup() {
 		const json = Object.create(null) as Record<string, unknown>;
 
 		for (const key of storage.listStorage(prefix)) {
-			json[key] = JSON.parse(storage.getString(key, prefix, ''));
+			json[key] = await maybeDecompress(storage.getString(key, prefix, ''));
 		}
 
-		const text = JSON.stringify(json);
+		const text = await maybeCompress(json);
 
 		try {
 			await copyText(text);
@@ -89,12 +90,11 @@ export function setup() {
 			text = await dialogPasteFailed.open(error);
 		}
 
-		// Cast safety: Avoid any. Also causes the eslint error to go away.
-		const json = JSON.parse(text) as unknown;
+		const json = await maybeDecompress(text);
 		assertObject(json);
 
 		for (const [key, value] of Object.entries(json)) {
-			storage.setString(key, JSON.stringify(constructor(value)), prefix);
+			storage.setString(key, await maybeCompress(constructor(value)), prefix);
 		}
 
 		storageBrowser.update();

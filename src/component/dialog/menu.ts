@@ -7,6 +7,7 @@ import * as tree from '../tree.js';
 import * as selection from '../selection.js';
 import * as storage from '../storage.js';
 import {Schematic} from '../../lib/schematic.js';
+import {maybeCompress, maybeDecompress} from '../../lib/compress.js';
 import * as dialogBrowse from './browse.js';
 import * as dialogLoad from './load.js';
 import * as dialogSave from './save.js';
@@ -67,11 +68,11 @@ export function setup() {
 
 	buttonLoad.addEventListener('click', async () => {
 		const json = await dialogLoad.open(storage.savePrefix);
-		tree.replaceTree(QuadTree.from(JSON.parse(json)));
+		tree.replaceTree(QuadTree.from(await maybeDecompress(json)));
 	});
 
 	buttonSave.addEventListener('click', () => {
-		dialogSave.open(storage.savePrefix, () => JSON.stringify(tree.tree));
+		dialogSave.open(storage.savePrefix, async () => maybeCompress(tree.tree));
 	});
 
 	buttonBrowse.addEventListener('click', () => {
@@ -84,12 +85,12 @@ export function setup() {
 
 	buttonLoadClipboard.addEventListener('click', async () => {
 		const json = await dialogLoad.open(storage.schematicPrefix);
-		selection.setClipboard(Schematic.from(JSON.parse(json)));
+		selection.setClipboard(Schematic.from(await maybeDecompress(json)));
 	});
 
 	buttonSaveClipboard.addEventListener('click', () => {
-		dialogSave.open(storage.schematicPrefix, () =>
-			JSON.stringify(selection.clipboard),
+		dialogSave.open(storage.schematicPrefix, async () =>
+			maybeCompress(selection.clipboard),
 		);
 	});
 
