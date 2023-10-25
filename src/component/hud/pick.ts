@@ -30,11 +30,9 @@ export function done(point: Point) {
 }
 
 export async function pickIo() {
-	reject?.(new Error('Picking cancelled'));
-	resolve = undefined;
-	reject = undefined;
-
 	mode.setMode('picking');
+
+	reject?.(new Error('Picking cancelled'));
 
 	return new Promise<Point>((resolve_, reject_) => {
 		resolve = resolve_;

@@ -40,7 +40,7 @@ export function setup() {
 				throw error;
 			}
 
-			void dialogSequenceFailed.open(error.errors);
+			dialogSequenceFailed.open(error.errors);
 			return;
 		}
 

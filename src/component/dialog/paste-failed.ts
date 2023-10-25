@@ -39,6 +39,8 @@ export async function open(error?: unknown) {
 	textarea.value = '';
 	console.error('Paste failed:', error);
 
+	reject?.(new Error('Paste failure dialog reopened'));
+
 	return new Promise<string>((resolve_, reject_) => {
 		resolve = resolve_;
 		reject = reject_;

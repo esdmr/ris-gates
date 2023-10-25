@@ -8,8 +8,6 @@ const dialogSequenceFailed = query(
 );
 const list = query('ul', HTMLUListElement, dialogSequenceFailed);
 
-let resolve: (() => void) | undefined;
-
 export function setup() {
 	mode.setupDialog(dialogSequenceFailed);
 	setupDialogCloseButton(dialogSequenceFailed);
@@ -19,13 +17,10 @@ export function setup() {
 		for (const child of children) {
 			child.remove();
 		}
-
-		resolve?.();
-		resolve = undefined;
 	});
 }
 
-export async function open(errors: readonly SequencerError[]) {
+export function open(errors: readonly SequencerError[]) {
 	mode.openDialog(dialogSequenceFailed);
 
 	/* eslint-disable @internal/no-object-literals */
@@ -43,8 +38,4 @@ export async function open(errors: readonly SequencerError[]) {
 		),
 	);
 	/* eslint-enable @internal/no-object-literals */
-
-	return new Promise<void>((resolve_) => {
-		resolve = resolve_;
-	});
 }

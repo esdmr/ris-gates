@@ -51,6 +51,8 @@ export async function open(context: SequencerContext) {
 		);
 	}
 
+	reject?.(new Error('Entry dialog reopened'));
+
 	return new Promise<number>((resolve_, reject_) => {
 		resolve = resolve_;
 		reject = reject_;

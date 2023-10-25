@@ -75,6 +75,8 @@ export async function open(prefix_: string) {
 
 	mode.openDialog(dialogLoad);
 
+	reject?.(new Error('Load dialog reopened'));
+
 	return new Promise<string>((resolve_, reject_) => {
 		resolve = resolve_;
 		reject = reject_;
