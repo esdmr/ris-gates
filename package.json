@@ -11,7 +11,7 @@
     "acorn-walk": "8.2.0",
     "magic-string": "0.30.4",
     "typescript": "5.2.2",
-    "vite": "4.4.10",
+    "vite": "4.5.0",
     "xo": "0.56.0"
   },
   "pnpm": {
@@ -31,6 +31,15 @@
           "typescript": "*"
         }
       }
+    },
+    "overrides": {
+      "postcss@<8.4.31": "^8.4.31",
+      "semver@<5.7.2": "^5.7.2",
+      "eslint-import-resolver-webpack>semver": "^5.7.2",
+      "normalize-package-data>semver": "^5.7.2",
+      "semver@>=6.0.0 <6.3.1": "^6.3.1",
+      "eslint-plugin-import>semver": "^6.3.1",
+      "word-wrap@<1.2.4": "^1.2.4"
     }
   }
 }
