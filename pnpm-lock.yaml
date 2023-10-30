@@ -29,8 +29,8 @@ importers:
         specifier: 8.2.0
         version: 8.2.0
       magic-string:
-        specifier: 0.30.4
-        version: 0.30.4
+        specifier: 0.30.5
+        version: 0.30.5
       typescript:
         specifier: 5.2.2
         version: 5.2.2
@@ -2153,8 +2153,8 @@ packages:
     dependencies:
       yallist: 4.0.0
 
-  /magic-string@0.30.4:
-    resolution: {integrity: sha512-Q/TKtsC5BPm0kGqgBIF9oXAs/xEf2vRKiIB4wCRQTJOQIByZ1d+NnUOotvJOvNpi5RNIgVOMC3pOuaP1ZTDlVg==}
+  /magic-string@0.30.5:
+    resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
