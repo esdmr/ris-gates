@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@internal/eslint-plugin": "link:lint",
-    "@types/node": "20.8.6",
+    "@types/node": "20.8.7",
     "acorn-walk": "8.2.0",
     "magic-string": "0.30.5",
     "typescript": "5.2.2",
