@@ -7,7 +7,7 @@ function ensureTrailingSlash(url: string) {
 	return url.endsWith('/') ? url : url + '/';
 }
 
-export default defineConfig({
+export default defineConfig(({mode}) => ({
 	base: ensureTrailingSlash(
 		process.env.RISG_BASE_URL ?? process.env.BASE_URL ?? '/',
 	),
@@ -23,8 +23,8 @@ export default defineConfig({
 		modulePreload: {
 			polyfill: false,
 		},
-		sourcemap: process.env.NODE_ENV !== 'production',
-		minify: process.env.NODE_ENV === 'production',
+		sourcemap: mode !== 'production',
+		minify: mode === 'production',
 	},
 	plugins: [
 		Boolean(process.env.RISG_CLI) && {
@@ -41,7 +41,7 @@ export default defineConfig({
 				return null;
 			},
 		},
-		{
+		!process.env.RISG_BIGINT && {
 			name: 'bigint to number',
 			enforce: 'post',
 			transform(code, id) {
@@ -98,4 +98,4 @@ export default defineConfig({
 			},
 		},
 	],
-});
+}));

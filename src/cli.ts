@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /* eslint-disable @internal/no-object-literals */
 import {readFile} from 'node:fs/promises';
 import process from 'node:process';
@@ -7,10 +8,15 @@ import {assert, nonNullable} from './lib/assert.js';
 import {EvalStepEvent, evalEvents} from './lib/eval.js';
 import {SequencerAssertion, SequencerContext} from './lib/sequencer.js';
 import {QuadTree} from './lib/tree.js';
-import {maybeDecompress} from './lib/compress.js';
+import {maybeCompress, maybeDecompress} from './lib/compress.js';
+import {
+	generateDecoder,
+	generateEncoder,
+	generateMultiplexer,
+} from './lib/generator.js';
 
 const {
-	values: {input, label, rate, strict},
+	values: {input, label, rate, strict, generate},
 } = parseArgs({
 	options: {
 		input: {
@@ -30,9 +36,50 @@ const {
 			type: 'boolean',
 			short: 's',
 		},
+		generate: {
+			type: 'string',
+			short: 'g',
+		},
 	},
 	strict: true,
 });
+
+if (generate) {
+	const [, type, input_, output_ = '0'] =
+		/^(\w{3})(\d+)(?:x(\d+))?$/i.exec(generate) ?? [];
+	const input = Number(input_);
+	const output = Number(output_);
+	let schematic;
+
+	switch (type) {
+		case 'mux': {
+			schematic = generateMultiplexer(input, output || 1);
+			break;
+		}
+
+		case 'dem': {
+			schematic = generateMultiplexer(output || 1, input);
+			break;
+		}
+
+		case 'dec': {
+			schematic = generateDecoder(input, output || 2 ** input);
+			break;
+		}
+
+		case 'enc': {
+			schematic = generateEncoder(input, output || Math.ceil(Math.log2(input)));
+			break;
+		}
+
+		default: {
+			throw new Error('Unknown type: ' + type);
+		}
+	}
+
+	console.log(await maybeCompress(schematic));
+	process.exit(0);
+}
 
 const print = (...args: unknown[]) => {
 	console.error(...args);
