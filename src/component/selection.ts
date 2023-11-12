@@ -8,6 +8,7 @@ export let firstX = 0n;
 export let firstY = 0n;
 export let secondX = 0n;
 export let secondY = 0n;
+let cachedBox: AxisAlignedBoundingBox | undefined;
 
 export function unselect() {
 	mode.setMode('normal');
@@ -19,15 +20,17 @@ export function setFirstPosition(fromX: bigint, fromY: bigint) {
 	secondX = fromX;
 	secondY = fromY;
 	mode.setMode('selected');
+	cachedBox = undefined;
 }
 
 export function setSecondPosition(toX: bigint, toY: bigint) {
 	secondX = toX;
 	secondY = toY;
+	cachedBox = undefined;
 }
 
 export function getBox() {
-	return new AxisAlignedBoundingBox(
+	cachedBox ??= new AxisAlignedBoundingBox(
 		new Point(
 			firstX > secondX ? secondX : firstX,
 			firstY > secondY ? secondY : firstY,
@@ -35,6 +38,8 @@ export function getBox() {
 		firstX > secondX ? firstX - secondX + 1n : secondX - firstX + 1n,
 		firstY > secondY ? firstY - secondY + 1n : secondY - firstY + 1n,
 	);
+
+	return cachedBox;
 }
 
 export function toSchematic() {
@@ -73,4 +78,5 @@ export function paste(point: Point) {
 	firstY = point.y;
 	secondX = firstX + BigInt(clipboard.realWidth) - 1n;
 	secondY = firstY + BigInt(clipboard.realHeight) - 1n;
+	cachedBox = undefined;
 }

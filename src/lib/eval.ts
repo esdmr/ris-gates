@@ -1,7 +1,7 @@
 import {mapGet, setToggle} from './map-and-set.js';
 import type {QuadTreeNode} from './node.js';
 import type {Point} from './point.js';
-import {RingBuffer} from './ring.js';
+import {PooledRingBuffer} from './ring.js';
 import * as tileType from './tile-type.js';
 import {Interval, type Timer} from './timer.js';
 import type {QuadTree} from './tree.js';
@@ -322,7 +322,7 @@ export class EvalContext {
 	protected _enabled = new Set<symbol>();
 	protected _timer: Timer | undefined;
 	protected readonly _graph: EvalGraph;
-	protected readonly _undoStack = new RingBuffer<
+	protected readonly _undoStack = new PooledRingBuffer<
 		Set<symbol> | typeof unchanged
 	>(maxUndoCount);
 
@@ -350,7 +350,14 @@ export class EvalContext {
 	}
 
 	tickForward() {
-		this._undoStack.push(new Set(this._enabled));
+		const set = this._undoStack.getFromPool() ?? new Set();
+		set.clear();
+
+		for (const item of this._enabled) {
+			set.add(item);
+		}
+
+		this._undoStack.push(set);
 
 		let anythingUpdated = false;
 		this.tickCount++;
@@ -418,6 +425,7 @@ export class EvalContext {
 	tickBackward() {
 		const oldState = this._undoStack.pop();
 		if (!oldState) return false;
+		this._undoStack.addToPool(oldState);
 		this.tickCount--;
 		if (import.meta.env.DEV) console.log('Previous Tick:', this.tickCount);
 		if (oldState !== unchanged) this._enabled = oldState;
