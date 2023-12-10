@@ -52,7 +52,7 @@ jobs:
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@b8130d9ab958b325bbde9786d62f2c97a9885a0e # v3
+        uses: actions/configure-pages@1f0c5cde4bc74cd7e1254d0cb4de8d49e9068c7d # v4
 
       - name: Build
         run: pnpm vite build
@@ -72,4 +72,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@de14547edc9944350dc0481aa5b7afb08e75f254 # v2
+        uses: actions/deploy-pages@13b55b33dd8996121833dbc1db458c793a334630 # v3
