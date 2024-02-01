@@ -26,8 +26,8 @@ importers:
         specifier: 20.11.0
         version: 20.11.0
       acorn-walk:
-        specifier: 8.3.1
-        version: 8.3.1
+        specifier: 8.3.2
+        version: 8.3.2
       magic-string:
         specifier: 0.30.5
         version: 0.30.5
@@ -591,8 +591,8 @@ packages:
     dependencies:
       acorn: 8.9.0
 
-  /acorn-walk@8.3.1:
-    resolution: {integrity: sha512-TgUZgYvqZprrl7YldZNoa9OciCAyZR+Ejm9eXzKCmjsF5IKp/wgQ7Z/ZpjpGTIUPwrHQIcYeI8qDh4PsEwxMbw==}
+  /acorn-walk@8.3.2:
+    resolution: {integrity: sha512-cjkyv4OtNCIeqhHrfS81QWXoCBPExR/J62oyEqepVw8WaQeSqpW2uhuLPh1m9eWhDuOo/jUXVTlifvesOWp/4A==}
     engines: {node: '>=0.4.0'}
     dev: true
 
