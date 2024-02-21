@@ -23,8 +23,8 @@ importers:
         specifier: link:lint
         version: link:lint
       '@types/node':
-        specifier: 20.11.10
-        version: 20.11.10
+        specifier: 20.11.13
+        version: 20.11.13
       acorn-walk:
         specifier: 8.3.2
         version: 8.3.2
@@ -36,7 +36,7 @@ importers:
         version: 5.3.3
       vite:
         specifier: 4.5.2
-        version: 4.5.2(@types/node@20.11.10)
+        version: 4.5.2(@types/node@20.11.13)
       xo:
         specifier: 0.56.0
         version: 0.56.0(typescript@5.3.3)
@@ -379,8 +379,8 @@ packages:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
     dev: true
 
-  /@types/node@20.11.10:
-    resolution: {integrity: sha512-rZEfe/hJSGYmdfX9tvcPMYeYPW2sNl50nsw4jZmRcaG0HIAb0WYEpsB05GOb53vjqpyE9GUhlDQ4jLSoB5q9kg==}
+  /@types/node@20.11.13:
+    resolution: {integrity: sha512-5G4zQwdiQBSWYTDAH1ctw2eidqdhMJaNsiIDKHFr55ihz5Trl2qqR8fdrT732yPBho5gkNxXm67OxWFBqX9aPg==}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -2901,7 +2901,7 @@ packages:
       spdx-expression-parse: 3.0.1
     dev: true
 
-  /vite@4.5.2(@types/node@20.11.10):
+  /vite@4.5.2(@types/node@20.11.13):
     resolution: {integrity: sha512-tBCZBNSBbHQkaGyhGCDUGqeo2ph8Fstyp6FMSvTtsXeZSPpSMGlviAOav2hxVTqFcx8Hj/twtWKsMJXNY0xI8w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2929,7 +2929,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.11.10
+      '@types/node': 20.11.13
       esbuild: 0.18.17
       postcss: 8.4.31
       rollup: 3.28.1
