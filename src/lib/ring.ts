@@ -48,6 +48,6 @@ export class PooledRingBuffer<T> extends RingBuffer<T> {
 
 	override updateLast(item: T): void {
 		this.addToPool(this._array[this._index]);
-		this.updateLast(item);
+		super.updateLast(item);
 	}
 }
