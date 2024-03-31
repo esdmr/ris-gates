@@ -1,5 +1,5 @@
 import process from 'node:process';
-import {defineConfig} from 'vite';
+import {defineConfig, type PluginOption} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';
 
@@ -97,5 +97,5 @@ export default defineConfig(({mode}) => ({
 				};
 			},
 		},
-	],
+	] satisfies PluginOption,
 }));
