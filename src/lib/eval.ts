@@ -145,29 +145,29 @@ export class EvalGraph {
 	// eslint-disable-next-line complexity
 	private _processConjoin(
 		tile: QuadTreeNode,
-		other: QuadTreeNode,
+		conjoin: QuadTreeNode,
 		dir: number,
 	) {
-		const tileIsUpwards = (4 + (tile.type % 10) - dir) % 4 === 0;
-		const otherIsDownwards =
-			(4 + other.type - tileType.conjoinN - dir) % 4 === 2;
+		const tileIsPointingTowardsConjoin = (4 + (tile.type % 10) - dir) % 4 === 0;
+		const conjoinIsPointingTowardsTile =
+			(4 + conjoin.type - tileType.conjoinN - dir) % 4 === 2;
 
 		switch (tile.type) {
 			case tileType.io: {
-				if (otherIsDownwards) {
-					this._addEdge(other, tile);
+				if (conjoinIsPointingTowardsTile) {
+					this._addEdge(conjoin, tile);
 				} else {
-					this._addEdge(tile, other);
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
 			}
 
 			case tileType.negate: {
-				if (otherIsDownwards) {
-					this._addEdge(other, tile, false);
+				if (conjoinIsPointingTowardsTile) {
+					this._addEdge(conjoin, tile, false);
 				} else {
-					this._addEdge(tile, other);
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
@@ -177,10 +177,13 @@ export class EvalGraph {
 			case tileType.conjoinE:
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
-				if (!tileIsUpwards && otherIsDownwards) {
-					this._addEdge(other, tile);
-				} else if (tileIsUpwards && !otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (!tileIsPointingTowardsConjoin && conjoinIsPointingTowardsTile) {
+					this._addEdge(conjoin, tile);
+				} else if (
+					tileIsPointingTowardsConjoin &&
+					!conjoinIsPointingTowardsTile
+				) {
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
@@ -190,10 +193,13 @@ export class EvalGraph {
 			case tileType.disjoinE:
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
-				if (tileIsUpwards && otherIsDownwards) {
-					this._addEdge(other, tile);
-				} else if (!tileIsUpwards && !otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (tileIsPointingTowardsConjoin && conjoinIsPointingTowardsTile) {
+					this._addEdge(conjoin, tile);
+				} else if (
+					!tileIsPointingTowardsConjoin &&
+					!conjoinIsPointingTowardsTile
+				) {
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
@@ -208,29 +214,29 @@ export class EvalGraph {
 	// eslint-disable-next-line complexity
 	private _processDisjoin(
 		tile: QuadTreeNode,
-		other: QuadTreeNode,
+		disjoin: QuadTreeNode,
 		dir: number,
 	) {
-		const tileIsUpwards = (4 + (tile.type % 10) - dir) % 4 === 0;
-		const otherIsDownwards =
-			(4 + other.type - tileType.disjoinN - dir) % 4 === 2;
+		const tileIsPointingTowardsDisjoin = (4 + (tile.type % 10) - dir) % 4 === 0;
+		const disjoinIsPointingTowardsTile =
+			(4 + disjoin.type - tileType.disjoinN - dir) % 4 === 2;
 
 		switch (tile.type) {
 			case tileType.io: {
-				if (otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (disjoinIsPointingTowardsTile) {
+					this._addEdge(tile, disjoin);
 				} else {
-					this._addEdge(other, tile);
+					this._addEdge(disjoin, tile);
 				}
 
 				break;
 			}
 
 			case tileType.negate: {
-				if (otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (disjoinIsPointingTowardsTile) {
+					this._addEdge(tile, disjoin);
 				} else {
-					this._addEdge(other, tile, false);
+					this._addEdge(disjoin, tile, false);
 				}
 
 				break;
@@ -240,10 +246,13 @@ export class EvalGraph {
 			case tileType.conjoinE:
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
-				if (tileIsUpwards && otherIsDownwards) {
-					this._addEdge(tile, other);
-				} else if (!otherIsDownwards && !otherIsDownwards) {
-					this._addEdge(other, tile);
+				if (tileIsPointingTowardsDisjoin && disjoinIsPointingTowardsTile) {
+					this._addEdge(tile, disjoin);
+				} else if (
+					!disjoinIsPointingTowardsTile &&
+					!disjoinIsPointingTowardsTile
+				) {
+					this._addEdge(disjoin, tile);
 				}
 
 				break;
@@ -253,10 +262,13 @@ export class EvalGraph {
 			case tileType.disjoinE:
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
-				if (!tileIsUpwards && otherIsDownwards) {
-					this._addEdge(tile, other);
-				} else if (tileIsUpwards && !otherIsDownwards) {
-					this._addEdge(other, tile);
+				if (!tileIsPointingTowardsDisjoin && disjoinIsPointingTowardsTile) {
+					this._addEdge(tile, disjoin);
+				} else if (
+					tileIsPointingTowardsDisjoin &&
+					!disjoinIsPointingTowardsTile
+				) {
+					this._addEdge(disjoin, tile);
 				}
 
 				break;
