@@ -1,7 +1,5 @@
 #![no_std]
-#![allow(unused)]
 use core::slice;
-use wasm_bindgen::memory;
 use wasm_bindgen::prelude::*;
 
 trait ReadableSlice<T> {
@@ -65,7 +63,7 @@ type Edge = (u32, u32, u32, u32);
 #[repr(u8)]
 #[derive(PartialEq, Eq, Clone, Copy)]
 enum EdgeType {
-    NoEdge = 0,
+    _NoEdge = 0,
     PositiveEdge = 1,
     NegativeEdge = 2,
 }
@@ -82,7 +80,7 @@ fn log_positive_edge(target: u32, edge: Edge, value: bool) {
 }
 
 #[cfg(risg_prod)]
-fn log_positive_edge(target: u32, edge: Edge, value: bool) {
+fn log_positive_edge(_target: u32, _edge: Edge, _value: bool) {
     // Nothing
 }
 
@@ -92,7 +90,7 @@ fn log_negative_edge(target: u32, edge: Edge, value: bool) {
 }
 
 #[cfg(risg_prod)]
-fn log_negative_edge(target: u32, edge: Edge, value: bool) {
+fn log_negative_edge(_target: u32, _edge: Edge, _value: bool) {
     // Nothing
 }
 
@@ -127,7 +125,7 @@ pub unsafe fn next_frame(
             }
         }
 
-        while (updated && count > 0) {
+        while updated && count > 0 {
             updated = false;
             count -= 1;
 
