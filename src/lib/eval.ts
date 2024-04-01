@@ -1,4 +1,6 @@
 import {JsEvaluator} from './eval-js.js';
+// eslint-disable-next-line @internal/import-preference
+import type * as EvalWasm from './eval-wasm.js';
 import {mapGet} from './map-and-set.js';
 import type {QuadTreeNode} from './node.js';
 import type {Point} from './point.js';
@@ -438,6 +440,30 @@ export class EvalContext {
 	}
 }
 
-export function getEvaluator(graph: EvalGraph, _useWasm = false): Evaluator {
+let evalWasm: typeof EvalWasm;
+
+// eslint-disable-next-line unicorn/prefer-top-level-await
+import('./eval-wasm.js').then(
+	(mod) => {
+		evalWasm = mod;
+	},
+	(error) => {
+		console.warn('Could not import the Wasm evaluator.', error);
+	},
+);
+
+export function getEvaluator(graph: EvalGraph, useWasm = false): Evaluator {
+	try {
+		if (evalWasm && useWasm) {
+			evalWasm.setupWasmEvaluator(graph);
+			return evalWasm.wasmEvaluator;
+		}
+	} catch (error) {
+		console.error(
+			'Failed to setup the Wasm evaluator. Falling back to the JS evaluator.',
+			error,
+		);
+	}
+
 	return new JsEvaluator(graph);
 }

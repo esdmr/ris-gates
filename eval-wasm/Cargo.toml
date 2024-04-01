@@ -1,0 +1,23 @@
+[package]
+name = "eval-wasm"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+
+[profile.dev]
+lto = true
+opt-level = 3
+debug = true
+
+[profile.release]
+lto = true
+opt-level = 3
+debug-assertions = false
+
+[package.metadata.wasm-pack.profile.dev.wasm-bindgen]
+dwarf-debug-info = true

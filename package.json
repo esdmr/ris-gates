@@ -3,7 +3,9 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "tsc": "tsc -p ."
+    "tsc": "tsc -p .",
+    "eval-wasm:dev": "env RUSTFLAGS=\"-C link-arg=-zstack-size=16\" wasm-pack build --target web --dev --scope internal eval-wasm",
+    "eval-wasm:prod": "env RUSTFLAGS=\"-C link-arg=-zstack-size=16 --cfg risg_prod\" wasm-pack build --target web --release --scope internal eval-wasm"
   },
   "devDependencies": {
     "@internal/eslint-plugin": "link:lint",
@@ -12,6 +14,7 @@
     "magic-string": "0.30.7",
     "typescript": "5.3.3",
     "vite": "4.5.2",
+    "wasm-pack": "^0.12.1",
     "xo": "0.56.0"
   },
   "pnpm": {
@@ -41,5 +44,8 @@
       "eslint-plugin-import>semver": "^6.3.1",
       "word-wrap@<1.2.4": "^1.2.4"
     }
+  },
+  "optionalDependencies": {
+    "@internal/eval-wasm": "link:eval-wasm/pkg"
   }
 }

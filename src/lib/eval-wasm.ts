@@ -1,4 +1,4 @@
-import init, {next_frame} from 'ris-gates-eval';
+import init, {next_frame} from '@internal/eval-wasm';
 import type {EvalGraph, Evaluator} from './eval.js';
 import {assert} from './assert.js';
 
