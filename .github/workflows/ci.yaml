@@ -36,7 +36,7 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-pnpm-current
 
-      - name: rustup toolchain install
+      - name: Install rust
         uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
@@ -47,9 +47,6 @@ jobs:
 
       - name: Build eval-wasm
         run: pnpm eval-wasm:prod
-
-      - name: Install eval-wasm
-        run: pnpm install
 
       - name: Build
         run: pnpm vite build
