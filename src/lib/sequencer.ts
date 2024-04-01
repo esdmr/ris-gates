@@ -2,7 +2,6 @@ import {assert, nonNullable} from './assert.js';
 import {EvalContext, EvalEvent, evalEvents, type Evaluator} from './eval.js';
 import type {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
-import {PooledRingBuffer} from './ring.js';
 
 const operationJump = 'j';
 const operationSet = 's';
