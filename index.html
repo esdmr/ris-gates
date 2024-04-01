@@ -29,14 +29,15 @@
 				</button>
 			</div>
 			<div class="show-if-eval" role="presentation">
-				<button id="hud-tick-bwd-stable"
+				<button id="hud-tick-bwd-stable" class="requires-undo"
 					aria-label="Previous stable tick">
 					<svg viewBox="0 0 1 1">
 						<title>Previous stable tick</title>
 						<use href="icons.svg#tick-bwd-stable" />
 					</svg>
 				</button>
-				<button id="hud-tick-bwd" aria-label="Previous tick">
+				<button id="hud-tick-bwd" class="requires-undo"
+					aria-label="Previous tick">
 					<svg viewBox="0 0 1 1">
 						<title>Previous tick</title>
 						<use href="icons.svg#tick-bwd" />
@@ -255,10 +256,22 @@
 						<input id="inp-major-grid" type="number" placeholder="0"
 							min="0" step="1">
 					</label>
+				</fieldset>
+				<fieldset>
+					<legend>Behavior</legend>
 					<label>
 						Rate of evaluation (in Hz):
 						<input id="inp-eval-rate" type="number" placeholder="15"
 							min="1" max="30" step="1">
+					</label>
+					<label>
+						Maximum evaluation undo history:
+						<input id="inp-eval-undo" type="number"
+							placeholder="128" min="0" step="1">
+					</label>
+					<label>
+						<input id="chk-eval-wasm" type="checkbox">
+						Use WebAssembly-based evaluation if available
 					</label>
 				</fieldset>
 			</div>

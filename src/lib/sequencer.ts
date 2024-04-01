@@ -1,9 +1,8 @@
 import {assert, nonNullable} from './assert.js';
-import {EvalContext, EvalEvent, evalEvents} from './eval.js';
+import {EvalContext, EvalEvent, evalEvents, type Evaluator} from './eval.js';
 import type {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
 import {PooledRingBuffer} from './ring.js';
-import type {QuadTree} from './tree.js';
 
 const operationJump = 'j';
 const operationSet = 's';
@@ -117,7 +116,6 @@ export class SequencerContext extends EvalContext {
 	readonly publicLabels = new Map<string, number>();
 	readonly tileNames = new Map<QuadTreeNode, string>();
 	readonly monitoredTiles: readonly QuadTreeNode[];
-	protected override readonly _undoStack = new PooledRingBuffer<never>(0);
 	private _monitoring = false;
 	private readonly _tiles = new Map<string, Point>();
 	private readonly _monitored = new AdmissionSet<string>();
@@ -136,10 +134,10 @@ export class SequencerContext extends EvalContext {
 		evalEvents.dispatchEvent(new EvalEvent(this, value));
 	}
 
-	constructor(tree: QuadTree) {
-		super(tree);
+	constructor(evaluator: Evaluator) {
+		super(evaluator, 0);
 
-		const lines = tree.sequence
+		const lines = this._graph.map.tree.sequence
 			.split('\n')
 			.map(
 				(i, index) =>
@@ -328,7 +326,7 @@ export class SequencerContext extends EvalContext {
 				const tile = this._graph.map.getTile(pos);
 
 				this._assert(
-					tile && this._graph.vertices.has(tile),
+					tile && this._graph.map.ioTiles.has(tile),
 					line,
 					'Point is not an IO',
 				);

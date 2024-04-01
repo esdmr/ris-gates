@@ -5,7 +5,13 @@ import process from 'node:process';
 import {createInterface} from 'node:readline/promises';
 import {parseArgs} from 'node:util';
 import {assert, nonNullable} from './lib/assert.js';
-import {EvalStepEvent, evalEvents} from './lib/eval.js';
+import {
+	EvalGraph,
+	EvalStepEvent,
+	TilesMap,
+	evalEvents,
+	getEvaluator,
+} from './lib/eval.js';
 import {SequencerAssertion, SequencerContext} from './lib/sequencer.js';
 import {QuadTree} from './lib/tree.js';
 import {maybeCompress, maybeDecompress} from './lib/compress.js';
@@ -95,7 +101,10 @@ const json = input
 	: await rl.question('Import: ');
 
 const tree = QuadTree.from(await maybeDecompress(json));
-const context = new SequencerContext(tree);
+
+const context = new SequencerContext(
+	getEvaluator(new EvalGraph(new TilesMap(tree))),
+);
 
 let target = label;
 
