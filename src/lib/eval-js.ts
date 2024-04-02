@@ -56,7 +56,8 @@ export class JsEvaluator implements Evaluator {
 				}
 
 				if (this._enabled.has(target) !== value) {
-					if (import.meta.env.DEV) console.log('+', target, value, sources);
+					if (import.meta.env.DEV)
+						console.log('+', target, value, sources);
 					setToggle(this._enabled, target, value);
 					updated = true;
 					anythingUpdated = true;
@@ -76,7 +77,8 @@ export class JsEvaluator implements Evaluator {
 			}
 
 			if (this._enabled.has(target) === value) {
-				if (import.meta.env.DEV) console.log('-', target, !value, sources);
+				if (import.meta.env.DEV)
+					console.log('-', target, !value, sources);
 				setToggle(this._enabled, target, !value);
 				anythingUpdated = true;
 			}

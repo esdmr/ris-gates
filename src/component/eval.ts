@@ -44,7 +44,10 @@ export function setEvaluationUndoCount(newRate = defaultEvaluationUndoCount) {
 	);
 
 	if ((evaluationUndoCount === 0) !== (newRate === 0)) {
-		for (const element of queryAll('button.requires-undo', HTMLButtonElement)) {
+		for (const element of queryAll(
+			'button.requires-undo',
+			HTMLButtonElement,
+		)) {
 			element.disabled = newRate === 0;
 		}
 	}
@@ -107,7 +110,11 @@ export function setup() {
 
 	setEvaluationUndoCount(
 		Number.parseInt(
-			storage.getString(configEvaluationUndoCount, storage.configPrefix, ''),
+			storage.getString(
+				configEvaluationUndoCount,
+				storage.configPrefix,
+				'',
+			),
 			10,
 		),
 	);

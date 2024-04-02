@@ -34,7 +34,9 @@ export function setup() {
 }
 
 function getScaleIntOffset(point: number, oldScale: number) {
-	return BigInt(Math.trunc(point / oldScale) - Math.trunc(point / tree.scale));
+	return BigInt(
+		Math.trunc(point / oldScale) - Math.trunc(point / tree.scale),
+	);
 }
 
 function getScaleFloatOffset(point: number, oldScale: number) {
@@ -72,10 +74,14 @@ function commitInputs() {
 	) {
 		const x =
 			tree.scrollX.bigint +
-			BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float));
+			BigInt(
+				Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
+			);
 		const y =
 			tree.scrollY.bigint +
-			BigInt(Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float));
+			BigInt(
+				Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
+			);
 
 		if (pointer.wasSelecting) {
 			selection.setSecondPosition(x, y);
@@ -92,15 +98,26 @@ function commitInputs() {
 	} else if (pointer.hasClicked) {
 		const currentPoint = new Point(
 			tree.scrollX.bigint +
-				BigInt(Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float)),
+				BigInt(
+					Math.trunc(
+						pointer.centerX / tree.scale + tree.scrollX.float,
+					),
+				),
 			tree.scrollY.bigint +
-				BigInt(Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float)),
+				BigInt(
+					Math.trunc(
+						pointer.centerY / tree.scale + tree.scrollY.float,
+					),
+				),
 		);
 
 		switch (mode.mode) {
 			case 'eval':
 			case 'automated': {
-				const tile = tree.tree.getTileData(currentPoint, searchMode.find);
+				const tile = tree.tree.getTileData(
+					currentPoint,
+					searchMode.find,
+				);
 
 				if (tile && eval_.getEvalContext().yieldedTiles.has(tile)) {
 					const context = eval_.getEvalContext();
@@ -117,7 +134,10 @@ function commitInputs() {
 			}
 
 			case 'picking': {
-				const tile = tree.tree.getTileData(currentPoint, searchMode.find);
+				const tile = tree.tree.getTileData(
+					currentPoint,
+					searchMode.find,
+				);
 
 				if (tile?.type === tileType.io) {
 					hudPick.done(currentPoint);
@@ -171,7 +191,10 @@ function onFrame(ms: DOMHighResTimeStamp) {
 	if (mode.mode === 'screenshot') {
 		canvas.context.fillStyle = theme.backgroundStyle;
 		canvas.context.fillRect(0, 0, width, height);
-	} else if (canvas.canvas.width === width && canvas.canvas.height === height) {
+	} else if (
+		canvas.canvas.width === width &&
+		canvas.canvas.height === height
+	) {
 		canvas.context.clearRect(0, 0, width, height);
 	} else {
 		canvas.canvas.width = width;
@@ -215,7 +238,11 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		// element.
 		const {node, index} = progress.at(-1)!;
 
-		if (node === undefined || index === 4 || !display.colliding(node.bounds)) {
+		if (
+			node === undefined ||
+			index === 4 ||
+			!display.colliding(node.bounds)
+		) {
 			progress.pop();
 
 			if (progress.length > 0) {
@@ -241,9 +268,10 @@ function onFrame(ms: DOMHighResTimeStamp) {
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
 			canvas.context.fillStyle =
-				(isActive ? theme.activeFillStyles : theme.passiveFillStyles).get(
-					type,
-				) ?? 'transparent';
+				(isActive
+					? theme.activeFillStyles
+					: theme.passiveFillStyles
+				).get(type) ?? 'transparent';
 			lastType = type;
 			wasActive = isActive;
 		}
@@ -270,11 +298,17 @@ function onFrame(ms: DOMHighResTimeStamp) {
 						new Point(
 							tree.scrollX.bigint +
 								BigInt(
-									Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
+									Math.trunc(
+										pointer.centerX / tree.scale +
+											tree.scrollX.float,
+									),
 								),
 							tree.scrollY.bigint +
 								BigInt(
-									Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
+									Math.trunc(
+										pointer.centerY / tree.scale +
+											tree.scrollY.float,
+									),
 								),
 						),
 						BigInt(selection.clipboard?.realWidth ?? 0),
@@ -404,14 +438,20 @@ function drawGrid(
 		canvas.context.beginPath();
 
 		for (let dx = 1; dx <= display.width; dx++) {
-			if ((tree.scrollX.bigint + BigInt(dx)) % grid.majorGridLength === 0n) {
+			if (
+				(tree.scrollX.bigint + BigInt(dx)) % grid.majorGridLength ===
+				0n
+			) {
 				canvas.context.moveTo(dx * realScale - offsetX, 0);
 				canvas.context.lineTo(dx * realScale - offsetX, height);
 			}
 		}
 
 		for (let dy = 1; dy <= display.height; dy++) {
-			if ((tree.scrollY.bigint + BigInt(dy)) % grid.majorGridLength === 0n) {
+			if (
+				(tree.scrollY.bigint + BigInt(dy)) % grid.majorGridLength ===
+				0n
+			) {
 				canvas.context.moveTo(0, dy * realScale - offsetY);
 				canvas.context.lineTo(width, dy * realScale - offsetY);
 			}
@@ -460,7 +500,10 @@ function drawTile(
 		case tileType.conjoinS:
 		case tileType.disjoinS: {
 			canvas.context.beginPath();
-			canvas.context.moveTo(i * realScale - offsetX, j * realScale - offsetY);
+			canvas.context.moveTo(
+				i * realScale - offsetX,
+				j * realScale - offsetY,
+			);
 			canvas.context.lineTo(
 				(i + 0.5) * realScale - offsetX,
 				(j + 1) * realScale - offsetY,
@@ -476,7 +519,10 @@ function drawTile(
 		case tileType.conjoinE:
 		case tileType.disjoinE: {
 			canvas.context.beginPath();
-			canvas.context.moveTo(i * realScale - offsetX, j * realScale - offsetY);
+			canvas.context.moveTo(
+				i * realScale - offsetX,
+				j * realScale - offsetY,
+			);
 			canvas.context.lineTo(
 				(i + 1) * realScale - offsetX,
 				(j + 0.5) * realScale - offsetY,

@@ -117,7 +117,10 @@ export class StorageBrowserElement extends HTMLElement {
 				button.addEventListener('click', () => {
 					button.dispatchEvent(
 						// eslint-disable-next-line @internal/no-object-literals
-						new CustomEvent(buttonKey, {detail: key, bubbles: true}),
+						new CustomEvent(buttonKey, {
+							detail: key,
+							bubbles: true,
+						}),
 					);
 				});
 

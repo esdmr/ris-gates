@@ -69,7 +69,9 @@ export function setup() {
 		const json = Object.create(null) as Record<string, unknown>;
 
 		for (const key of storage.listStorage(prefix)) {
-			json[key] = await maybeDecompress(storage.getString(key, prefix, ''));
+			json[key] = await maybeDecompress(
+				storage.getString(key, prefix, ''),
+			);
 		}
 
 		const text = await maybeCompress(json);
@@ -94,7 +96,11 @@ export function setup() {
 		assertObject(json);
 
 		for (const [key, value] of Object.entries(json)) {
-			storage.setString(key, await maybeCompress(constructor(value)), prefix);
+			storage.setString(
+				key,
+				await maybeCompress(constructor(value)),
+				prefix,
+			);
 		}
 
 		storageBrowser.update();

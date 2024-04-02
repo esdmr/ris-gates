@@ -354,7 +354,13 @@ export class SvgCanvasContext implements ContextLike {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/strokeRect) */
 	strokeRect(x: number, y: number, width: number, height: number) {
 		this._svg.append(
-			create('svg:rect', {...this._getStrokeStyle(), x, y, width, height}),
+			create('svg:rect', {
+				...this._getStrokeStyle(),
+				x,
+				y,
+				width,
+				height,
+			}),
 		);
 	}
 
@@ -368,7 +374,8 @@ export class SvgCanvasContext implements ContextLike {
 	private _getStrokeStyle(): Record<string, string> {
 		assert(typeof this.strokeStyle === 'string'); // Only string strokeStyle supported
 		return {
-			stroke: this.strokeStyle === 'transparent' ? 'none' : this.strokeStyle,
+			stroke:
+				this.strokeStyle === 'transparent' ? 'none' : this.strokeStyle,
 			'stroke-width': `${this.lineWidth}px`,
 			'stroke-linecap': this.lineCap,
 			'stroke-linejoin': this.lineJoin,

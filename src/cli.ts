@@ -74,7 +74,10 @@ if (generate) {
 		}
 
 		case 'enc': {
-			schematic = generateEncoder(input, output || Math.ceil(Math.log2(input)));
+			schematic = generateEncoder(
+				input,
+				output || Math.ceil(Math.log2(input)),
+			);
 			break;
 		}
 

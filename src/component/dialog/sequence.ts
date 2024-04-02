@@ -72,7 +72,10 @@ export function setup() {
 			textarea.value =
 				`${selection}(${point.x}, ${point.y})\n` + textarea.value;
 			textarea.focus();
-			textarea.setSelectionRange(beforeSelection.length, selection.length);
+			textarea.setSelectionRange(
+				beforeSelection.length,
+				selection.length,
+			);
 		} catch (error) {
 			open();
 			throw error;

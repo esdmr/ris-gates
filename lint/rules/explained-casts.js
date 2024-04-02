@@ -11,7 +11,8 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 			if (
 				node.type === AST_NODE_TYPES.TSAsExpression &&
 				node.typeAnnotation.type === AST_NODE_TYPES.TSTypeReference &&
-				node.typeAnnotation.typeName.type === AST_NODE_TYPES.Identifier &&
+				node.typeAnnotation.typeName.type ===
+					AST_NODE_TYPES.Identifier &&
 				node.typeAnnotation.typeName.name === 'const'
 			) {
 				return;
@@ -22,7 +23,9 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 				i;
 				i = i.parent
 			) {
-				for (const item of context.getSourceCode().getCommentsBefore(i)) {
+				for (const item of context
+					.getSourceCode()
+					.getCommentsBefore(i)) {
 					if (/^cast safety: .{3}/i.test(item.value.trim())) {
 						return;
 					}

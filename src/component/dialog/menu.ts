@@ -82,7 +82,9 @@ export function setup() {
 	});
 
 	buttonSave.addEventListener('click', () => {
-		dialogSave.open(storage.savePrefix, async () => maybeCompress(tree.tree));
+		dialogSave.open(storage.savePrefix, async () =>
+			maybeCompress(tree.tree),
+		);
 	});
 
 	buttonBrowse.addEventListener('click', () => {

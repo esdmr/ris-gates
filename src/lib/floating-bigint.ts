@@ -29,7 +29,9 @@ export class FloatingBigInt {
 	}
 
 	fromString(text: string) {
-		const match = /^(?<sign>[-+]?)(?<bigint>\d+)(?<decimal>\.\d*)?$/.exec(text);
+		const match = /^(?<sign>[-+]?)(?<bigint>\d+)(?<decimal>\.\d*)?$/.exec(
+			text,
+		);
 
 		if (match) {
 			// Cast safety: Derived from regex match groups.

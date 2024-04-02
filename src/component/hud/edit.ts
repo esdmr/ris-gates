@@ -63,12 +63,14 @@ export function getSelectedTileType() {
 			// Cast safety: directionIndex is between 0 and 3. Adding it to
 			// conjoinN will result in the four types of conjoin: 10 for
 			// conjoinN, 11 for conjoinE, 12 for conjoinS, and 13 for conjoinW.
-			return (tileType.conjoinN + directionIndex) as tileType.QuadTreeTileType;
+			return (tileType.conjoinN +
+				directionIndex) as tileType.QuadTreeTileType;
 		}
 
 		case 'disjoin': {
 			// Cast safety: Same as above, s/conjoin/disjoin/g.
-			return (tileType.disjoinN + directionIndex) as tileType.QuadTreeTileType;
+			return (tileType.disjoinN +
+				directionIndex) as tileType.QuadTreeTileType;
 		}
 
 		// No default
@@ -79,7 +81,9 @@ export function setup() {
 	/* eslint-disable @internal/no-object-literals */
 	keyboard.extendKeyBinds('KeyQ', {normal: createClickHandler(buttonEmpty)});
 	keyboard.extendKeyBinds('Digit1', {normal: createClickHandler(buttonIo)});
-	keyboard.extendKeyBinds('Digit2', {normal: createClickHandler(buttonNegate)});
+	keyboard.extendKeyBinds('Digit2', {
+		normal: createClickHandler(buttonNegate),
+	});
 	keyboard.extendKeyBinds('Digit3', {
 		normal: createClickHandler(buttonConjoin),
 	});
@@ -102,7 +106,10 @@ export function setup() {
 
 			for (const [otherTool, element] of tools) {
 				element.classList.toggle('active', tool === otherTool);
-				element.setAttribute('aria-checked', String(tool === otherTool));
+				element.setAttribute(
+					'aria-checked',
+					String(tool === otherTool),
+				);
 			}
 		});
 	}

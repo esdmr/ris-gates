@@ -69,8 +69,10 @@ export function setup() {
 		body.append(row);
 
 		for (const value of context.observe()) {
-			// eslint-disable-next-line @internal/no-object-literals
-			row.append(create('td', value ? {'data-v': ''} : {}, value ? '1' : '0'));
+			row.append(
+				// eslint-disable-next-line @internal/no-object-literals
+				create('td', value ? {'data-v': ''} : {}, value ? '1' : '0'),
+			);
 		}
 	});
 

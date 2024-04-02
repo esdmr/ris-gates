@@ -24,7 +24,11 @@ export class TilesMap {
 			// element.
 			const {node, index} = progress.at(-1)!;
 
-			if (node === undefined || index === 4 || node.type === tileType.empty) {
+			if (
+				node === undefined ||
+				index === 4 ||
+				node.type === tileType.empty
+			) {
 				progress.pop();
 
 				if (progress.length > 0) {
@@ -167,7 +171,8 @@ export class EvalGraph {
 		conjoin: QuadTreeNode,
 		dir: number,
 	) {
-		const tileIsPointingTowardsConjoin = (4 + (tile.type % 10) - dir) % 4 === 0;
+		const tileIsPointingTowardsConjoin =
+			(4 + (tile.type % 10) - dir) % 4 === 0;
 		const conjoinIsPointingTowardsTile =
 			(4 + conjoin.type - tileType.conjoinN - dir) % 4 === 2;
 
@@ -196,7 +201,10 @@ export class EvalGraph {
 			case tileType.conjoinE:
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
-				if (!tileIsPointingTowardsConjoin && conjoinIsPointingTowardsTile) {
+				if (
+					!tileIsPointingTowardsConjoin &&
+					conjoinIsPointingTowardsTile
+				) {
 					this._addEdge(conjoin, tile);
 				} else if (
 					tileIsPointingTowardsConjoin &&
@@ -212,7 +220,10 @@ export class EvalGraph {
 			case tileType.disjoinE:
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
-				if (tileIsPointingTowardsConjoin && conjoinIsPointingTowardsTile) {
+				if (
+					tileIsPointingTowardsConjoin &&
+					conjoinIsPointingTowardsTile
+				) {
 					this._addEdge(conjoin, tile);
 				} else if (
 					!tileIsPointingTowardsConjoin &&
@@ -236,7 +247,8 @@ export class EvalGraph {
 		disjoin: QuadTreeNode,
 		dir: number,
 	) {
-		const tileIsPointingTowardsDisjoin = (4 + (tile.type % 10) - dir) % 4 === 0;
+		const tileIsPointingTowardsDisjoin =
+			(4 + (tile.type % 10) - dir) % 4 === 0;
 		const disjoinIsPointingTowardsTile =
 			(4 + disjoin.type - tileType.disjoinN - dir) % 4 === 2;
 
@@ -265,7 +277,10 @@ export class EvalGraph {
 			case tileType.conjoinE:
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
-				if (tileIsPointingTowardsDisjoin && disjoinIsPointingTowardsTile) {
+				if (
+					tileIsPointingTowardsDisjoin &&
+					disjoinIsPointingTowardsTile
+				) {
 					this._addEdge(tile, disjoin);
 				} else if (
 					!disjoinIsPointingTowardsTile &&
@@ -281,7 +296,10 @@ export class EvalGraph {
 			case tileType.disjoinE:
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
-				if (!tileIsPointingTowardsDisjoin && disjoinIsPointingTowardsTile) {
+				if (
+					!tileIsPointingTowardsDisjoin &&
+					disjoinIsPointingTowardsTile
+				) {
 					this._addEdge(tile, disjoin);
 				} else if (
 					tileIsPointingTowardsDisjoin &&
@@ -417,7 +435,9 @@ export class EvalContext {
 		this.tickCount--;
 		if (import.meta.env.DEV) console.log('Previous Tick:', this.tickCount);
 		if (oldState !== unchanged) this._evaluator.load(oldState);
-		evalEvents.dispatchEvent(new EvalStepEvent(this, oldState === unchanged));
+		evalEvents.dispatchEvent(
+			new EvalStepEvent(this, oldState === unchanged),
+		);
 		return oldState !== unchanged;
 	}
 

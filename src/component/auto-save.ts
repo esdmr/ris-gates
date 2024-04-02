@@ -18,7 +18,9 @@ export async function setup() {
 		try {
 			tree.replaceTree(
 				QuadTree.from(
-					await maybeDecompress(storage.getString(autoSaveKey, undefined, '')),
+					await maybeDecompress(
+						storage.getString(autoSaveKey, undefined, ''),
+					),
 				),
 			);
 		} catch (error) {
