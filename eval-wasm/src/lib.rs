@@ -2,33 +2,33 @@
 use core::slice;
 use wasm_bindgen::prelude::*;
 
-trait ReadableSlice<T> {
+trait Readable<T> {
     unsafe fn read(&self, offset: usize) -> T;
 }
 
-impl<T> ReadableSlice<T> for &[T] {
+impl<T> Readable<T> for &[T] {
     unsafe fn read(&self, offset: usize) -> T {
         self.as_ptr().add(offset).read()
     }
 }
 
-impl<T> ReadableSlice<T> for &mut [T] {
+impl<T> Readable<T> for &mut [T] {
     unsafe fn read(&self, offset: usize) -> T {
         self.as_ptr().add(offset).read()
     }
 }
 
-trait WritableSlice<T> {
+trait Writable<T> {
     unsafe fn write(&mut self, offset: usize, val: T);
 }
 
-impl<T> WritableSlice<T> for &mut [T] {
+impl<T> Writable<T> for &mut [T] {
     unsafe fn write(&mut self, offset: usize, val: T) {
         self.as_mut_ptr().add(offset).write(val);
     }
 }
 
-trait MaybeReadableSlice<T>: ReadableSlice<T> {
+trait MaybeReadable<T>: Readable<T> {
     unsafe fn try_read(&self, offset: usize) -> Option<T> {
         if offset == usize::MAX {
             None
@@ -38,7 +38,7 @@ trait MaybeReadableSlice<T>: ReadableSlice<T> {
     }
 }
 
-impl<T, K> MaybeReadableSlice<T> for K where K: ReadableSlice<T> {}
+impl<T, K> MaybeReadable<T> for K where K: Readable<T> {}
 
 trait Conjoin<T> {
     fn conjoin<F>(self, f: F) -> Option<T>
