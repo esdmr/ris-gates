@@ -1,31 +1,31 @@
 {
-  "prettier": true,
-  "plugins": [
-    "@internal"
-  ],
-  "rules": {
-    "import/no-mutable-exports": "off",
-    "unicorn/no-this-assignment": "off",
-    "no-await-in-loop": "off",
-    "@typescript-eslint/no-this-alias": "off"
-  },
-  "overrides": [
-    {
-      "files": "lint/**/*",
-      "rules": {
-        "unicorn/prefer-module": "off",
-        "no-unused-vars": "off"
-      }
-    },
-    {
-      "files": "src/**/*",
-      "rules": {
-        "@internal/explained-casts": "error",
-        "@internal/global-matchall": "error",
-        "@internal/no-object-literals": "error",
-        "@internal/type-only-imports": "error",
-        "@internal/import-preference": "error"
-      }
-    }
-  ]
+	"prettier": true,
+	"plugins": [
+		"@internal"
+	],
+	"rules": {
+		"import/no-mutable-exports": "off",
+		"unicorn/no-this-assignment": "off",
+		"no-await-in-loop": "off",
+		"@typescript-eslint/no-this-alias": "off"
+	},
+	"overrides": [
+		{
+			"files": "lint/**/*",
+			"rules": {
+				"unicorn/prefer-module": "off",
+				"no-unused-vars": "off"
+			}
+		},
+		{
+			"files": "src/**/*",
+			"rules": {
+				"@internal/explained-casts": "error",
+				"@internal/global-matchall": "error",
+				"@internal/no-object-literals": "error",
+				"@internal/type-only-imports": "error",
+				"@internal/import-preference": "error"
+			}
+		}
+	]
 }

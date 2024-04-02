@@ -1,26 +1,26 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    "module": "es2022",
-    "moduleResolution": "bundler",
-    "rootDir": ".",
-    "target": "es2022",
-    "strict": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUncheckedIndexedAccess": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true
-  },
-  "exclude": [
-    "node_modules",
-    "build",
-    "lint/"
-  ]
+	"$schema": "http://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"rootDir": ".",
+		"target": "es2022",
+		"strict": true,
+		"noEmit": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"exactOptionalPropertyTypes": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noUncheckedIndexedAccess": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true
+	},
+	"exclude": [
+		"node_modules",
+		"build",
+		"lint/"
+	]
 }
