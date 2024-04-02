@@ -42,6 +42,14 @@ jobs:
           toolchain: stable
           targets: wasm32-unknown-unknown
 
+      - name: Cargo check
+        run: cargo check
+        working-directory: eval-wasm
+
+      - name: Cargo fmt
+        run: cargo fmt --check
+        working-directory: eval-wasm
+
       - name: Install packages
         run: pnpm install
 
