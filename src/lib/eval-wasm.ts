@@ -14,6 +14,7 @@ const negativeEdge = 2;
 let vertices: Uint8Array;
 let edgeTypes: Uint8Array;
 let edges: Uint32LeArray;
+let positiveEdgesLength: number;
 
 function align(address: number) {
 	const currentAlign = address % maxAlign;
@@ -78,6 +79,7 @@ export const wasmEvaluator: Evaluator = {
 			edgeTypes.byteOffset,
 			edges.byteOffset,
 			vertices.length,
+			positiveEdgesLength,
 		);
 	},
 };
@@ -106,6 +108,7 @@ export function setupWasmEvaluator(graph: EvalGraph) {
 	vertices = new Uint8Array(memory.buffer, verticesAddress, verticesLength);
 	edgeTypes = new Uint8Array(memory.buffer, edgeTypesAddress, verticesLength);
 	edges = new Uint32LeArray(memory.buffer, edgesAddress, edgesLength);
+	positiveEdgesLength = graph.positiveEdges.size;
 
 	wasmEvaluator.load(graph.activeVertices);
 	edgeTypes.fill(0);

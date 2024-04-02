@@ -100,6 +100,7 @@ pub unsafe fn next_frame(
     edge_types_ptr: *const u8,
     edges_ptr: *const usize,
     vertices_len: usize,
+    positive_edges_len: usize,
 ) -> bool {
     let mut vertices = slice::from_raw_parts_mut(vertices_ptr, vertices_len);
     let edges = slice::from_raw_parts(edges_ptr as *const Edge, vertices_len);
@@ -117,13 +118,7 @@ pub unsafe fn next_frame(
 
     {
         let mut updated = true;
-        let mut count = vertices_len + 1;
-
-        for i in 0..vertices_len {
-            if edge_types.read(i) != EdgeType::PositiveEdge {
-                count -= 1;
-            }
-        }
+        let mut count = positive_edges_len + 1;
 
         while updated && count > 0 {
             updated = false;
