@@ -8,14 +8,40 @@ const maxU32 = 0xff_ff_ff_ff;
 const edgeSize = 4;
 const pageSize = 0x1_00_00;
 const safeInitialAddress = 2048;
+const positiveEdge = 1;
+const negativeEdge = 2;
 
 let vertices: Uint8Array;
-let edges: Uint32Array;
 let edgeTypes: Uint8Array;
+let edges: Uint32LeArray;
 
 function align(address: number) {
 	const currentAlign = address % maxAlign;
 	return currentAlign ? address + maxAlign - currentAlign : address;
+}
+
+class Uint32LeArray {
+	readonly data: DataView;
+
+	constructor(
+		readonly buffer: ArrayBuffer,
+		readonly byteOffset: number,
+		readonly length: number,
+	) {
+		this.data = new DataView(
+			buffer,
+			byteOffset,
+			length * Uint32Array.BYTES_PER_ELEMENT,
+		);
+	}
+
+	get(index: number) {
+		return this.data.getUint32(index * Uint32Array.BYTES_PER_ELEMENT, true);
+	}
+
+	set(index: number, value: number) {
+		this.data.setUint32(index * Uint32Array.BYTES_PER_ELEMENT, value, true);
+	}
 }
 
 // eslint-disable-next-line @internal/no-object-literals
@@ -65,13 +91,12 @@ export function setupWasmEvaluator(graph: EvalGraph) {
 	const verticesLength = graph.verticesCount;
 	address = align(address + verticesLength);
 
-	const edgesAddress = address;
-	address = align(
-		address + verticesLength * edgeSize * Uint32Array.BYTES_PER_ELEMENT,
-	);
-
 	const edgeTypesAddress = address;
 	address = align(address + verticesLength);
+
+	const edgesAddress = address;
+	const edgesLength = verticesLength * edgeSize;
+	address = align(address + edgesLength * Uint32Array.BYTES_PER_ELEMENT);
 
 	const bytesDelta = address - memory.buffer.byteLength;
 
@@ -80,35 +105,31 @@ export function setupWasmEvaluator(graph: EvalGraph) {
 	}
 
 	vertices = new Uint8Array(memory.buffer, verticesAddress, verticesLength);
-	edges = new Uint32Array(
-		memory.buffer,
-		edgesAddress,
-		verticesLength * edgeSize,
-	);
 	edgeTypes = new Uint8Array(memory.buffer, edgeTypesAddress, verticesLength);
+	edges = new Uint32LeArray(memory.buffer, edgesAddress, edgesLength);
 
 	wasmEvaluator.load(graph.activeVertices);
-	edges.fill(maxU32);
 	edgeTypes.fill(0);
 
 	for (const [target, sources] of graph.positiveEdges) {
 		assert(sources.size <= 4);
+		assert(edgeTypes[target] === 0);
 		const [a = maxU32, b = maxU32, c = maxU32, d = maxU32] = sources;
-		edges[target * edgeSize] = a;
-		edges[target * edgeSize + 1] = b;
-		edges[target * edgeSize + 2] = c;
-		edges[target * edgeSize + 3] = d;
-		edgeTypes[target] = 1;
+		edgeTypes[target] = positiveEdge;
+
+		for (const [index, source] of [a, b, c, d].entries()) {
+			edges.set(target * edgeSize + index, source);
+		}
 	}
 
 	for (const [target, sources] of graph.negativeEdges) {
 		assert(sources.size <= 4);
 		assert(edgeTypes[target] === 0);
 		const [a = maxU32, b = maxU32, c = maxU32, d = maxU32] = sources;
-		edges[target * edgeSize] = a;
-		edges[target * edgeSize + 1] = b;
-		edges[target * edgeSize + 2] = c;
-		edges[target * edgeSize + 3] = d;
-		edgeTypes[target] = 2;
+		edgeTypes[target] = negativeEdge;
+
+		for (const [index, source] of [a, b, c, d].entries()) {
+			edges.set(target * edgeSize + index, source);
+		}
 	}
 }
