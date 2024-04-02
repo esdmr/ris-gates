@@ -46,8 +46,7 @@ class Uint32LeArray {
 
 // eslint-disable-next-line @internal/no-object-literals
 export const wasmEvaluator: Evaluator = {
-	// Cast safety: This property is lazily initialized.
-	graph: undefined!,
+	graph: undefined,
 
 	input(vertex: number, value: boolean): void {
 		vertices[vertex] = value ? 1 : 0;

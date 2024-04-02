@@ -1,3 +1,4 @@
+import {assert} from './assert.js';
 import {JsEvaluator} from './eval-js.js';
 // eslint-disable-next-line @internal/import-preference
 import type * as EvalWasm from './eval-wasm.js';
@@ -345,7 +346,7 @@ export class EvalStepEvent extends EvalEvent {
 }
 
 export type Evaluator = {
-	graph: EvalGraph;
+	graph: EvalGraph | undefined;
 	input(vertex: number, value: boolean): void;
 	output(vertex: number): boolean;
 	load(source: ReadonlySet<number>): void;
@@ -367,6 +368,7 @@ export class EvalContext {
 		protected readonly _evaluator: Evaluator,
 		undoCount: number,
 	) {
+		assert(_evaluator.graph);
 		this._graph = _evaluator.graph;
 		this.yieldedTiles = this._graph.inputTiles;
 		this._undoStack = new PooledRingBuffer<Set<number> | typeof unchanged>(
