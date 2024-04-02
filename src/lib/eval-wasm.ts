@@ -75,9 +75,9 @@ export const wasmEvaluator: Evaluator = {
 	tickForward(): boolean {
 		return next_frame(
 			vertices.byteOffset,
-			vertices.length,
-			edges.byteOffset,
 			edgeTypes.byteOffset,
+			edges.byteOffset,
+			vertices.length,
 		);
 	},
 };

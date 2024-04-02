@@ -28,9 +28,9 @@ impl<T> WritableSlice<T> for &mut [T] {
     }
 }
 
-trait U32ReadableSlice<T>: ReadableSlice<T> {
-    unsafe fn try_read(&self, offset: u32) -> Option<T> {
-        if offset == u32::MAX {
+trait MaybeReadableSlice<T>: ReadableSlice<T> {
+    unsafe fn try_read(&self, offset: usize) -> Option<T> {
+        if offset == usize::MAX {
             None
         } else {
             Some(self.read(offset as usize))
@@ -38,7 +38,7 @@ trait U32ReadableSlice<T>: ReadableSlice<T> {
     }
 }
 
-impl<T, K> U32ReadableSlice<T> for K where K: ReadableSlice<T> {}
+impl<T, K> MaybeReadableSlice<T> for K where K: ReadableSlice<T> {}
 
 trait Conjoin<T> {
     fn conjoin<F>(self, f: F) -> Option<T>
@@ -58,7 +58,7 @@ impl Conjoin<bool> for Option<bool> {
     }
 }
 
-type Edge = (u32, u32, u32, u32);
+type Edge = (usize, usize, usize, usize);
 
 #[repr(u8)]
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -71,35 +71,35 @@ enum EdgeType {
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
-    fn log(k: &str, t: u32, a: u32, b: u32, c: u32, d: u32, v: bool);
+    fn log(k: &str, t: usize, a: usize, b: usize, c: usize, d: usize, v: bool);
 }
 
 #[cfg(not(risg_prod))]
-fn log_positive_edge(target: u32, edge: Edge, value: bool) {
+fn log_positive_edge(target: usize, edge: Edge, value: bool) {
     log("+", target, edge.0, edge.1, edge.2, edge.3, value);
 }
 
 #[cfg(risg_prod)]
-fn log_positive_edge(_target: u32, _edge: Edge, _value: bool) {
+fn log_positive_edge(_target: usize, _edge: Edge, _value: bool) {
     // Nothing
 }
 
 #[cfg(not(risg_prod))]
-fn log_negative_edge(target: u32, edge: Edge, value: bool) {
+fn log_negative_edge(target: usize, edge: Edge, value: bool) {
     log("-", target, edge.0, edge.1, edge.2, edge.3, value);
 }
 
 #[cfg(risg_prod)]
-fn log_negative_edge(_target: u32, _edge: Edge, _value: bool) {
+fn log_negative_edge(_target: usize, _edge: Edge, _value: bool) {
     // Nothing
 }
 
 #[wasm_bindgen]
 pub unsafe fn next_frame(
     vertices_ptr: *mut bool,
-    vertices_len: usize,
-    edges_ptr: *const u32,
     edge_types_ptr: *const u8,
+    edges_ptr: *const usize,
+    vertices_len: usize,
 ) -> bool {
     let mut vertices = slice::from_raw_parts_mut(vertices_ptr, vertices_len);
     let edges = slice::from_raw_parts(edges_ptr as *const Edge, vertices_len);
@@ -136,7 +136,7 @@ pub unsafe fn next_frame(
 
                 let edge = edges.read(i);
                 let (a, b, c, d) = edge;
-                let target = i as u32;
+                let target = i as usize;
 
                 let value = vertices
                     .try_read(a)
@@ -166,7 +166,7 @@ pub unsafe fn next_frame(
 
         let edge = edges.read(i);
         let (a, b, c, d) = edge;
-        let target = i as u32;
+        let target = i as usize;
 
         let value = !vertices
             .try_read(a)
