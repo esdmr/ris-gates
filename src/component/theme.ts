@@ -51,9 +51,12 @@ export function updateStylesFromCss() {
 }
 
 export function setup() {
-	matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-		updateStylesFromCss();
-	});
+	matchMedia('(prefers-color-scheme: dark)').addEventListener(
+		'change',
+		() => {
+			updateStylesFromCss();
+		},
+	);
 
 	updateStylesFromCss();
 }

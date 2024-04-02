@@ -21,6 +21,8 @@ const checkboxMinorGrid = query(
 );
 const inputMajorGrid = query('#inp-major-grid', HTMLInputElement, dialogMenu);
 const inputEvalRate = query('#inp-eval-rate', HTMLInputElement, dialogMenu);
+const inputEvalUndo = query('#inp-eval-undo', HTMLInputElement, dialogMenu);
+const checkboxEvalWasm = query('#chk-eval-wasm', HTMLInputElement, dialogMenu);
 const buttonClear = query('#btn-clear', HTMLButtonElement, dialogMenu);
 const buttonLoad = query('#btn-load', HTMLButtonElement, dialogMenu);
 const buttonSave = query('#btn-save', HTMLButtonElement, dialogMenu);
@@ -62,6 +64,14 @@ export function setup() {
 		eval_.setEvaluationRate(inputEvalRate.valueAsNumber);
 	});
 
+	inputEvalUndo.addEventListener('input', () => {
+		eval_.setEvaluationUndoCount(inputEvalUndo.valueAsNumber);
+	});
+
+	checkboxEvalWasm.addEventListener('change', () => {
+		eval_.setEvaluationWasm(checkboxEvalWasm.checked);
+	});
+
 	buttonClear.addEventListener('click', () => {
 		tree.replaceTree(new QuadTree());
 	});
@@ -72,7 +82,9 @@ export function setup() {
 	});
 
 	buttonSave.addEventListener('click', () => {
-		dialogSave.open(storage.savePrefix, async () => maybeCompress(tree.tree));
+		dialogSave.open(storage.savePrefix, async () =>
+			maybeCompress(tree.tree),
+		);
 	});
 
 	buttonBrowse.addEventListener('click', () => {
@@ -107,4 +119,6 @@ export function open() {
 	checkboxMinorGrid.checked = grid.shouldDrawMinorGrid;
 	inputMajorGrid.value = String(grid.majorGridLength);
 	inputEvalRate.value = String(eval_.evaluationRate);
+	inputEvalUndo.value = String(eval_.evaluationUndoCount);
+	checkboxEvalWasm.checked = eval_.useWasm;
 }

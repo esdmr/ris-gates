@@ -10,7 +10,8 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 					node.specifiers.length === 0 ||
 					node.specifiers.some(
 						(child) =>
-							child.type !== 'ImportSpecifier' || child.importKind !== 'type',
+							child.type !== 'ImportSpecifier' ||
+							child.importKind !== 'type',
 					)
 				) {
 					return;
@@ -32,7 +33,9 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 						for (const child of node.specifiers) {
 							const typeToken = source.getFirstToken(child);
 							assert(typeToken);
-							assert(typeToken.type === AST_TOKEN_TYPES.Identifier);
+							assert(
+								typeToken.type === AST_TOKEN_TYPES.Identifier,
+							);
 							assert(typeToken.value === 'type');
 
 							yield fixer.remove(typeToken);

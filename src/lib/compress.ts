@@ -10,7 +10,9 @@ async function compress(data: string) {
 
 async function decompress(data: string) {
 	return new Response(
-		new Blob([Uint8Array.from(atob(data), (i) => i.codePointAt(0) ?? 0).buffer])
+		new Blob([
+			Uint8Array.from(atob(data), (i) => i.codePointAt(0) ?? 0).buffer,
+		])
 			.stream()
 			.pipeThrough(new DecompressionStream('gzip')),
 	).text();

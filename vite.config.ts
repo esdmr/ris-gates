@@ -1,5 +1,5 @@
 import process from 'node:process';
-import {defineConfig} from 'vite';
+import {defineConfig, type PluginOption} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';
 
@@ -16,9 +16,10 @@ export default defineConfig(({mode}) => ({
 		target: ['firefox103', 'chrome104'],
 		outDir: 'build',
 		rollupOptions: {
-			input: ['index.html', process.env.RISG_CLI ? 'src/cli.ts' : ''].filter(
-				Boolean,
-			),
+			input: [
+				'index.html',
+				process.env.RISG_CLI ? 'src/cli.ts' : '',
+			].filter(Boolean),
 		},
 		modulePreload: {
 			polyfill: false,
@@ -79,7 +80,8 @@ export default defineConfig(({mode}) => ({
 					BinaryExpression(n: acorn.Node) {
 						// Cast safety: acorn.Node is insufficiently typed.
 						if (
-							((n as any).operator === '==' || (n as any).operator === '===') &&
+							((n as any).operator === '==' ||
+								(n as any).operator === '===') &&
 							(n as any).left.type === 'UnaryExpression' &&
 							(n as any).left.operator === 'typeof' &&
 							(n as any).right.type === 'Literal' &&
@@ -97,5 +99,5 @@ export default defineConfig(({mode}) => ({
 				};
 			},
 		},
-	],
+	] satisfies PluginOption,
 }));

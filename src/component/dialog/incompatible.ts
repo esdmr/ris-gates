@@ -54,7 +54,9 @@ export function setup() {
 			storage.removeEverything();
 			location.reload();
 		} else {
-			buttonReset.textContent = `Are you${' really'.repeat(clickCount)} sure?`;
+			buttonReset.textContent = `Are you${' really'.repeat(
+				clickCount,
+			)} sure?`;
 			clickCount++;
 		}
 	});

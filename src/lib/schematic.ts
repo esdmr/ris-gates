@@ -26,12 +26,18 @@ export class Schematic {
 		assert(
 			tiles.every((i) =>
 				// Cast safety: Array.includes is too narrowly typed.
-				tileType.quadTreeTileType.includes(i as tileType.QuadTreeTileType),
+				tileType.quadTreeTileType.includes(
+					i as tileType.QuadTreeTileType,
+				),
 			),
 		);
 
 		// Cast safety: Asserted above.
-		return new Schematic(width, height, tiles as tileType.QuadTreeTileType[]);
+		return new Schematic(
+			width,
+			height,
+			tiles as tileType.QuadTreeTileType[],
+		);
 	}
 
 	// Note: These are intentionally not serialized.
@@ -79,7 +85,8 @@ export class Schematic {
 						sin * (-1 + height - 2 * y)) /
 					2;
 				yNew =
-					(-1 + cos - cos * height + realHeight + sin - sin * width) / 2 +
+					(-1 + cos - cos * height + realHeight + sin - sin * width) /
+						2 +
 					sin * x +
 					cos * y;
 				break;
@@ -95,7 +102,8 @@ export class Schematic {
 						2 * sin * y) /
 					2;
 				yNew =
-					(-1 + cos - cos * height + realHeight + sin - sin * width) / 2 +
+					(-1 + cos - cos * height + realHeight + sin - sin * width) /
+						2 +
 					sin * x +
 					cos * y;
 				break;
@@ -172,7 +180,9 @@ export class Schematic {
 		const newTile = type + (dir % 4);
 		// Cast safety: Array.includes is too narrowly typed.
 		assert(
-			tileType.quadTreeTileType.includes(newTile as tileType.QuadTreeTileType),
+			tileType.quadTreeTileType.includes(
+				newTile as tileType.QuadTreeTileType,
+			),
 		);
 		// Cast safety: Asserted above.
 		return newTile as tileType.QuadTreeTileType;

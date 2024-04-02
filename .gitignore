@@ -5,3 +5,8 @@ node_modules
 *.log
 !lint/**/*.js
 build/
+debug/
+target/
+pkg/
+**/*.rs.bk
+*.pdb

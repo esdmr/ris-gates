@@ -8,6 +8,7 @@ import {
 } from '../../lib/sequencer.js';
 import * as hudPick from '../hud/pick.js';
 import {Timeout} from '../../lib/timer.js';
+import {EvalGraph, TilesMap, getEvaluator} from '../../lib/eval.js';
 import * as dialogSequenceFailed from './sequence-failed.js';
 import * as dialogEntry from './entry.js';
 
@@ -34,7 +35,9 @@ export function setup() {
 		let context;
 
 		try {
-			context = new SequencerContext(tree.tree);
+			context = new SequencerContext(
+				getEvaluator(new EvalGraph(new TilesMap(tree.tree))),
+			);
 		} catch (error) {
 			if (!(error instanceof SequencerAggregateError)) {
 				throw error;
@@ -69,7 +72,10 @@ export function setup() {
 			textarea.value =
 				`${selection}(${point.x}, ${point.y})\n` + textarea.value;
 			textarea.focus();
-			textarea.setSelectionRange(beforeSelection.length, selection.length);
+			textarea.setSelectionRange(
+				beforeSelection.length,
+				selection.length,
+			);
 		} catch (error) {
 			open();
 			throw error;

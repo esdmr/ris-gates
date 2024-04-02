@@ -1,45 +1,51 @@
 {
-  "private": true,
-  "type": "module",
-  "license": "MIT",
-  "scripts": {
-    "tsc": "tsc -p ."
-  },
-  "devDependencies": {
-    "@internal/eslint-plugin": "link:lint",
-    "@types/node": "20.11.16",
-    "acorn-walk": "8.3.2",
-    "magic-string": "0.30.7",
-    "typescript": "5.3.3",
-    "vite": "4.5.2",
-    "xo": "0.56.0"
-  },
-  "pnpm": {
-    "packageExtensions": {
-      "eslint-import-resolver-webpack": {
-        "peerDependenciesMeta": {
-          "webpack": {
-            "optional": true
-          }
-        }
-      },
-      "xo": {
-        "dependencies": {
-          "typescript": null
-        },
-        "peerDependencies": {
-          "typescript": "*"
-        }
-      }
-    },
-    "overrides": {
-      "postcss@<8.4.31": "^8.4.31",
-      "semver@<5.7.2": "^5.7.2",
-      "eslint-import-resolver-webpack>semver": "^5.7.2",
-      "normalize-package-data>semver": "^5.7.2",
-      "semver@>=6.0.0 <6.3.1": "^6.3.1",
-      "eslint-plugin-import>semver": "^6.3.1",
-      "word-wrap@<1.2.4": "^1.2.4"
-    }
-  }
+	"private": true,
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"tsc": "tsc -p .",
+		"eval-wasm:dev": "env RUSTFLAGS=\"-C link-arg=-zstack-size=16\" wasm-pack build --target web --dev --scope internal eval-wasm",
+		"eval-wasm:prod": "env RUSTFLAGS=\"-C link-arg=-zstack-size=16 --cfg risg_prod\" wasm-pack build --target web --release --scope internal eval-wasm"
+	},
+	"devDependencies": {
+		"@internal/eslint-plugin": "link:lint",
+		"@types/node": "20.11.16",
+		"acorn-walk": "8.3.2",
+		"magic-string": "0.30.7",
+		"typescript": "5.3.3",
+		"vite": "4.5.2",
+		"wasm-pack": "^0.12.1",
+		"xo": "0.56.0"
+	},
+	"pnpm": {
+		"packageExtensions": {
+			"eslint-import-resolver-webpack": {
+				"peerDependenciesMeta": {
+					"webpack": {
+						"optional": true
+					}
+				}
+			},
+			"xo": {
+				"dependencies": {
+					"typescript": null
+				},
+				"peerDependencies": {
+					"typescript": "*"
+				}
+			}
+		},
+		"overrides": {
+			"postcss@<8.4.31": "^8.4.31",
+			"semver@<5.7.2": "^5.7.2",
+			"eslint-import-resolver-webpack>semver": "^5.7.2",
+			"normalize-package-data>semver": "^5.7.2",
+			"semver@>=6.0.0 <6.3.1": "^6.3.1",
+			"eslint-plugin-import>semver": "^6.3.1",
+			"word-wrap@<1.2.4": "^1.2.4"
+		}
+	},
+	"optionalDependencies": {
+		"@internal/eval-wasm": "link:eval-wasm/pkg"
+	}
 }

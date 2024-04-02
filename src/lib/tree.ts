@@ -145,7 +145,11 @@ export class QuadTree {
 			}
 		}
 
-		return new Schematic(Number(display.width), Number(display.height), tiles);
+		return new Schematic(
+			Number(display.width),
+			Number(display.height),
+			tiles,
+		);
 	}
 
 	putSchematic(schematic: Schematic, topLeft: Point) {
@@ -183,7 +187,10 @@ export class QuadTree {
 	private _expandToFit(point: Point) {
 		while (!this.root.bounds.has(point)) {
 			const parity = !this.root.parity;
-			const node = new QuadTreeNode(this.root.bounds.widen(parity), parity);
+			const node = new QuadTreeNode(
+				this.root.bounds.widen(parity),
+				parity,
+			);
 			node[parity ? 0 : 3] = this.root;
 			this.root = node;
 		}

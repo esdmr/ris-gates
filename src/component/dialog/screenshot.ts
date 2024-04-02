@@ -128,12 +128,12 @@ export function open(target?: 'selection') {
 	} else {
 		inputX.value = tree.scrollX.toString();
 		inputY.value = tree.scrollY.toString();
-		inputWidth.value = (canvas.canvas.clientWidth * devicePixelRatio).toFixed(
-			0,
-		);
-		inputHeight.value = (canvas.canvas.clientHeight * devicePixelRatio).toFixed(
-			0,
-		);
+		inputWidth.value = (
+			canvas.canvas.clientWidth * devicePixelRatio
+		).toFixed(0);
+		inputHeight.value = (
+			canvas.canvas.clientHeight * devicePixelRatio
+		).toFixed(0);
 	}
 
 	mode.openDialog(dialogScreenshot);

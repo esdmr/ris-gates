@@ -16,8 +16,12 @@ export function setup() {
 	keyboard.extendKeyBinds('Digit1', {
 		eval: createClickHandler(buttonTickBwdStable),
 	});
-	keyboard.extendKeyBinds('Digit2', {eval: createClickHandler(buttonTickBwd)});
-	keyboard.extendKeyBinds('Digit3', {eval: createClickHandler(buttonTickFwd)});
+	keyboard.extendKeyBinds('Digit2', {
+		eval: createClickHandler(buttonTickBwd),
+	});
+	keyboard.extendKeyBinds('Digit3', {
+		eval: createClickHandler(buttonTickFwd),
+	});
 	keyboard.extendKeyBinds('Digit4', {
 		eval: createClickHandler(buttonTickFwdStable),
 	});

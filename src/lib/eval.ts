@@ -1,4 +1,8 @@
-import {mapGet, setToggle} from './map-and-set.js';
+import {assert} from './assert.js';
+import {JsEvaluator} from './eval-js.js';
+// eslint-disable-next-line @internal/import-preference
+import type * as EvalWasm from './eval-wasm.js';
+import {mapGet} from './map-and-set.js';
 import type {QuadTreeNode} from './node.js';
 import type {Point} from './point.js';
 import {PooledRingBuffer} from './ring.js';
@@ -9,6 +13,7 @@ import {WalkStep} from './walk.js';
 
 export class TilesMap {
 	readonly tiles = new Map<string, QuadTreeNode>();
+	readonly negateTiles = new Set<QuadTreeNode>();
 	readonly ioTiles = new Set<QuadTreeNode>();
 
 	constructor(readonly tree: QuadTree) {
@@ -19,7 +24,11 @@ export class TilesMap {
 			// element.
 			const {node, index} = progress.at(-1)!;
 
-			if (node === undefined || index === 4 || node.type === tileType.empty) {
+			if (
+				node === undefined ||
+				index === 4 ||
+				node.type === tileType.empty
+			) {
 				progress.pop();
 
 				if (progress.length > 0) {
@@ -31,13 +40,24 @@ export class TilesMap {
 				continue;
 			}
 
-			if (node.type === tileType.branch) {
-				progress.push(new WalkStep(node[index]));
-				continue;
-			}
+			// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+			switch (node.type) {
+				case tileType.branch: {
+					progress.push(new WalkStep(node[index]));
+					continue; // The loop, not the switch.
+				}
 
-			if (node.type === tileType.io) {
-				this.ioTiles.add(node);
+				case tileType.negate: {
+					this.negateTiles.add(node);
+					break;
+				}
+
+				case tileType.io: {
+					this.ioTiles.add(node);
+					break;
+				}
+
+				// No default
 			}
 
 			const {x, y} = node.bounds.topLeft;
@@ -59,16 +79,19 @@ export class TilesMap {
 
 export class NegateVertex {
 	constructor(
-		public x: symbol,
-		public y: symbol,
+		public x: bigint,
+		public y: bigint,
 	) {}
 }
 
 export class EvalGraph {
-	readonly vertices = new Map<QuadTreeNode, symbol | NegateVertex>();
-	readonly positiveEdges = new Map<symbol, Set<symbol>>();
-	readonly negativeEdges = new Map<symbol, Set<symbol>>();
+	readonly horizontalVertices = new Map<QuadTreeNode, number>();
+	readonly verticalVertices = new Map<QuadTreeNode, number>();
+	readonly positiveEdges = new Map<number, Set<number>>();
+	readonly negativeEdges = new Map<number, Set<number>>();
 	readonly inputTiles = new Set<QuadTreeNode>();
+	readonly activeVertices = new Set<number>();
+	verticesCount = 0;
 	protected declare _toDot?: () => string;
 
 	static {
@@ -76,23 +99,15 @@ export class EvalGraph {
 			EvalGraph.prototype._toDot = function () {
 				let output = 'digraph G {';
 
-				for (const [to, from] of this.positiveEdges) {
-					for (const fromSymbol of from) {
-						output +=
-							JSON.stringify(fromSymbol.description) +
-							'->' +
-							JSON.stringify(to.description) +
-							';';
+				for (const [target, sources] of this.positiveEdges) {
+					for (const source of sources) {
+						output += `${source} -> ${target};`;
 					}
 				}
 
-				for (const [to, from] of this.negativeEdges) {
-					for (const fromSymbol of from) {
-						output +=
-							JSON.stringify(fromSymbol.description) +
-							'->' +
-							JSON.stringify(to.description) +
-							'[color=red];';
+				for (const [target, sources] of this.negativeEdges) {
+					for (const source of sources) {
+						output += `${source} -> ${target} [color=red];`;
 					}
 				}
 
@@ -130,44 +145,53 @@ export class EvalGraph {
 		}
 
 		for (const tile of map.ioTiles) {
-			const vertex = this.vertices.get(tile);
+			const vertex = this.horizontalVertices.get(tile);
 
 			if (
-				typeof vertex === 'symbol' &&
+				vertex !== undefined &&
 				!this.positiveEdges.has(vertex) &&
 				!this.negativeEdges.has(vertex)
 			) {
 				this.inputTiles.add(tile);
 			}
 		}
+
+		for (const tile of map.negateTiles) {
+			const horizontal = this.horizontalVertices.get(tile);
+			if (horizontal !== undefined) this.activeVertices.add(horizontal);
+
+			const vertical = this.verticalVertices.get(tile);
+			if (vertical !== undefined) this.activeVertices.add(vertical);
+		}
 	}
 
 	// eslint-disable-next-line complexity
 	private _processConjoin(
 		tile: QuadTreeNode,
-		other: QuadTreeNode,
+		conjoin: QuadTreeNode,
 		dir: number,
 	) {
-		const tileIsUpwards = (4 + (tile.type % 10) - dir) % 4 === 0;
-		const otherIsDownwards =
-			(4 + other.type - tileType.conjoinN - dir) % 4 === 2;
+		const tileIsPointingTowardsConjoin =
+			(4 + (tile.type % 10) - dir) % 4 === 0;
+		const conjoinIsPointingTowardsTile =
+			(4 + conjoin.type - tileType.conjoinN - dir) % 4 === 2;
 
 		switch (tile.type) {
 			case tileType.io: {
-				if (otherIsDownwards) {
-					this._addEdge(other, tile);
+				if (conjoinIsPointingTowardsTile) {
+					this._addEdge(conjoin, tile);
 				} else {
-					this._addEdge(tile, other);
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
 			}
 
 			case tileType.negate: {
-				if (otherIsDownwards) {
-					this._addEdge(other, tile, false);
+				if (conjoinIsPointingTowardsTile) {
+					this._addEdge(conjoin, tile, false);
 				} else {
-					this._addEdge(tile, other);
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
@@ -177,10 +201,16 @@ export class EvalGraph {
 			case tileType.conjoinE:
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
-				if (!tileIsUpwards && otherIsDownwards) {
-					this._addEdge(other, tile);
-				} else if (tileIsUpwards && !otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (
+					!tileIsPointingTowardsConjoin &&
+					conjoinIsPointingTowardsTile
+				) {
+					this._addEdge(conjoin, tile);
+				} else if (
+					tileIsPointingTowardsConjoin &&
+					!conjoinIsPointingTowardsTile
+				) {
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
@@ -190,10 +220,16 @@ export class EvalGraph {
 			case tileType.disjoinE:
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
-				if (tileIsUpwards && otherIsDownwards) {
-					this._addEdge(other, tile);
-				} else if (!tileIsUpwards && !otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (
+					tileIsPointingTowardsConjoin &&
+					conjoinIsPointingTowardsTile
+				) {
+					this._addEdge(conjoin, tile);
+				} else if (
+					!tileIsPointingTowardsConjoin &&
+					!conjoinIsPointingTowardsTile
+				) {
+					this._addEdge(tile, conjoin);
 				}
 
 				break;
@@ -208,29 +244,30 @@ export class EvalGraph {
 	// eslint-disable-next-line complexity
 	private _processDisjoin(
 		tile: QuadTreeNode,
-		other: QuadTreeNode,
+		disjoin: QuadTreeNode,
 		dir: number,
 	) {
-		const tileIsUpwards = (4 + (tile.type % 10) - dir) % 4 === 0;
-		const otherIsDownwards =
-			(4 + other.type - tileType.disjoinN - dir) % 4 === 2;
+		const tileIsPointingTowardsDisjoin =
+			(4 + (tile.type % 10) - dir) % 4 === 0;
+		const disjoinIsPointingTowardsTile =
+			(4 + disjoin.type - tileType.disjoinN - dir) % 4 === 2;
 
 		switch (tile.type) {
 			case tileType.io: {
-				if (otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (disjoinIsPointingTowardsTile) {
+					this._addEdge(tile, disjoin);
 				} else {
-					this._addEdge(other, tile);
+					this._addEdge(disjoin, tile);
 				}
 
 				break;
 			}
 
 			case tileType.negate: {
-				if (otherIsDownwards) {
-					this._addEdge(tile, other);
+				if (disjoinIsPointingTowardsTile) {
+					this._addEdge(tile, disjoin);
 				} else {
-					this._addEdge(other, tile, false);
+					this._addEdge(disjoin, tile, false);
 				}
 
 				break;
@@ -240,10 +277,16 @@ export class EvalGraph {
 			case tileType.conjoinE:
 			case tileType.conjoinS:
 			case tileType.conjoinW: {
-				if (tileIsUpwards && otherIsDownwards) {
-					this._addEdge(tile, other);
-				} else if (!otherIsDownwards && !otherIsDownwards) {
-					this._addEdge(other, tile);
+				if (
+					tileIsPointingTowardsDisjoin &&
+					disjoinIsPointingTowardsTile
+				) {
+					this._addEdge(tile, disjoin);
+				} else if (
+					!disjoinIsPointingTowardsTile &&
+					!disjoinIsPointingTowardsTile
+				) {
+					this._addEdge(disjoin, tile);
 				}
 
 				break;
@@ -253,10 +296,16 @@ export class EvalGraph {
 			case tileType.disjoinE:
 			case tileType.disjoinS:
 			case tileType.disjoinW: {
-				if (!tileIsUpwards && otherIsDownwards) {
-					this._addEdge(tile, other);
-				} else if (tileIsUpwards && !otherIsDownwards) {
-					this._addEdge(other, tile);
+				if (
+					!tileIsPointingTowardsDisjoin &&
+					disjoinIsPointingTowardsTile
+				) {
+					this._addEdge(tile, disjoin);
+				} else if (
+					tileIsPointingTowardsDisjoin &&
+					!disjoinIsPointingTowardsTile
+				) {
+					this._addEdge(disjoin, tile);
 				}
 
 				break;
@@ -268,29 +317,29 @@ export class EvalGraph {
 		}
 	}
 
-	private _symbolFor(tile: QuadTreeNode, other: QuadTreeNode) {
-		const symbol = mapGet(this.vertices, tile, () => {
-			const {x, y} = tile.bounds.topLeft;
-			return tile.type === tileType.negate
-				? new NegateVertex(Symbol(`X(${x}, ${y})`), Symbol(`Y(${x}, ${y})`))
-				: Symbol(`Q(${x}, ${y})`);
-		});
+	private _vertexFor(tile: QuadTreeNode, other: QuadTreeNode) {
+		const horizontal = mapGet(
+			this.horizontalVertices,
+			tile,
+			() => this.verticesCount++,
+		);
 
-		return typeof symbol === 'symbol'
-			? symbol
-			: other.bounds.topLeft.y === tile.bounds.topLeft.y
-			? symbol.x
-			: symbol.y;
+		const vertical = mapGet(this.verticalVertices, tile, () =>
+			tile.type === tileType.negate ? this.verticesCount++ : horizontal,
+		);
+
+		return other.bounds.topLeft.y === tile.bounds.topLeft.y
+			? horizontal
+			: vertical;
 	}
 
 	private _addEdge(from: QuadTreeNode, to: QuadTreeNode, positive = true) {
 		const map = positive ? this.positiveEdges : this.negativeEdges;
-		const symbolTo = this._symbolFor(to, from);
-		mapGet(map, symbolTo, () => new Set()).add(this._symbolFor(from, to));
+		const vertexTo = this._vertexFor(to, from);
+		mapGet(map, vertexTo, () => new Set()).add(this._vertexFor(from, to));
 	}
 }
 
-const maxUndoCount = 128;
 const unchanged = Symbol('unchanged');
 export const evalEvents = new EventTarget();
 
@@ -314,107 +363,64 @@ export class EvalStepEvent extends EvalEvent {
 	}
 }
 
+export type Evaluator = {
+	graph: EvalGraph | undefined;
+	input(vertex: number, value: boolean): void;
+	output(vertex: number): boolean;
+	load(source: ReadonlySet<number>): void;
+	save(target: Set<number>): void;
+	tickForward(): boolean;
+};
+
 export class EvalContext {
 	tickCount = 0n;
 	tickType: 'tickForward' | 'tickBackward' | undefined;
 	targetTick = -1n;
 	readonly yieldedTiles;
-	protected _enabled = new Set<symbol>();
 	protected _timer: Timer | undefined;
+	protected readonly _undoStack;
+
 	protected readonly _graph: EvalGraph;
-	protected readonly _undoStack = new PooledRingBuffer<
-		Set<symbol> | typeof unchanged
-	>(maxUndoCount);
 
-	constructor(tree: QuadTree) {
-		const graph = new EvalGraph(new TilesMap(tree));
-		this._graph = graph;
+	constructor(
+		protected readonly _evaluator: Evaluator,
+		undoCount: number,
+	) {
+		assert(_evaluator.graph);
+		this._graph = _evaluator.graph;
 		this.yieldedTiles = this._graph.inputTiles;
-
-		for (const symbols of graph.vertices.values()) {
-			if (typeof symbols === 'symbol') continue;
-			this._enabled.add(symbols.x);
-			this._enabled.add(symbols.y);
-		}
+		this._undoStack = new PooledRingBuffer<Set<number> | typeof unchanged>(
+			undoCount,
+		);
 	}
 
 	input(tile: QuadTreeNode, value: boolean) {
-		const symbol = this._graph.vertices.get(tile);
-		if (typeof symbol !== 'symbol') return;
-		setToggle(this._enabled, symbol, value);
+		const vertex = this._graph.horizontalVertices.get(tile);
+		if (vertex === undefined) return;
+		this._evaluator.input(vertex, value);
 	}
 
 	output(tile: QuadTreeNode) {
-		const symbol = this._graph.vertices.get(tile);
-		return typeof symbol === 'symbol' && this._enabled.has(symbol);
+		const vertex = this._graph.horizontalVertices.get(tile);
+		return vertex !== undefined && this._evaluator.output(vertex);
 	}
 
 	tickForward() {
-		const set = this._undoStack.getFromPool() ?? new Set();
-		set.clear();
-
-		for (const item of this._enabled) {
-			set.add(item);
+		if (this._undoStack.size > 0) {
+			const set = this._undoStack.getFromPool() ?? new Set();
+			set.clear();
+			this._evaluator.save(set);
+			this._undoStack.push(set);
 		}
 
-		this._undoStack.push(set);
-
-		let anythingUpdated = false;
 		this.tickCount++;
 		if (import.meta.env.DEV) console.group('Next Tick:', this.tickCount);
 
-		// Make sure this loop terminates. If you created a loop with an IO
-		// tile, it would have produced a sub-tick pulse and cause this loop to
-		// never end. Since the worst-case scenario for a non-looping circuit is
-		// equal to the number of positive edges, we will terminate at that
-		// point, plus one more for good measure. (Of course, this scenario
-		// implies that there will never be a stable tick, which technically is
-		// not supported.)
-		for (
-			let updated = true, count = this._graph.positiveEdges.size;
-			updated && count >= 0;
-			count--
-		) {
-			updated = false;
-
-			for (const [to, from] of this._graph.positiveEdges) {
-				let value = false;
-
-				for (const fromSymbol of from) {
-					value = this._enabled.has(fromSymbol);
-					if (value) break;
-				}
-
-				if (this._enabled.has(to) !== value) {
-					if (import.meta.env.DEV) console.log('+', to, value, from);
-					setToggle(this._enabled, to, value);
-					updated = true;
-					anythingUpdated = true;
-				}
-			}
-		}
-
-		// Since only Conjoins and Disjoins can interact with other tiles, two
-		// negative edges can never connect to each other. Therefore, no need to
-		// loop multiple times here.
-		for (const [to, from] of this._graph.negativeEdges) {
-			let value = false;
-
-			for (const fromSymbol of from) {
-				value = this._enabled.has(fromSymbol);
-				if (value) break;
-			}
-
-			if (this._enabled.has(to) === value) {
-				if (import.meta.env.DEV) console.log('-', to, !value, from);
-				setToggle(this._enabled, to, !value);
-				anythingUpdated = true;
-			}
-		}
+		const anythingUpdated = this._evaluator.tickForward();
 
 		if (import.meta.env.DEV) console.groupEnd();
 
-		if (!anythingUpdated) {
+		if (!anythingUpdated && this._undoStack.size > 0) {
 			this._undoStack.updateLast(unchanged);
 		}
 
@@ -428,8 +434,10 @@ export class EvalContext {
 		this._undoStack.addToPool(oldState);
 		this.tickCount--;
 		if (import.meta.env.DEV) console.log('Previous Tick:', this.tickCount);
-		if (oldState !== unchanged) this._enabled = oldState;
-		evalEvents.dispatchEvent(new EvalStepEvent(this, oldState === unchanged));
+		if (oldState !== unchanged) this._evaluator.load(oldState);
+		evalEvents.dispatchEvent(
+			new EvalStepEvent(this, oldState === unchanged),
+		);
 		return oldState !== unchanged;
 	}
 
@@ -452,4 +460,32 @@ export class EvalContext {
 			this.tickType = undefined;
 		}
 	}
+}
+
+let evalWasm: typeof EvalWasm;
+
+// eslint-disable-next-line unicorn/prefer-top-level-await
+import('./eval-wasm.js').then(
+	(mod) => {
+		evalWasm = mod;
+	},
+	(error) => {
+		console.warn('Could not import the Wasm evaluator.', error);
+	},
+);
+
+export function getEvaluator(graph: EvalGraph, useWasm = false): Evaluator {
+	try {
+		if (evalWasm && useWasm) {
+			evalWasm.setupWasmEvaluator(graph);
+			return evalWasm.wasmEvaluator;
+		}
+	} catch (error) {
+		console.error(
+			'Failed to setup the Wasm evaluator. Falling back to the JS evaluator.',
+			error,
+		);
+	}
+
+	return new JsEvaluator(graph);
 }

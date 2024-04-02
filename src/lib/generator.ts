@@ -22,16 +22,16 @@ function drawGrid(
 
 		// Grid
 		for (let x = 0; x < 2 * q; x++) {
-			nonNullable(array[2 * y + yOffset])[2 * x + xOffset] = tileType.negate;
+			nonNullable(array[2 * y + yOffset])[2 * x + xOffset] =
+				tileType.negate;
 
 			nonNullable(array[2 * y + yOffset])[2 * x + xOffset + 1] =
 				tileType.conjoinE;
 
-			nonNullable(array[2 * y + yOffset - 1])[2 * x + xOffset] = nonNullable(
-				activationMapped[y],
-			)[x]
-				? tileType.disjoinS
-				: tileType.conjoinN;
+			nonNullable(array[2 * y + yOffset - 1])[2 * x + xOffset] =
+				nonNullable(activationMapped[y])[x]
+					? tileType.disjoinS
+					: tileType.conjoinN;
 		}
 
 		// Downward conjoins in grid
@@ -48,12 +48,15 @@ function drawGrid(
 		nonNullable(array[2 * p + yOffset - 1])[4 * x + xOffset + 2] =
 			tileType.conjoinN;
 
-		nonNullable(array[2 * p + yOffset])[4 * x + xOffset] = tileType.conjoinN;
-		nonNullable(array[2 * p + yOffset])[4 * x + xOffset + 1] = tileType.negate;
+		nonNullable(array[2 * p + yOffset])[4 * x + xOffset] =
+			tileType.conjoinN;
+		nonNullable(array[2 * p + yOffset])[4 * x + xOffset + 1] =
+			tileType.negate;
 		nonNullable(array[2 * p + yOffset])[4 * x + xOffset + 2] =
 			tileType.disjoinS;
 
-		nonNullable(array[2 * p + yOffset + 1])[4 * x + xOffset + 2] = tileType.io;
+		nonNullable(array[2 * p + yOffset + 1])[4 * x + xOffset + 2] =
+			tileType.io;
 	}
 }
 

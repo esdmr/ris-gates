@@ -2,25 +2,25 @@ export class RingBuffer<T> {
 	protected readonly _array: Array<T | undefined>;
 	protected _index = 0;
 
-	constructor(protected readonly _size: number) {
+	constructor(readonly size: number) {
 		// eslint-disable-next-line unicorn/no-new-array
-		this._array = new Array<undefined>(_size).fill(undefined);
+		this._array = new Array<undefined>(size).fill(undefined);
 	}
 
 	push(item: T) {
-		if (this._size === 0) return;
+		if (this.size === 0) return;
 		this._array[this._index] = item;
-		this._index = (this._index + 1) % this._size;
+		this._index = (this._index + 1) % this.size;
 	}
 
 	updateLast(item: T) {
-		if (this._size === 0) return;
+		if (this.size === 0) return;
 		this._array[this._index] = item;
 	}
 
 	pop() {
-		if (this._size === 0) return;
-		this._index = (this._index + this._size - 1) % this._size;
+		if (this.size === 0) return;
+		this._index = (this._index + this.size - 1) % this.size;
 		const item = this._array[this._index];
 		this._array[this._index] = undefined;
 		return item;
@@ -42,11 +42,21 @@ export class PooledRingBuffer<T> extends RingBuffer<T> {
 	}
 
 	override push(item: T): void {
+		if (this.size === 0) {
+			this.addToPool(item);
+			return;
+		}
+
 		this.addToPool(this._array[this._index]);
 		super.push(item);
 	}
 
 	override updateLast(item: T): void {
+		if (this.size === 0) {
+			this.addToPool(item);
+			return;
+		}
+
 		this.addToPool(this._array[this._index]);
 		super.updateLast(item);
 	}

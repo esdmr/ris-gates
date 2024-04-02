@@ -1,9 +1,7 @@
 import {assert, nonNullable} from './assert.js';
-import {EvalContext, EvalEvent, evalEvents} from './eval.js';
+import {EvalContext, EvalEvent, evalEvents, type Evaluator} from './eval.js';
 import type {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
-import {PooledRingBuffer} from './ring.js';
-import type {QuadTree} from './tree.js';
 
 const operationJump = 'j';
 const operationSet = 's';
@@ -117,7 +115,6 @@ export class SequencerContext extends EvalContext {
 	readonly publicLabels = new Map<string, number>();
 	readonly tileNames = new Map<QuadTreeNode, string>();
 	readonly monitoredTiles: readonly QuadTreeNode[];
-	protected override readonly _undoStack = new PooledRingBuffer<never>(0);
 	private _monitoring = false;
 	private readonly _tiles = new Map<string, Point>();
 	private readonly _monitored = new AdmissionSet<string>();
@@ -136,10 +133,10 @@ export class SequencerContext extends EvalContext {
 		evalEvents.dispatchEvent(new EvalEvent(this, value));
 	}
 
-	constructor(tree: QuadTree) {
-		super(tree);
+	constructor(evaluator: Evaluator) {
+		super(evaluator, 0);
 
-		const lines = tree.sequence
+		const lines = this._graph.map.tree.sequence
 			.split('\n')
 			.map(
 				(i, index) =>
@@ -162,7 +159,10 @@ export class SequencerContext extends EvalContext {
 		this._validate();
 
 		if (this._errors.length > 0) {
-			throw new SequencerAggregateError(this._errors, 'Error while parsing');
+			throw new SequencerAggregateError(
+				this._errors,
+				'Error while parsing',
+			);
 		}
 
 		this.monitoredTiles = [
@@ -230,21 +230,29 @@ export class SequencerContext extends EvalContext {
 			}
 
 			case operationSet: {
-				const dest = this._graph.map.getTile(this._tiles.get(args[1])!)!;
+				const dest = this._graph.map.getTile(
+					this._tiles.get(args[1])!,
+				)!;
 				const src = this._graph.map.getTile(this._tiles.get(args[2])!)!;
 				this.input(dest, this.output(src));
 				break;
 			}
 
 			case operationSetConstant: {
-				const dest = this._graph.map.getTile(this._tiles.get(args[1])!)!;
+				const dest = this._graph.map.getTile(
+					this._tiles.get(args[1])!,
+				)!;
 				this.input(dest, args[2]);
 				break;
 			}
 
 			case operationAssert: {
-				const actual = this._graph.map.getTile(this._tiles.get(args[1])!)!;
-				const expected = this._graph.map.getTile(this._tiles.get(args[2])!)!;
+				const actual = this._graph.map.getTile(
+					this._tiles.get(args[1])!,
+				)!;
+				const expected = this._graph.map.getTile(
+					this._tiles.get(args[2])!,
+				)!;
 				evalEvents.dispatchEvent(
 					new SequencerAssertion(
 						this,
@@ -258,9 +266,16 @@ export class SequencerContext extends EvalContext {
 			}
 
 			case operationAssertConstant: {
-				const actual = this._graph.map.getTile(this._tiles.get(args[1])!)!;
+				const actual = this._graph.map.getTile(
+					this._tiles.get(args[1])!,
+				)!;
 				evalEvents.dispatchEvent(
-					new SequencerAssertion(this, args[1]!, this.output(actual), args[2]!),
+					new SequencerAssertion(
+						this,
+						args[1]!,
+						this.output(actual),
+						args[2]!,
+					),
 				);
 				break;
 			}
@@ -268,8 +283,9 @@ export class SequencerContext extends EvalContext {
 			case operationYieldInclude: {
 				this.status = 'yielded';
 				const tiles = new AdmissionSet(args.slice(1));
-				this.yieldedTiles = tiles.calculateSet(this._graph.inputTiles, (i) =>
-					this.getTile(i),
+				this.yieldedTiles = tiles.calculateSet(
+					this._graph.inputTiles,
+					(i) => this.getTile(i),
 				);
 				break;
 			}
@@ -278,8 +294,9 @@ export class SequencerContext extends EvalContext {
 				this.status = 'yielded';
 				const tiles = new AdmissionSet(args.slice(1));
 				tiles.isExcludeList = true;
-				this.yieldedTiles = tiles.calculateSet(this._graph.inputTiles, (i) =>
-					this.getTile(i),
+				this.yieldedTiles = tiles.calculateSet(
+					this._graph.inputTiles,
+					(i) => this.getTile(i),
 				);
 				break;
 			}
@@ -314,9 +331,10 @@ export class SequencerContext extends EvalContext {
 				);
 				this.labels.set(match[1]!, this._ast.length);
 			} else if (
-				(match = /^let ([_a-z]\w*) ?\( ?([-+]?\d+)[, ]+([-+]?\d+) ?\)$/i.exec(
-					line.content,
-				))
+				(match =
+					/^let ([_a-z]\w*) ?\( ?([-+]?\d+)[, ]+([-+]?\d+) ?\)$/i.exec(
+						line.content,
+					))
 			) {
 				this._assert(
 					!this.labels.has(match[1]!),
@@ -328,13 +346,15 @@ export class SequencerContext extends EvalContext {
 				const tile = this._graph.map.getTile(pos);
 
 				this._assert(
-					tile && this._graph.vertices.has(tile),
+					tile && this._graph.map.ioTiles.has(tile),
 					line,
 					'Point is not an IO',
 				);
 
 				this._tiles.set(match[1]!, pos);
-			} else if ((match = /^([_a-z]\w*) ?= ?(0|1)$/i.exec(line.content))) {
+			} else if (
+				(match = /^([_a-z]\w*) ?= ?(0|1)$/i.exec(line.content))
+			) {
 				this._ast.push(
 					new SequencerNode(
 						line,
@@ -362,14 +382,23 @@ export class SequencerContext extends EvalContext {
 					),
 				);
 			} else if (
-				(match = /^assert ([_a-z]\w*) ?== ?([_a-z]\w*)$/i.exec(line.content))
+				(match = /^assert ([_a-z]\w*) ?== ?([_a-z]\w*)$/i.exec(
+					line.content,
+				))
 			) {
 				this.hasAssertions = true;
 				this._ast.push(
-					new SequencerNode(line, operationAssert, match[1]!, match[2]!),
+					new SequencerNode(
+						line,
+						operationAssert,
+						match[1]!,
+						match[2]!,
+					),
 				);
 			} else if ((match = /^goto ([_a-z]\w*)$/i.exec(line.content))) {
-				this._ast.push(new SequencerNode(line, operationJump, match[1]!));
+				this._ast.push(
+					new SequencerNode(line, operationJump, match[1]!),
+				);
 			} else if ((match = /^monitor ([_\w, ]+)$/i.exec(line.content))) {
 				this._assert(
 					!this._monitoring,
@@ -377,7 +406,10 @@ export class SequencerContext extends EvalContext {
 					'Overwriting the previous declaration',
 				);
 
-				const list = Array.from(match[1]!.matchAll(/[_a-z]\w*/gi), ([i]) => i);
+				const list = Array.from(
+					match[1]!.matchAll(/[_a-z]\w*/gi),
+					([i]) => i,
+				);
 
 				for (const tile of list) {
 					this._assertTile(tile, line);
@@ -385,14 +417,19 @@ export class SequencerContext extends EvalContext {
 
 				this._monitored.addAll(list);
 				this._monitoring = true;
-			} else if ((match = /^monitor ?\* ?([_\w, ]*)$/i.exec(line.content))) {
+			} else if (
+				(match = /^monitor ?\* ?([_\w, ]*)$/i.exec(line.content))
+			) {
 				this._assert(
 					!this._monitoring,
 					line,
 					'Overwriting the previous declaration',
 				);
 
-				const list = Array.from(match[1]!.matchAll(/[_a-z]\w*/gi), ([i]) => i);
+				const list = Array.from(
+					match[1]!.matchAll(/[_a-z]\w*/gi),
+					([i]) => i,
+				);
 
 				for (const tile of list) {
 					this._assertTile(tile, line);
@@ -401,7 +438,9 @@ export class SequencerContext extends EvalContext {
 				this._monitored.isExcludeList = true;
 				this._monitored.addAll(list);
 				this._monitoring = true;
-			} else if ((match = /^yield ([_\w, ]*)|yield$/i.exec(line.content))) {
+			} else if (
+				(match = /^yield ([_\w, ]*)|yield$/i.exec(line.content))
+			) {
 				const nodes = Array.from(
 					match[1]?.matchAll(/[_a-z]\w*/gi) ?? [],
 					([i]) => i,
@@ -409,8 +448,13 @@ export class SequencerContext extends EvalContext {
 				this._ast.push(
 					new SequencerNode(line, operationYieldInclude, ...nodes),
 				);
-			} else if ((match = /^yield ?\* ?([_\w, ]*)$/i.exec(line.content))) {
-				const nodes = Array.from(match[1]!.matchAll(/[_a-z]\w*/gi), ([i]) => i);
+			} else if (
+				(match = /^yield ?\* ?([_\w, ]*)$/i.exec(line.content))
+			) {
+				const nodes = Array.from(
+					match[1]!.matchAll(/[_a-z]\w*/gi),
+					([i]) => i,
+				);
 				this._ast.push(
 					new SequencerNode(line, operationYieldExclude, ...nodes),
 				);

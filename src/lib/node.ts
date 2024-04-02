@@ -19,7 +19,9 @@ export class QuadTreeNode {
 			assert(bounds.width === 1n);
 			// Cast safety: Array.includes is too narrowly typed.
 			assert(
-				tileType.quadTreeTileType.includes(value as tileType.QuadTreeTileType),
+				tileType.quadTreeTileType.includes(
+					value as tileType.QuadTreeTileType,
+				),
 			);
 			// Cast safety: Assertion above.
 			node.type = value as tileType.QuadTreeTileType;
@@ -32,7 +34,11 @@ export class QuadTreeNode {
 		if (value.length === 2) {
 			const [key, subValue] = value;
 			assert(key === 0 || key === 1 || key === 2 || key === 3);
-			node[key] = QuadTreeNode.from(subValue, bounds.narrow(key), !parity);
+			node[key] = QuadTreeNode.from(
+				subValue,
+				bounds.narrow(key),
+				!parity,
+			);
 			return node;
 		}
 

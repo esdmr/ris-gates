@@ -18,8 +18,10 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 			TSAsExpression(node) {
 				if (
 					node.expression.type === AST_NODE_TYPES.ArrayExpression &&
-					node.typeAnnotation.type === AST_NODE_TYPES.TSTypeReference &&
-					node.typeAnnotation.typeName.type === AST_NODE_TYPES.Identifier &&
+					node.typeAnnotation.type ===
+						AST_NODE_TYPES.TSTypeReference &&
+					node.typeAnnotation.typeName.type ===
+						AST_NODE_TYPES.Identifier &&
 					node.typeAnnotation.typeName.name === 'const'
 				) {
 					context.report({

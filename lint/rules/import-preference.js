@@ -19,7 +19,8 @@ module.exports = ESLintUtils.RuleCreator.withoutDocs({
 				);
 
 				const isUsingNamespaceImport = node.specifiers.every(
-					(child) => child.type === AST_NODE_TYPES.ImportNamespaceSpecifier,
+					(child) =>
+						child.type === AST_NODE_TYPES.ImportNamespaceSpecifier,
 				);
 				const shouldBeUsingNamespaceImport =
 					/([/\\])src\1(?:component\1|lib\1(?:search-mode|tile-type))/.test(
