@@ -480,7 +480,9 @@ import('./eval-wasm.js').then(
 	},
 );
 
-export function getEvaluator(graph: EvalGraph, useWasm = false): Evaluator {
+export function getEvaluator(tree: QuadTree, useWasm = false): Evaluator {
+	const graph = new EvalGraph(new TilesMap(tree));
+
 	try {
 		if (evalWasm && useWasm) {
 			evalWasm.setupWasmEvaluator(graph);

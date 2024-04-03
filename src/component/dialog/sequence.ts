@@ -8,7 +8,7 @@ import {
 } from '../../lib/sequencer.js';
 import * as hudPick from '../hud/pick.js';
 import {Timeout} from '../../lib/timer.js';
-import {EvalGraph, TilesMap, getEvaluator} from '../../lib/eval.js';
+import {getEvaluator} from '../../lib/eval.js';
 import * as dialogSequenceFailed from './sequence-failed.js';
 import * as dialogEntry from './entry.js';
 
@@ -35,9 +35,7 @@ export function setup() {
 		let context;
 
 		try {
-			context = new SequencerContext(
-				getEvaluator(new EvalGraph(new TilesMap(tree.tree))),
-			);
+			context = new SequencerContext(getEvaluator(tree.tree));
 		} catch (error) {
 			if (!(error instanceof SequencerAggregateError)) {
 				throw error;
