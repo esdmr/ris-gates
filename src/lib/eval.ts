@@ -90,8 +90,9 @@ export class EvalGraph {
 	readonly positiveEdges = new Map<number, Set<number>>();
 	readonly negativeEdges = new Map<number, Set<number>>();
 	readonly inputTiles = new Set<QuadTreeNode>();
-	readonly activeVertices = new Set<number>();
-	verticesCount = 0;
+	// Vertex 0 is always false and vertex 1 is always true.
+	readonly activeVertices = new Set<number>([1]);
+	verticesCount = 2;
 	protected declare _toDot?: () => string;
 
 	static {
