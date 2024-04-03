@@ -86,13 +86,13 @@ export class NegateVertex {
 }
 
 export class EvalGraph {
-	readonly horizontalVertices = new Map<QuadTreeNode, number>();
-	readonly verticalVertices = new Map<QuadTreeNode, number>();
-	readonly positiveEdges = new Map<number, Set<number>>();
-	readonly negativeEdges = new Map<number, Set<number>>();
+	horizontalVertices = new Map<QuadTreeNode, number>();
+	verticalVertices = new Map<QuadTreeNode, number>();
+	positiveEdges = new Map<number, Set<number>>();
+	negativeEdges = new Map<number, Set<number>>();
 	readonly inputTiles = new Set<QuadTreeNode>();
 	// Vertex 0 is always false and vertex 1 is always true.
-	readonly activeVertices = new Set<number>([1]);
+	activeVertices = new Set<number>([1]);
 	verticesCount = 2;
 	protected declare _toDot?: () => string;
 
@@ -424,14 +424,14 @@ export class EvalContext {
 		if (import.meta.env.DEV) console.group('Next Tick:', this.tickCount);
 
 		try {
-		const anythingUpdated = this._evaluator.tickForward();
+			const anythingUpdated = this._evaluator.tickForward();
 
-		if (!anythingUpdated && this._undoStack.size > 0) {
-			this._undoStack.updateLast(unchanged);
-		}
+			if (!anythingUpdated && this._undoStack.size > 0) {
+				this._undoStack.updateLast(unchanged);
+			}
 
-		evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
-		return anythingUpdated;
+			evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
+			return anythingUpdated;
 		} finally {
 			if (import.meta.env.DEV) console.groupEnd();
 		}
