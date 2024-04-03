@@ -29,18 +29,6 @@ impl<T> Writable<T> for &mut [T] {
 	}
 }
 
-trait MaybeReadable<T>: Readable<T> {
-	unsafe fn try_read(&self, offset: usize) -> Option<T> {
-		if offset == usize::MAX {
-			None
-		} else {
-			Some(self.read(offset as usize))
-		}
-	}
-}
-
-impl<T, K> MaybeReadable<T> for K where K: Readable<T> {}
-
 trait Conjoin<T> {
 	fn conjoin<F>(self, f: F) -> Option<T>
 	where
@@ -125,7 +113,7 @@ pub unsafe fn next_frame(
 			updated = false;
 			count -= 1;
 
-			for i in 0..vertices_len {
+			for i in 2..vertices_len {
 				if edge_types.read(i) != EdgeType::PositiveEdge {
 					continue;
 				}
@@ -134,12 +122,8 @@ pub unsafe fn next_frame(
 				let (a, b, c, d) = edge;
 				let target = i as usize;
 
-				let value = vertices
-					.try_read(a)
-					.conjoin(|| vertices.try_read(b))
-					.conjoin(|| vertices.try_read(c))
-					.conjoin(|| vertices.try_read(d))
-					.unwrap_or_default();
+				let value =
+					vertices.read(a) || vertices.read(b) || vertices.read(c) || vertices.read(d);
 
 				if value != vertices.read(target as usize) {
 					log_positive_edge(target, edge, value);
@@ -155,7 +139,7 @@ pub unsafe fn next_frame(
 	// negative edges can never connect to each other. Therefore, no need to
 	// loop multiple times here.
 
-	for i in 0..vertices_len {
+	for i in 2..vertices_len {
 		if edge_types.read(i) != EdgeType::NegativeEdge {
 			continue;
 		}
@@ -164,12 +148,7 @@ pub unsafe fn next_frame(
 		let (a, b, c, d) = edge;
 		let target = i as usize;
 
-		let value = !vertices
-			.try_read(a)
-			.conjoin(|| vertices.try_read(b))
-			.conjoin(|| vertices.try_read(c))
-			.conjoin(|| vertices.try_read(d))
-			.unwrap_or_default();
+		let value = !(vertices.read(a) || vertices.read(b) || vertices.read(c) || vertices.read(d));
 
 		if value != vertices.read(target as usize) {
 			log_negative_edge(target, edge, value);

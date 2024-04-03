@@ -4,7 +4,6 @@ import {assert} from './assert.js';
 
 const {memory} = await init();
 const maxAlign = 16;
-const maxU32 = 0xff_ff_ff_ff;
 const edgeSize = 4;
 const pageSize = 0x1_00_00;
 const safeInitialAddress = 2048;
@@ -116,7 +115,7 @@ export function setupWasmEvaluator(graph: EvalGraph) {
 	for (const [target, sources] of graph.positiveEdges) {
 		assert(sources.size <= 4);
 		assert(edgeTypes[target] === 0);
-		const [a = maxU32, b = maxU32, c = maxU32, d = maxU32] = sources;
+		const [a = 0, b = 0, c = 0, d = 0] = sources;
 		edgeTypes[target] = positiveEdge;
 
 		for (const [index, source] of [a, b, c, d].entries()) {
@@ -127,7 +126,7 @@ export function setupWasmEvaluator(graph: EvalGraph) {
 	for (const [target, sources] of graph.negativeEdges) {
 		assert(sources.size <= 4);
 		assert(edgeTypes[target] === 0);
-		const [a = maxU32, b = maxU32, c = maxU32, d = maxU32] = sources;
+		const [a = 0, b = 0, c = 0, d = 0] = sources;
 		edgeTypes[target] = negativeEdge;
 
 		for (const [index, source] of [a, b, c, d].entries()) {
