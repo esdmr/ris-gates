@@ -422,9 +422,8 @@ export class EvalContext {
 		this.tickCount++;
 		if (import.meta.env.DEV) console.group('Next Tick:', this.tickCount);
 
+		try {
 		const anythingUpdated = this._evaluator.tickForward();
-
-		if (import.meta.env.DEV) console.groupEnd();
 
 		if (!anythingUpdated && this._undoStack.size > 0) {
 			this._undoStack.updateLast(unchanged);
@@ -432,6 +431,9 @@ export class EvalContext {
 
 		evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
 		return anythingUpdated;
+		} finally {
+			if (import.meta.env.DEV) console.groupEnd();
+		}
 	}
 
 	tickBackward() {
