@@ -400,8 +400,13 @@ export class EvalContext {
 		this._evaluator.input(vertex, value);
 	}
 
-	output(tile: QuadTreeNode) {
+	outputHorizontal(tile: QuadTreeNode) {
 		const vertex = this._graph.horizontalVertices.get(tile);
+		return vertex !== undefined && this._evaluator.output(vertex);
+	}
+
+	outputVertical(tile: QuadTreeNode) {
+		const vertex = this._graph.verticalVertices.get(tile);
 		return vertex !== undefined && this._evaluator.output(vertex);
 	}
 

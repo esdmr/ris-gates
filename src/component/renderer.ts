@@ -108,7 +108,7 @@ function commitInputs() {
 
 				if (tile && eval_.getEvalContext().yieldedTiles.has(tile)) {
 					const context = eval_.getEvalContext();
-					context.input(tile, !context.output(tile));
+					context.input(tile, !context.outputHorizontal(tile));
 				}
 
 				break;
@@ -251,7 +251,7 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 		const isActive =
 			(mode.mode !== 'eval' && mode.mode !== 'automated') ||
-			eval_.getEvalContext().output(node);
+			eval_.getEvalContext().outputHorizontal(node);
 		const {type} = node;
 		if (type !== lastType || wasActive !== isActive) {
 			canvas.context.fillStyle =
@@ -461,10 +461,24 @@ function drawTile(
 	);
 
 	switch (node.type) {
-		case tileType.conjoinN:
 		case tileType.disjoinN: {
 			canvas.context.beginPath();
 			canvas.context.moveTo(
+				(i + 0.25) * realScale - offsetX,
+				(j + 0.5) * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				(i + 0.75) * realScale - offsetX,
+				(j + 0.5) * realScale - offsetY,
+			);
+			canvas.context.stroke();
+
+			// Fallthrough
+		}
+
+		case tileType.conjoinN: {
+			canvas.context.beginPath();
+			canvas.context.moveTo(
 				i * realScale - offsetX,
 				(j + 1) * realScale - offsetY,
 			);
@@ -480,8 +494,22 @@ function drawTile(
 			break;
 		}
 
-		case tileType.conjoinS:
 		case tileType.disjoinS: {
+			canvas.context.beginPath();
+			canvas.context.moveTo(
+				(i + 0.25) * realScale - offsetX,
+				(j + 0.5) * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				(i + 0.75) * realScale - offsetX,
+				(j + 0.5) * realScale - offsetY,
+			);
+			canvas.context.stroke();
+
+			// Fallthrough
+		}
+
+		case tileType.conjoinS: {
 			canvas.context.beginPath();
 			canvas.context.moveTo(
 				i * realScale - offsetX,
@@ -499,8 +527,22 @@ function drawTile(
 			break;
 		}
 
-		case tileType.conjoinE:
 		case tileType.disjoinE: {
+			canvas.context.beginPath();
+			canvas.context.moveTo(
+				(i + 0.5) * realScale - offsetX,
+				(j + 0.25) * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				(i + 0.5) * realScale - offsetX,
+				(j + 0.75) * realScale - offsetY,
+			);
+			canvas.context.stroke();
+
+			// Fallthrough
+		}
+
+		case tileType.conjoinE: {
 			canvas.context.beginPath();
 			canvas.context.moveTo(
 				i * realScale - offsetX,
@@ -518,8 +560,22 @@ function drawTile(
 			break;
 		}
 
-		case tileType.conjoinW:
 		case tileType.disjoinW: {
+			canvas.context.beginPath();
+			canvas.context.moveTo(
+				(i + 0.5) * realScale - offsetX,
+				(j + 0.25) * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				(i + 0.5) * realScale - offsetX,
+				(j + 0.75) * realScale - offsetY,
+			);
+			canvas.context.stroke();
+
+			// Fallthrough
+		}
+
+		case tileType.conjoinW: {
 			canvas.context.beginPath();
 			canvas.context.moveTo(
 				(i + 1) * realScale - offsetX,
@@ -553,6 +609,41 @@ function drawTile(
 			);
 			canvas.context.stroke();
 
+			break;
+		}
+
+		case tileType.negate: {
+			if (mode.mode !== 'eval' && mode.mode !== 'automated') break;
+
+			const isActive = eval_.getEvalContext().outputVertical(node);
+			const oldFillStyle = canvas.context.fillStyle;
+
+			canvas.context.fillStyle =
+				(isActive
+					? theme.activeFillStyles
+					: theme.passiveFillStyles
+				).get(node.type) ?? 'transparent';
+
+			canvas.context.beginPath();
+			canvas.context.moveTo(
+				i * realScale - offsetX,
+				j * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				(i + 1) * realScale - offsetX,
+				(j + 1) * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				i * realScale - offsetX,
+				(j + 1) * realScale - offsetY,
+			);
+			canvas.context.lineTo(
+				(i + 1) * realScale - offsetX,
+				j * realScale - offsetY,
+			);
+			canvas.context.fill();
+
+			canvas.context.fillStyle = oldFillStyle;
 			break;
 		}
 
