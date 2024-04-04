@@ -2,46 +2,56 @@ import {assert} from './assert.js';
 import type {EvalGraph} from './eval.js';
 
 class Mapping {
-	private readonly _replacements = new Map<number, number>();
+	private readonly _mapping: Uint32Array;
+	private readonly _replacedVertices = new Set<number>();
+
+	constructor(private readonly _graph: EvalGraph) {
+		const mapping = new Uint32Array(_graph.verticesCount);
+		this._mapping = mapping;
+
+		for (let i = 0; i < mapping.length; i++) {
+			mapping[i] = i;
+		}
+	}
 
 	replace(oldVertex: number, newVertex: number) {
-		this._replacements.set(oldVertex, newVertex);
+		const mapping = this._mapping;
+		const graph = this._graph;
 
-		for (const [from, to] of this._replacements) {
-			if (to === oldVertex) {
-				this._replacements.set(from, newVertex);
+		assert(!graph.positiveEdges.has(oldVertex));
+		assert(!graph.negativeEdges.has(oldVertex));
+		assert(!graph.activeVertices.has(oldVertex));
+
+		// Cast safety: Mapping has a range of `0..verticesCount`. `newVertex`
+		// should always be in-bounds.
+		newVertex = mapping[newVertex]!;
+		assert(mapping[oldVertex] === oldVertex);
+		assert(mapping[newVertex] === newVertex);
+		this._replacedVertices.add(oldVertex);
+
+		for (let i = 0; i < mapping.length; i++) {
+			if (mapping[i] === oldVertex) {
+				mapping[i] = newVertex;
 			}
 		}
 	}
 
-	apply(vertex: number) {
-		vertex = this._replacements.get(vertex) ?? vertex;
-		let offset = 0;
+	applyToGraph() {
+		const mapping = this._mapping;
+		const graph = this._graph;
 
-		for (const from of this._replacements.keys()) {
-			if (from < vertex) {
-				offset--;
+		for (let i = 0, deletionCount = 0; i < mapping.length; i++) {
+			if (mapping[i] === i) {
+				mapping[i] = i - deletionCount;
+			} else {
+				deletionCount++;
 			}
 		}
 
-		return vertex + offset;
-	}
-
-	applyToGraph(graph: EvalGraph) {
-		const mapping: number[] = [];
-
-		for (let i = 0; i < graph.verticesCount; i++) {
-			mapping.push(this.apply(i));
-		}
-
-		for (const [from, to] of this._replacements) {
-			assert(!graph.positiveEdges.has(from));
-			assert(!graph.negativeEdges.has(from));
-			assert(
-				graph.activeVertices.has(from) === graph.activeVertices.has(to),
-			);
-
-			graph.activeVertices.delete(from);
+		for (const from of this._replacedVertices) {
+			// Cast safety: Mapping has a range of `0..verticesCount`. `from`
+			// should always be in-bounds.
+			mapping[from] = mapping[mapping[from]!]!;
 		}
 
 		for (const vertices of [
@@ -49,14 +59,14 @@ class Mapping {
 			graph.verticalVertices,
 		]) {
 			for (const [tile, vertex] of vertices) {
-				// Cast safety: Mapping has a range of 0..verticesCount. vertex
-				// should always be in-bounds.
+				// Cast safety: Mapping has a range of `0..verticesCount`.
+				// `vertex` should always be in-bounds.
 				vertices.set(tile, mapping[vertex]!);
 			}
 		}
 
-		// Cast safety: Mapping has a range of 0..verticesCount. vertex should
-		// always be in-bounds.
+		// Cast safety: Mapping has a range of `0..verticesCount`. `target` and
+		// `i` should always be in-bounds.
 		graph.positiveEdges = new Map(
 			[...graph.positiveEdges].map(
 				([target, sources]) =>
@@ -68,8 +78,8 @@ class Mapping {
 			),
 		);
 
-		// Cast safety: Mapping has a range of 0..verticesCount. vertex should
-		// always be in-bounds.
+		// Cast safety: Mapping has a range of `0..verticesCount`. `target` and
+		// `i` should always be in-bounds.
 		graph.negativeEdges = new Map(
 			[...graph.negativeEdges].map(
 				([target, sources]) =>
@@ -81,69 +91,30 @@ class Mapping {
 			),
 		);
 
-		// Cast safety: Mapping has a range of 0..verticesCount. vertex should
+		// Cast safety: Mapping has a range of `0..verticesCount`. `i` should
 		// always be in-bounds.
 		graph.activeVertices = new Set(
 			[...graph.activeVertices].map((i) => mapping[i]!),
 		);
 
-		graph.verticesCount -= this._replacements.size;
-		return this._replacements.size;
+		graph.verticesCount -= this._replacedVertices.size;
+		return this._replacedVertices.size;
 	}
-}
-
-function optimizeEmptyEdges(graph: EvalGraph) {
-	let count = 0;
-
-	for (const edges of [graph.positiveEdges, graph.negativeEdges]) {
-		for (const [target, sources] of edges) {
-			const [item = 0] = sources;
-
-			if (sources.size < 2 && item === 0) {
-				edges.delete(target);
-				count++;
-			}
-		}
-	}
-
-	return count;
-}
-
-function optimizeConstantVertices(graph: EvalGraph) {
-	const variables = new Set<number>();
-
-	for (const tile of graph.inputTiles) {
-		const vertex = graph.horizontalVertices.get(tile);
-		if (vertex) variables.add(vertex);
-	}
-
-	for (const edges of [graph.positiveEdges, graph.negativeEdges]) {
-		for (const [target] of edges) {
-			variables.add(target);
-		}
-	}
-
-	const mapping = new Mapping();
-
-	for (let i = 2; i < graph.verticesCount; i++) {
-		if (!variables.has(i)) {
-			mapping.replace(i, Number(graph.activeVertices.has(i)));
-		}
-	}
-
-	return mapping.applyToGraph(graph);
 }
 
 function optimizeConstantEdges(graph: EvalGraph) {
 	let count = 0;
 
 	for (const edges of [graph.positiveEdges, graph.negativeEdges]) {
-		for (const [, sources] of edges) {
+		for (const [target, sources] of edges) {
 			let modified = sources.delete(0);
 
-			if (sources.has(1) && sources.size > 1) {
+			if (sources.size > 1 && sources.has(1)) {
 				sources.clear();
 				sources.add(1);
+				modified = true;
+			} else if (sources.size === 0) {
+				edges.delete(target);
 				modified = true;
 			}
 
@@ -172,9 +143,50 @@ function validateGraph(graph: EvalGraph) {
 	return 0;
 }
 
+function optimizeConstantVertices(graph: EvalGraph) {
+	const variables = new Set<number>();
+
+	for (const tile of graph.inputTiles) {
+		const vertex = graph.horizontalVertices.get(tile);
+		if (vertex) variables.add(vertex);
+	}
+
+	for (const edges of [graph.positiveEdges, graph.negativeEdges]) {
+		for (const [target] of edges) {
+			variables.add(target);
+		}
+	}
+
+	const mapping = new Mapping(graph);
+
+	for (let i = 2; i < graph.verticesCount; i++) {
+		if (!variables.has(i)) {
+			mapping.replace(i, Number(graph.activeVertices.delete(i)));
+		}
+	}
+
+	return mapping.applyToGraph();
+}
+
+function optimizeAliasedVertices(graph: EvalGraph) {
+	const mapping = new Mapping(graph);
+
+	for (const [target, sources] of graph.positiveEdges) {
+		const [source = 0] = sources;
+		assert(!graph.activeVertices.has(target));
+
+		if (sources.size === 1 && !graph.activeVertices.has(source)) {
+			graph.positiveEdges.delete(target);
+			mapping.replace(target, source);
+		}
+	}
+
+	return mapping.applyToGraph();
+}
+
 export const optimizations: ReadonlyArray<(graph: EvalGraph) => number> = [
 	validateGraph,
-	optimizeEmptyEdges,
-	optimizeConstantVertices,
 	optimizeConstantEdges,
+	optimizeConstantVertices,
+	optimizeAliasedVertices,
 ];
