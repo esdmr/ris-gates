@@ -173,7 +173,11 @@ function optimizeAliasedVertices(graph: EvalGraph) {
 		const [source = 0] = sources;
 		assert(!graph.activeVertices.has(target));
 
-		if (sources.size === 1 && !graph.activeVertices.has(source)) {
+		if (
+			sources.size === 1 &&
+			!graph.activeVertices.has(source) &&
+			!graph.inputVertices.has(source)
+		) {
 			graph.positiveEdges.delete(target);
 			mapping.replace(target, source);
 		}
