@@ -132,6 +132,27 @@ function optimizeConstantEdges(graph: EvalGraph) {
 	return count;
 }
 
+function optimizeUnusedNegativeEdges(graph: EvalGraph) {
+	const usedVertices = new Set<number>();
+
+	for (const [, sources] of graph.positiveEdges) {
+		for (const source of sources) {
+			usedVertices.add(source);
+		}
+	}
+
+	let count = 0;
+
+	for (const [target] of graph.negativeEdges) {
+		if (!usedVertices.has(target)) {
+			graph.negativeEdges.delete(target);
+			count++;
+		}
+	}
+
+	return count;
+}
+
 function validateGraph(graph: EvalGraph) {
 	for (const [target, sources] of graph.positiveEdges) {
 		assert(!sources.has(target));
@@ -211,6 +232,7 @@ function simplifyUnidirectionalNegates(graph: EvalGraph) {
 export const optimizations: ReadonlyArray<(graph: EvalGraph) => number> = [
 	validateGraph,
 	optimizeConstantEdges,
+	optimizeUnusedNegativeEdges,
 	optimizeConstantVertices,
 	optimizeAliasedVertices,
 	simplifyUnidirectionalNegates,
