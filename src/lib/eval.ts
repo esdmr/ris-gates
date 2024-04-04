@@ -396,6 +396,13 @@ export class EvalContext {
 		);
 	}
 
+	isUnidirectional(tile: QuadTreeNode) {
+		return (
+			this._graph.horizontalVertices.get(tile) ===
+			this._graph.verticalVertices.get(tile)
+		);
+	}
+
 	input(tile: QuadTreeNode, value: boolean) {
 		const vertex = this._graph.horizontalVertices.get(tile);
 		if (vertex === undefined) return;

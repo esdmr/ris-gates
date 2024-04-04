@@ -614,8 +614,10 @@ function drawTile(
 
 		case tileType.negate: {
 			if (mode.mode !== 'eval' && mode.mode !== 'automated') break;
+			const context = eval_.getEvalContext();
+			if (context.isUnidirectional(node)) break;
 
-			const isActive = eval_.getEvalContext().outputVertical(node);
+			const isActive = context.outputVertical(node);
 			const oldFillStyle = canvas.context.fillStyle;
 
 			canvas.context.fillStyle =
@@ -642,6 +644,7 @@ function drawTile(
 				j * realScale - offsetY,
 			);
 			canvas.context.fill();
+			canvas.context.stroke();
 
 			canvas.context.fillStyle = oldFillStyle;
 			break;
