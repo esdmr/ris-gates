@@ -237,3 +237,15 @@ export const optimizations: ReadonlyArray<(graph: EvalGraph) => number> = [
 	optimizeAliasedVertices,
 	simplifyUnidirectionalNegates,
 ];
+
+export function optimize(graph: EvalGraph) {
+	for (let updated = true; updated; ) {
+		updated = false;
+
+		for (const optimize of optimizations) {
+			const delta = optimize(graph);
+			if (import.meta.env.DEV) console.log(optimize.name, delta);
+			if (delta > 0) updated = true;
+		}
+	}
+}

@@ -1,6 +1,6 @@
 import {assert} from './assert.js';
 import {JsEvaluator} from './eval-js.js';
-import {optimizations} from './eval-opt.js';
+import {optimize} from './eval-opt.js';
 // eslint-disable-next-line @internal/import-preference
 import type * as EvalWasm from './eval-wasm.js';
 import {mapGet} from './map-and-set.js';
@@ -505,15 +505,7 @@ export function getEvaluator(tree: QuadTree, useWasm = false): Evaluator {
 	}
 
 	try {
-		for (let updated = true; updated; ) {
-			updated = false;
-
-			for (const optimize of optimizations) {
-				const delta = optimize(graph);
-				if (import.meta.env.DEV) console.log(optimize.name, delta);
-				if (delta > 0) updated = true;
-			}
-		}
+		optimize(graph);
 	} finally {
 		if (import.meta.env.DEV) {
 			console.log(
