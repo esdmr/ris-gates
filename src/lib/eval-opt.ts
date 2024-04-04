@@ -184,9 +184,32 @@ function optimizeAliasedVertices(graph: EvalGraph) {
 	return mapping.applyToGraph();
 }
 
+function simplifyUnidirectionalNegates(graph: EvalGraph) {
+	for (const [tile, vertex] of graph.horizontalVertices) {
+		if (vertex === 1) {
+			graph.horizontalVertices.set(
+				tile,
+				graph.verticalVertices.get(tile) ?? vertex,
+			);
+		}
+	}
+
+	for (const [tile, vertex] of graph.verticalVertices) {
+		if (vertex === 1) {
+			graph.verticalVertices.set(
+				tile,
+				graph.horizontalVertices.get(tile) ?? vertex,
+			);
+		}
+	}
+
+	return 0;
+}
+
 export const optimizations: ReadonlyArray<(graph: EvalGraph) => number> = [
 	validateGraph,
 	optimizeConstantEdges,
 	optimizeConstantVertices,
 	optimizeAliasedVertices,
+	simplifyUnidirectionalNegates,
 ];
