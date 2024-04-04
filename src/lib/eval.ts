@@ -92,7 +92,8 @@ export class EvalGraph {
 	negativeEdges = new Map<number, Set<number>>();
 	readonly inputTiles = new Set<QuadTreeNode>();
 	// Vertex 0 is always false and vertex 1 is always true.
-	activeVertices = new Set<number>([1]);
+	activeVertices = new Set([1]);
+	inputVertices = new Set<number>();
 	verticesCount = 2;
 	protected declare _toDot?: () => string;
 
@@ -155,6 +156,7 @@ export class EvalGraph {
 				!this.negativeEdges.has(vertex)
 			) {
 				this.inputTiles.add(tile);
+				this.inputVertices.add(vertex);
 			}
 		}
 
