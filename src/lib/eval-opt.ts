@@ -21,6 +21,7 @@ class Mapping {
 		assert(!graph.positiveEdges.has(oldVertex));
 		assert(!graph.negativeEdges.has(oldVertex));
 		assert(!graph.activeVertices.has(oldVertex));
+		assert(!graph.inputVertices.has(oldVertex));
 
 		// Cast safety: Mapping has a range of `0..verticesCount`. `newVertex`
 		// should always be in-bounds.
@@ -97,6 +98,12 @@ class Mapping {
 			[...graph.activeVertices].map((i) => mapping[i]!),
 		);
 
+		// Cast safety: Mapping has a range of `0..verticesCount`. `i` should
+		// always be in-bounds.
+		graph.inputVertices = new Set(
+			[...graph.inputVertices].map((i) => mapping[i]!),
+		);
+
 		graph.verticesCount -= this._replacedVertices.size;
 		return this._replacedVertices.size;
 	}
@@ -144,23 +151,14 @@ function validateGraph(graph: EvalGraph) {
 }
 
 function optimizeConstantVertices(graph: EvalGraph) {
-	const variables = new Set<number>();
-
-	for (const tile of graph.inputTiles) {
-		const vertex = graph.horizontalVertices.get(tile);
-		if (vertex) variables.add(vertex);
-	}
-
-	for (const edges of [graph.positiveEdges, graph.negativeEdges]) {
-		for (const [target] of edges) {
-			variables.add(target);
-		}
-	}
-
 	const mapping = new Mapping(graph);
 
 	for (let i = 2; i < graph.verticesCount; i++) {
-		if (!variables.has(i)) {
+		if (
+			!graph.inputVertices.has(i) &&
+			!graph.positiveEdges.has(i) &&
+			!graph.negativeEdges.has(i)
+		) {
 			mapping.replace(i, Number(graph.activeVertices.delete(i)));
 		}
 	}
