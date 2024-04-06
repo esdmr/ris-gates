@@ -9,11 +9,11 @@ extern "C" {
 }
 
 #[cfg(not(risg_prod))]
-pub fn log_edge(kind: char, target: usize, edge: Edge, value: bool) {
+pub fn print_edge(kind: char, target: usize, edge: &Edge, value: bool) {
 	log(kind, target, edge.0, edge.1, edge.2, edge.3, value);
 }
 
 #[cfg(risg_prod)]
-pub fn log_edge(_kind: char, _target: usize, _edge: Edge, _value: bool) {
+pub fn print_edge(_kind: char, _target: usize, _edge: &Edge, _value: bool) {
 	// Nothing
 }
