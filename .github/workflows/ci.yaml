@@ -42,8 +42,8 @@ jobs:
           toolchain: stable
           targets: wasm32-unknown-unknown
 
-      - name: Cargo check
-        run: cargo check
+      - name: Run clippy
+        run: cargo clippy --no-deps -- -Dwarnings
         working-directory: eval-wasm
 
       - name: Cargo fmt
