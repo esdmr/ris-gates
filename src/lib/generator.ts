@@ -8,8 +8,8 @@ function drawTile(
 	y: number,
 	tile: tileType.QuadTreeTileType,
 ) {
-	assert(x > 0 && x < schematic.width);
-	assert(y > 0 && y < schematic.height);
+	assert(x >= 0 && x < schematic.width);
+	assert(y >= 0 && y < schematic.height);
 	schematic.tiles[y * schematic.width + x] = tile;
 }
 
