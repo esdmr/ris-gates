@@ -3,18 +3,18 @@ import {Schematic} from './schematic.js';
 import * as tileType from './tile-type.js';
 
 function drawTile(
-	array: Schematic,
+	schematic: Schematic,
 	x: number,
 	y: number,
 	tile: tileType.QuadTreeTileType,
 ) {
-	assert(x > 0 && x < array.width);
-	assert(y > 0 && y < array.height);
-	array.tiles[y * array.width + x] = tile;
+	assert(x > 0 && x < schematic.width);
+	assert(y > 0 && y < schematic.height);
+	schematic.tiles[y * schematic.width + x] = tile;
 }
 
 function drawGrid(
-	array: Schematic,
+	schematic: Schematic,
 	activation: boolean[][],
 	xOffset: number,
 	yOffset: number,
@@ -29,21 +29,26 @@ function drawGrid(
 
 	for (let y = 0; y < p; y++) {
 		// Western conjoins
-		drawTile(array, xOffset - 1, 2 * y + yOffset, tileType.conjoinE);
+		drawTile(schematic, xOffset - 1, 2 * y + yOffset, tileType.conjoinE);
 
 		// Grid
 		for (let x = 0; x < 2 * q; x++) {
-			drawTile(array, 2 * x + xOffset, 2 * y + yOffset, tileType.negate);
+			drawTile(
+				schematic,
+				2 * x + xOffset,
+				2 * y + yOffset,
+				tileType.negate,
+			);
 
 			drawTile(
-				array,
+				schematic,
 				2 * x + xOffset + 1,
 				2 * y + yOffset,
 				tileType.conjoinE,
 			);
 
 			drawTile(
-				array,
+				schematic,
 				2 * x + xOffset,
 				2 * y + yOffset - 1,
 				nonNullable(activationMapped[y])[x]
@@ -55,7 +60,7 @@ function drawGrid(
 		// Downward conjoins in grid
 		for (let x = 0; x < q; x++) {
 			drawTile(
-				array,
+				schematic,
 				4 * x + xOffset + 1,
 				2 * y + yOffset - 1,
 				tileType.conjoinS,
@@ -66,34 +71,49 @@ function drawGrid(
 	// Southern IO
 	for (let x = 0; x < q; x++) {
 		drawTile(
-			array,
+			schematic,
 			4 * x + xOffset,
 			2 * p + yOffset - 1,
 			tileType.conjoinN,
 		);
 		drawTile(
-			array,
+			schematic,
 			4 * x + xOffset + 2,
 			2 * p + yOffset - 1,
 			tileType.conjoinN,
 		);
 
-		drawTile(array, 4 * x + xOffset, 2 * p + yOffset, tileType.conjoinN);
-		drawTile(array, 4 * x + xOffset + 1, 2 * p + yOffset, tileType.negate);
 		drawTile(
-			array,
+			schematic,
+			4 * x + xOffset,
+			2 * p + yOffset,
+			tileType.conjoinN,
+		);
+		drawTile(
+			schematic,
+			4 * x + xOffset + 1,
+			2 * p + yOffset,
+			tileType.negate,
+		);
+		drawTile(
+			schematic,
 			4 * x + xOffset + 2,
 			2 * p + yOffset,
 			tileType.disjoinS,
 		);
 
-		drawTile(array, 4 * x + xOffset + 2, 2 * p + yOffset + 1, tileType.io);
+		drawTile(
+			schematic,
+			4 * x + xOffset + 2,
+			2 * p + yOffset + 1,
+			tileType.io,
+		);
 	}
 }
 
 // eslint-disable-next-line max-params
 function drawIoBridge(
-	array: Schematic,
+	schematic: Schematic,
 	x: number,
 	xDir: -1 | 1,
 	yStart: number,
@@ -105,7 +125,7 @@ function drawIoBridge(
 	for (let y = yStart; y < yEnd; y++) {
 		// Cast safety: (north + 0) is north and (north + 2) is south.
 		drawTile(
-			array,
+			schematic,
 			x,
 			y,
 			(north + (y < yMid ? 2 : 0)) as tileType.QuadTreeTileType,
@@ -114,13 +134,13 @@ function drawIoBridge(
 
 	// Cast safety: (north + 3) is west and (north + 1) is east.
 	drawTile(
-		array,
+		schematic,
 		x,
 		yMid,
 		(north + (xDir < 0 ? 3 : 1)) as tileType.QuadTreeTileType,
 	);
 
-	drawTile(array, x + xDir, yMid, tileType.io);
+	drawTile(schematic, x + xDir, yMid, tileType.io);
 }
 
 function createEmptySchema(width: number, height: number) {
@@ -144,10 +164,10 @@ export function generateMultiplexer(input: number, output: number) {
 	const xOffset = input > output ? 2 : 3;
 	const yOffset = 2;
 
-	const array = createEmptySchema(width, height);
+	const schematic = createEmptySchema(width, height);
 
 	drawGrid(
-		array,
+		schematic,
 		// eslint-disable-next-line @internal/no-object-literals
 		Array.from({length: p}, (_, index) =>
 			index
@@ -162,13 +182,13 @@ export function generateMultiplexer(input: number, output: number) {
 
 	// Northern IO
 	for (let x = 0; x < 2 * q; x++) {
-		drawTile(array, 2 * x + xOffset, yOffset - 2, tileType.io);
+		drawTile(schematic, 2 * x + xOffset, yOffset - 2, tileType.io);
 	}
 
 	// Input IO
 	for (let y = 0; y < p; y++) {
 		drawTile(
-			array,
+			schematic,
 			input > output ? 0 : width - 1,
 			2 * y + yOffset,
 			tileType.io,
@@ -177,7 +197,7 @@ export function generateMultiplexer(input: number, output: number) {
 
 	// Output IO
 	drawIoBridge(
-		array,
+		schematic,
 		input > output ? width - 2 : 1,
 		input > output ? 1 : -1,
 		yOffset,
@@ -185,7 +205,7 @@ export function generateMultiplexer(input: number, output: number) {
 		input > output ? tileType.conjoinN : tileType.disjoinN,
 	);
 
-	return array;
+	return schematic;
 }
 
 export function generateDecoder(input: number, output: number) {
@@ -197,10 +217,10 @@ export function generateDecoder(input: number, output: number) {
 	const xOffset = 2;
 	const yOffset = 1;
 
-	const array = createEmptySchema(width, height);
+	const schematic = createEmptySchema(width, height);
 
 	drawGrid(
-		array,
+		schematic,
 		// eslint-disable-next-line @internal/no-object-literals
 		Array.from({length: p}, (_, index) =>
 			index
@@ -215,13 +235,13 @@ export function generateDecoder(input: number, output: number) {
 
 	for (let y = 0; y < p; y++) {
 		// Western Negate
-		drawTile(array, 0, 2 * y + yOffset, tileType.negate);
+		drawTile(schematic, 0, 2 * y + yOffset, tileType.negate);
 
 		// Output IO
-		drawTile(array, width - 1, 2 * y + yOffset, tileType.io);
+		drawTile(schematic, width - 1, 2 * y + yOffset, tileType.io);
 	}
 
-	return array;
+	return schematic;
 }
 
 export function generateEncoder(input: number, output: number) {
@@ -253,10 +273,10 @@ export function generateEncoder(input: number, output: number) {
 	const xOffset = 2;
 	const yOffset = 1;
 
-	const array = createEmptySchema(width, height);
+	const schematic = createEmptySchema(width, height);
 
 	drawGrid(
-		array,
+		schematic,
 		activation.map((i) =>
 			i
 				.toString(2)
@@ -270,14 +290,14 @@ export function generateEncoder(input: number, output: number) {
 
 	for (let y = 0; y < p; y++) {
 		// Western Negate
-		drawTile(array, 0, 2 * y + yOffset, tileType.negate);
+		drawTile(schematic, 0, 2 * y + yOffset, tileType.negate);
 	}
 
 	const outputParts = q / 2;
 
 	for (let i = 0; i < output; i++) {
 		drawIoBridge(
-			array,
+			schematic,
 			width - 2,
 			1,
 			2 * (outputParts - 1) * i + yOffset,
@@ -287,7 +307,7 @@ export function generateEncoder(input: number, output: number) {
 
 		if (i > 0) {
 			drawTile(
-				array,
+				schematic,
 				width - 2,
 				2 * (outputParts - 1) * i + yOffset,
 				tileType.disjoinW,
@@ -295,8 +315,8 @@ export function generateEncoder(input: number, output: number) {
 		}
 	}
 
-	drawTile(array, width - 2, array.height - 4, tileType.conjoinE);
-	drawTile(array, width - 1, array.height - 4, tileType.io);
+	drawTile(schematic, width - 2, schematic.height - 4, tileType.conjoinE);
+	drawTile(schematic, width - 1, schematic.height - 4, tileType.io);
 
-	return array;
+	return schematic;
 }
