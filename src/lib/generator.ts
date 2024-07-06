@@ -2,8 +2,19 @@ import {nonNullable, assert} from './assert.js';
 import {Schematic} from './schematic.js';
 import * as tileType from './tile-type.js';
 
+function drawTile(
+	array: Schematic,
+	x: number,
+	y: number,
+	tile: tileType.QuadTreeTileType,
+) {
+	assert(x > 0 && x < array.width);
+	assert(y > 0 && y < array.height);
+	array.tiles[y * array.width + x] = tile;
+}
+
 function drawGrid(
-	array: tileType.QuadTreeTileType[][],
+	array: Schematic,
 	activation: boolean[][],
 	xOffset: number,
 	yOffset: number,
@@ -18,51 +29,71 @@ function drawGrid(
 
 	for (let y = 0; y < p; y++) {
 		// Western conjoins
-		nonNullable(array[2 * y + yOffset])[xOffset - 1] = tileType.conjoinE;
+		drawTile(array, xOffset - 1, 2 * y + yOffset, tileType.conjoinE);
 
 		// Grid
 		for (let x = 0; x < 2 * q; x++) {
-			nonNullable(array[2 * y + yOffset])[2 * x + xOffset] =
-				tileType.negate;
+			drawTile(array, 2 * x + xOffset, 2 * y + yOffset, tileType.negate);
 
-			nonNullable(array[2 * y + yOffset])[2 * x + xOffset + 1] =
-				tileType.conjoinE;
+			drawTile(
+				array,
+				2 * x + xOffset + 1,
+				2 * y + yOffset,
+				tileType.conjoinE,
+			);
 
-			nonNullable(array[2 * y + yOffset - 1])[2 * x + xOffset] =
+			drawTile(
+				array,
+				2 * x + xOffset,
+				2 * y + yOffset - 1,
 				nonNullable(activationMapped[y])[x]
 					? tileType.disjoinS
-					: tileType.conjoinN;
+					: tileType.conjoinN,
+			);
 		}
 
 		// Downward conjoins in grid
 		for (let x = 0; x < q; x++) {
-			nonNullable(array[2 * y + yOffset - 1])[4 * x + xOffset + 1] =
-				tileType.conjoinS;
+			drawTile(
+				array,
+				4 * x + xOffset + 1,
+				2 * y + yOffset - 1,
+				tileType.conjoinS,
+			);
 		}
 	}
 
 	// Southern IO
 	for (let x = 0; x < q; x++) {
-		nonNullable(array[2 * p + yOffset - 1])[4 * x + xOffset] =
-			tileType.conjoinN;
-		nonNullable(array[2 * p + yOffset - 1])[4 * x + xOffset + 2] =
-			tileType.conjoinN;
+		drawTile(
+			array,
+			4 * x + xOffset,
+			2 * p + yOffset - 1,
+			tileType.conjoinN,
+		);
+		drawTile(
+			array,
+			4 * x + xOffset + 2,
+			2 * p + yOffset - 1,
+			tileType.conjoinN,
+		);
 
-		nonNullable(array[2 * p + yOffset])[4 * x + xOffset] =
-			tileType.conjoinN;
-		nonNullable(array[2 * p + yOffset])[4 * x + xOffset + 1] =
-			tileType.negate;
-		nonNullable(array[2 * p + yOffset])[4 * x + xOffset + 2] =
-			tileType.disjoinS;
+		drawTile(array, 4 * x + xOffset, 2 * p + yOffset, tileType.conjoinN);
+		drawTile(array, 4 * x + xOffset + 1, 2 * p + yOffset, tileType.negate);
+		drawTile(
+			array,
+			4 * x + xOffset + 2,
+			2 * p + yOffset,
+			tileType.disjoinS,
+		);
 
-		nonNullable(array[2 * p + yOffset + 1])[4 * x + xOffset + 2] =
-			tileType.io;
+		drawTile(array, 4 * x + xOffset + 2, 2 * p + yOffset + 1, tileType.io);
 	}
 }
 
 // eslint-disable-next-line max-params
 function drawIoBridge(
-	array: tileType.QuadTreeTileType[][],
+	array: Schematic,
 	x: number,
 	xDir: -1 | 1,
 	yStart: number,
@@ -73,24 +104,33 @@ function drawIoBridge(
 
 	for (let y = yStart; y < yEnd; y++) {
 		// Cast safety: (north + 0) is north and (north + 2) is south.
-		nonNullable(array[y])[x] = (north +
-			(y < yMid ? 2 : 0)) as tileType.QuadTreeTileType;
+		drawTile(
+			array,
+			x,
+			y,
+			(north + (y < yMid ? 2 : 0)) as tileType.QuadTreeTileType,
+		);
 	}
 
 	// Cast safety: (north + 3) is west and (north + 1) is east.
-	nonNullable(array[yMid])[x] = (north +
-		(xDir < 0 ? 3 : 1)) as tileType.QuadTreeTileType;
+	drawTile(
+		array,
+		x,
+		yMid,
+		(north + (xDir < 0 ? 3 : 1)) as tileType.QuadTreeTileType,
+	);
 
-	nonNullable(array[yMid])[x + xDir] = tileType.io;
+	drawTile(array, x + xDir, yMid, tileType.io);
 }
 
-function createArray2D<T>(width: number, height: number, value: T) {
+function createEmptySchema(width: number, height: number) {
 	/* eslint-disable @internal/no-object-literals */
-	return Array.from(
-		{
-			length: height,
-		},
-		() => Array.from<T>({length: width}).fill(value),
+	return new Schematic(
+		width,
+		height,
+		Array.from<tileType.QuadTreeTileType>({length: width * height}).fill(
+			tileType.empty,
+		),
 	);
 	/* eslint-enable @internal/no-object-literals */
 }
@@ -104,11 +144,7 @@ export function generateMultiplexer(input: number, output: number) {
 	const xOffset = input > output ? 2 : 3;
 	const yOffset = 2;
 
-	const array = createArray2D<tileType.QuadTreeTileType>(
-		width,
-		height,
-		tileType.empty,
-	);
+	const array = createEmptySchema(width, height);
 
 	drawGrid(
 		array,
@@ -126,13 +162,17 @@ export function generateMultiplexer(input: number, output: number) {
 
 	// Northern IO
 	for (let x = 0; x < 2 * q; x++) {
-		nonNullable(array[yOffset - 2])[2 * x + xOffset] = tileType.io;
+		drawTile(array, 2 * x + xOffset, yOffset - 2, tileType.io);
 	}
 
 	// Input IO
 	for (let y = 0; y < p; y++) {
-		nonNullable(array[2 * y + yOffset])[input > output ? 0 : width - 1] =
-			tileType.io;
+		drawTile(
+			array,
+			input > output ? 0 : width - 1,
+			2 * y + yOffset,
+			tileType.io,
+		);
 	}
 
 	// Output IO
@@ -145,7 +185,7 @@ export function generateMultiplexer(input: number, output: number) {
 		input > output ? tileType.conjoinN : tileType.disjoinN,
 	);
 
-	return new Schematic(width, height, array.flat());
+	return array;
 }
 
 export function generateDecoder(input: number, output: number) {
@@ -157,11 +197,7 @@ export function generateDecoder(input: number, output: number) {
 	const xOffset = 2;
 	const yOffset = 1;
 
-	const array = createArray2D<tileType.QuadTreeTileType>(
-		width,
-		height,
-		tileType.empty,
-	);
+	const array = createEmptySchema(width, height);
 
 	drawGrid(
 		array,
@@ -179,13 +215,13 @@ export function generateDecoder(input: number, output: number) {
 
 	for (let y = 0; y < p; y++) {
 		// Western Negate
-		nonNullable(array[2 * y + yOffset])[0] = tileType.negate;
+		drawTile(array, 0, 2 * y + yOffset, tileType.negate);
 
 		// Output IO
-		nonNullable(array[2 * y + yOffset])[width - 1] = tileType.io;
+		drawTile(array, width - 1, 2 * y + yOffset, tileType.io);
 	}
 
-	return new Schematic(width, height, array.flat());
+	return array;
 }
 
 export function generateEncoder(input: number, output: number) {
@@ -217,11 +253,7 @@ export function generateEncoder(input: number, output: number) {
 	const xOffset = 2;
 	const yOffset = 1;
 
-	const array = createArray2D<tileType.QuadTreeTileType>(
-		width,
-		height,
-		tileType.empty,
-	);
+	const array = createEmptySchema(width, height);
 
 	drawGrid(
 		array,
@@ -238,7 +270,7 @@ export function generateEncoder(input: number, output: number) {
 
 	for (let y = 0; y < p; y++) {
 		// Western Negate
-		nonNullable(array[2 * y + yOffset])[0] = tileType.negate;
+		drawTile(array, 0, 2 * y + yOffset, tileType.negate);
 	}
 
 	const outputParts = q / 2;
@@ -254,13 +286,17 @@ export function generateEncoder(input: number, output: number) {
 		);
 
 		if (i > 0) {
-			nonNullable(array[2 * (outputParts - 1) * i + yOffset])[width - 2] =
-				tileType.disjoinW;
+			drawTile(
+				array,
+				width - 2,
+				2 * (outputParts - 1) * i + yOffset,
+				tileType.disjoinW,
+			);
 		}
 	}
 
-	nonNullable(array.at(-4))[width - 2] = tileType.conjoinE;
-	nonNullable(array.at(-4))[width - 1] = tileType.io;
+	drawTile(array, width - 2, array.height - 4, tileType.conjoinE);
+	drawTile(array, width - 1, array.height - 4, tileType.io);
 
-	return new Schematic(width, height, array.flat());
+	return array;
 }
