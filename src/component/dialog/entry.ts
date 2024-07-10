@@ -20,7 +20,7 @@ export function setup() {
 		}
 
 		if (dialogEntry.returnValue) {
-			resolve?.(Number(dialogEntry.returnValue));
+			resolve?.(Number.parseInt(dialogEntry.returnValue, 10));
 		} else {
 			reject?.(new Error('Paste dialog closed'));
 		}

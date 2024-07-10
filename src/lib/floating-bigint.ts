@@ -1,10 +1,4 @@
-function toFixedPoint(number: number, precision: number) {
-	return Math.trunc(number * 10 ** precision);
-}
-
-function abs(int: bigint) {
-	return int < 0 ? -int : int;
-}
+import {absBigInt, parseBigInt, toBigInt, toFixedPoint} from './bigint.js';
 
 export class FloatingBigInt {
 	constructor(
@@ -18,7 +12,7 @@ export class FloatingBigInt {
 		}
 
 		if (this.float < 0 || this.float >= 1) {
-			this.bigint += BigInt(Math.trunc(this.float));
+			this.bigint += toBigInt(this.float);
 			this.float %= 1;
 
 			if (this.float < 0) {
@@ -41,23 +35,23 @@ export class FloatingBigInt {
 				decimal?: string;
 			};
 
-			this.bigint = BigInt(sign + bigint);
+			this.bigint = parseBigInt(sign + bigint);
 			this.float = decimal ? Number.parseFloat(`${sign}0${decimal}`) : 0;
 		} else {
-			this.float = Number(text);
+			this.float = Number.parseFloat(text);
 		}
 
 		this.normalize();
 	}
 
-	toString(precision = 1) {
+	toString(precision = 1n) {
 		this.normalize();
 
 		const fixed = toFixedPoint(this.float, precision);
-		if (fixed === 0) return String(this.bigint);
+		if (fixed === 0n) return String(this.bigint);
 		if (this.bigint >= 0) return `${this.bigint}.${fixed}`;
 
-		return `-${abs(this.bigint + 1n)}.${toFixedPoint(
+		return `-${absBigInt(this.bigint + 1n)}.${toFixedPoint(
 			1 - this.float,
 			precision,
 		)}`;

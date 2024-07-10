@@ -1,4 +1,5 @@
 import {assert, nonNullable} from './assert.js';
+import {asBigInt, parseBigInt} from './bigint.js';
 import {EvalContext, EvalEvent, evalEvents, type Evaluator} from './eval.js';
 import type {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
@@ -38,11 +39,11 @@ class SequencerNode {
 }
 
 class SequencerLine {
-	static readonly wholeScript = new SequencerLine('// Whole script', 0);
+	static readonly wholeScript = new SequencerLine('// Whole script', 0n);
 
 	constructor(
 		readonly content: string,
-		readonly index: number,
+		readonly index: bigint,
 	) {}
 }
 
@@ -53,7 +54,7 @@ export class SequencerError extends Error {
 		readonly line: SequencerLine,
 		readonly rawMessage: string,
 	) {
-		super(`${rawMessage}\n    at line ${line.index + 1}: ${line.content}`);
+		super(`${rawMessage}\n    at line ${line.index + 1n}: ${line.content}`);
 	}
 }
 
@@ -140,7 +141,10 @@ export class SequencerContext extends EvalContext {
 			.split('\n')
 			.map(
 				(i, index) =>
-					new SequencerLine(i.trim().replaceAll(/\s+/g, ' '), index),
+					new SequencerLine(
+						i.trim().replaceAll(/\s+/g, ' '),
+						asBigInt(index),
+					),
 			)
 			.filter((i) => i.content);
 
@@ -342,7 +346,10 @@ export class SequencerContext extends EvalContext {
 					`Duplicate tile: ${match[1]!}`,
 				);
 
-				const pos = new Point(BigInt(match[2]!), BigInt(match[3]!));
+				const pos = new Point(
+					parseBigInt(match[2]!),
+					parseBigInt(match[3]!),
+				);
 				const tile = this._graph.map.getTile(pos);
 
 				this._assert(
@@ -460,7 +467,11 @@ export class SequencerContext extends EvalContext {
 				);
 			} else if ((match = /^continue ?(\d+)$/i.exec(line.content))) {
 				this._ast.push(
-					new SequencerNode(line, operationNext, BigInt(match[1]!)),
+					new SequencerNode(
+						line,
+						operationNext,
+						parseBigInt(match[1]!),
+					),
 				);
 			} else if ((match = /^continue$/i.exec(line.content))) {
 				this._ast.push(new SequencerNode(line, operationNextStable));

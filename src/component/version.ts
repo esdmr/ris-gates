@@ -15,11 +15,11 @@ export async function setup() {
 	if (!storage.localStorageAvailable) return;
 
 	if (
-		Number(previousVersion[0]) !== Number(currentSaveVersion[0]) ||
-		Number(previousVersion[1]) > Number(currentSaveVersion[1])
+		previousVersion[0] !== currentSaveVersion[0] ||
+		(previousVersion[1] ?? 0) > currentSaveVersion[1]
 	) {
 		dialogIncompatible.open();
-	} else if (Number(previousVersion[1]) !== Number(currentSaveVersion[1])) {
+	} else if (previousVersion[1] !== currentSaveVersion[1]) {
 		await upgradePrefix(storage.savePrefix, QuadTree.from);
 		await upgradePrefix(storage.schematicPrefix, Schematic.from);
 

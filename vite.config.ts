@@ -27,6 +27,10 @@ export default defineConfig(({mode}) => ({
 		sourcemap: mode !== 'production',
 		minify: mode === 'production',
 	},
+	define: {
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		RISG_BIGINT: JSON.stringify(process.env.RISG_BIGINT ?? ''),
+	},
 	plugins: [
 		Boolean(process.env.RISG_CLI) && {
 			name: 'cli',
@@ -88,6 +92,59 @@ export default defineConfig(({mode}) => ({
 							(n as any).right.value === 'bigint'
 						) {
 							s.update(n.start, n.end, 'false');
+						}
+					},
+					CallExpression(n: acorn.Node) {
+						// Cast safety: acorn.Node is insufficiently typed.
+						if (
+							(n as any).callee.type === 'Identifier' &&
+							((n as any).callee.name === 'asNumber' ||
+								(n as any).callee.name === 'asBigInt') &&
+							(n as any).arguments.length === 1
+						) {
+							s.update(
+								((n as any).callee as acorn.Node).start,
+								((n as any).callee as acorn.Node).end,
+								'',
+							);
+						} else if (
+							(n as any).callee.type === 'Identifier' &&
+							(n as any).callee.name === 'parseBigInt' &&
+							(n as any).arguments.length === 1
+						) {
+							s.update(
+								((n as any).callee as acorn.Node).start,
+								((n as any).callee as acorn.Node).end,
+								'Number.parseInt',
+							);
+							s.appendLeft(n.end - 1, ',10');
+						} else if (
+							(n as any).callee.type === 'Identifier' &&
+							(n as any).callee.name === 'toBigInt' &&
+							(n as any).arguments.length === 1
+						) {
+							s.update(
+								((n as any).callee as acorn.Node).start,
+								((n as any).callee as acorn.Node).end,
+								'Math.trunc',
+							);
+						} else if (
+							(n as any).callee.type === 'Identifier' &&
+							[
+								'absBigInt',
+								'maxBigInt',
+								'minBigInt',
+								'signBigInt',
+							].includes((n as any).callee.name as string)
+						) {
+							s.appendRight(
+								((n as any).callee as acorn.Node).start,
+								'Math.',
+							);
+							s.remove(
+								((n as any).callee as acorn.Node).end - 6,
+								((n as any).callee as acorn.Node).end,
+							);
 						}
 					},
 					/* eslint-enable @typescript-eslint/naming-convention */

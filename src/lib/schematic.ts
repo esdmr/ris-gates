@@ -1,4 +1,5 @@
 import {assertObject, assertArray, assert} from './assert.js';
+import {asBigInt, asNumber, toBigInt} from './bigint.js';
 import {Point} from './point.js';
 import * as tileType from './tile-type.js';
 import {currentSaveVersion} from './tree.js';
@@ -20,8 +21,11 @@ export class Schematic {
 		assert(typeof width === 'number' && Number.isSafeInteger(width));
 		assertArray(tiles);
 
-		const height = tiles.length / width;
-		assert(width <= tiles.length && Number.isSafeInteger(height));
+		const realWidth = asBigInt(width);
+		const realLength = asBigInt(tiles.length);
+		const realHeight = toBigInt(realLength / realWidth);
+
+		assert(realWidth <= realLength && realLength % realWidth === 0n);
 
 		assert(
 			tiles.every((i) =>
@@ -34,8 +38,8 @@ export class Schematic {
 
 		// Cast safety: Asserted above.
 		return new Schematic(
-			width,
-			height,
+			realWidth,
+			realHeight,
 			tiles as tileType.QuadTreeTileType[],
 		);
 	}
@@ -58,104 +62,82 @@ export class Schematic {
 	}
 
 	constructor(
-		readonly width: number,
-		readonly height: number,
+		readonly width: bigint,
+		readonly height: bigint,
 		readonly tiles: tileType.QuadTreeTileType[],
-	) {}
+	) {
+		// `width` and `height` are lengths, so they should not be negative.
+		// Zero length schematics are confusing, so those are not allowed
+		// either.
+		assert(width > 0n);
+		assert(height > 0n);
 
-	transformPoint(x: number, y: number, topLeft: Point) {
-		const {width, height, realWidth, realHeight} = this;
-		const sin = Math.sin(this.rotation * 2 * Math.PI);
-		const cos = Math.cos(this.rotation * 2 * Math.PI);
+		// Length of arrays are limited to 32 bits.
+		assert(width * height < 0x1_00_00_00_00n);
+	}
 
-		let xNew;
-		let yNew;
+	transformPoint(x: bigint, y: bigint, topLeft: Point) {
+		let xMain = 0n;
+		let yMain = 0n;
+		let xCross = 0n;
+		let yCross = 0n;
+		let xOffset = 0n;
+		let yOffset = 0n;
 
-		// These equations are generated via Wolfram Mathematica. See
-		// [transform-matrix script](/transform-matrix.wls) for its source.
-		switch (
-			Number(this.horizontalReflection) +
-			Number(this.verticalReflection) * 2
-		) {
+		switch (this.rotation) {
 			case 0: {
-				xNew =
-					(-1 +
-						realWidth +
-						cos * (1 - width + 2 * x) +
-						sin * (-1 + height - 2 * y)) /
-					2;
-				yNew =
-					(-1 + cos - cos * height + realHeight + sin - sin * width) /
-						2 +
-					sin * x +
-					cos * y;
+				xMain = 1n;
+				yCross = 1n;
 				break;
 			}
 
-			case 1: {
-				xNew =
-					(-1 +
-						realWidth +
-						sin -
-						height * sin +
-						cos * (-1 + width - 2 * x) +
-						2 * sin * y) /
-					2;
-				yNew =
-					(-1 + cos - cos * height + realHeight + sin - sin * width) /
-						2 +
-					sin * x +
-					cos * y;
+			case 0.25: {
+				yMain = 1n;
+				xCross = -1n;
+				xOffset = this.width - 1n;
 				break;
 			}
 
-			case 2: {
-				xNew =
-					(-1 +
-						realWidth +
-						cos * (1 - width + 2 * x) +
-						sin * (-1 + height - 2 * y)) /
-					2;
-				yNew =
-					(-1 +
-						realHeight +
-						sin * (-1 + width - 2 * x) +
-						cos * (-1 + height - 2 * y)) /
-					2;
+			case 0.5: {
+				xMain = -1n;
+				yCross = -1n;
+				xOffset = this.width - 1n;
+				yOffset = this.height - 1n;
 				break;
 			}
 
-			case 3: {
-				xNew =
-					(-1 +
-						realWidth +
-						sin -
-						height * sin +
-						cos * (-1 + width - 2 * x) +
-						2 * sin * y) /
-					2;
-				yNew =
-					(-1 +
-						realHeight +
-						sin * (-1 + width - 2 * x) +
-						cos * (-1 + height - 2 * y)) /
-					2;
+			case 0.75: {
+				yMain = -1n;
+				xCross = 1n;
+				yOffset = this.height - 1n;
 				break;
 			}
 
 			default: {
-				throw new RangeError('Invalid reflection');
+				throw new RangeError('Invalid rotation');
 			}
 		}
 
+		if (this.horizontalReflection) {
+			xMain = -xMain;
+			xCross = -xCross;
+			xOffset = this.width - 1n - xOffset;
+		}
+
+		if (this.verticalReflection) {
+			yMain = -yMain;
+			yCross = -yCross;
+			yOffset = this.height - 1n - yOffset;
+		}
+
 		return new Point(
-			topLeft.x + BigInt(Math.round(xNew)),
-			topLeft.y + BigInt(Math.round(yNew)),
+			topLeft.x + x * xMain + y * xCross + xOffset,
+			topLeft.y + x * yMain + y * yCross + yOffset,
 		);
 	}
 
-	transformTile(x: number, y: number): tileType.QuadTreeTileType {
-		const tile = this.tiles[x + y * this.width] ?? tileType.empty;
+	transformTile(x: bigint, y: bigint): tileType.QuadTreeTileType {
+		const tile = this.tiles[asNumber(x + y * this.width)] ?? tileType.empty;
 
 		if (
 			!tileType.isRotatedFormOf(tile, tileType.conjoinN) &&
@@ -190,7 +172,7 @@ export class Schematic {
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	toJSON() {
-		const length = this.width * this.height;
+		const length = asNumber(this.width * this.height);
 		const tiles = this.tiles.slice(0, length);
 
 		for (let i = tiles.length; i < length; i++) {
@@ -200,7 +182,7 @@ export class Schematic {
 		// eslint-disable-next-line @internal/no-object-literals
 		return {
 			version: currentSaveVersion,
-			width: this.width,
+			width: asNumber(this.width),
 			tiles,
 		};
 	}

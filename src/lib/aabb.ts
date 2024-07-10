@@ -1,5 +1,5 @@
 import {assert, assertObject} from './assert.js';
-import {isPowerOfTwo} from './bigint.js';
+import {asBigInt, isPowerOfTwo, parseBigInt, toBigInt} from './bigint.js';
 import {Point} from './point.js';
 
 /**
@@ -76,11 +76,11 @@ export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 		assert(typeof value.y === 'string');
 		assert(typeof value.w === 'string');
 
-		const w = BigInt(value.w);
+		const w = parseBigInt(value.w);
 		assert(isPowerOfTwo(w));
 
 		return new QuadTreeBoundingBox(
-			new Point(BigInt(value.x), BigInt(value.y)),
+			new Point(parseBigInt(value.x), parseBigInt(value.y)),
 			w,
 		);
 	}
@@ -99,7 +99,7 @@ export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 	 * {@link QuadTree} somewhat centered, we will grow it either down-right or
 	 * up-left depending on its parity.
 	 *
-	 * @param parity Equal to `Math.log2(Number(this.width)) % 2 === 0`. Since
+	 * @param parity Equal to `Math.log2(asNumber(this.width)) % 2 === 0`. Since
 	 * we cannot use {@link Math.log2} directly on a {@link BigInt}, we will
 	 * just start at `false` for the origin and invert at each step.
 	 */
@@ -125,8 +125,8 @@ export class QuadTreeBoundingBox extends AxisAlignedBoundingBox {
 
 		return new QuadTreeBoundingBox(
 			new Point(
-				this.topLeft.x + subWidth * BigInt(childIndex % 2),
-				this.topLeft.y + subWidth * BigInt(Math.trunc(childIndex / 2)),
+				this.topLeft.x + subWidth * asBigInt(childIndex % 2),
+				this.topLeft.y + subWidth * toBigInt(childIndex / 2),
 			),
 			subWidth,
 		);

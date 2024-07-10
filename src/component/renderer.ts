@@ -4,6 +4,7 @@ import * as searchMode from '../lib/search-mode.js';
 import * as tileType from '../lib/tile-type.js';
 import {WalkStep} from '../lib/walk.js';
 import type {QuadTreeNode} from '../lib/node.js';
+import {asBigInt, asNumber, toBigInt} from '../lib/bigint.js';
 import * as canvas from './canvas.js';
 import * as screenshot from './dialog/screenshot.js';
 import * as eval_ from './eval.js';
@@ -34,9 +35,7 @@ export function setup() {
 }
 
 function getScaleIntOffset(point: number, oldScale: number) {
-	return BigInt(
-		Math.trunc(point / oldScale) - Math.trunc(point / tree.scale),
-	);
+	return toBigInt(point / oldScale) - toBigInt(point / tree.scale);
 }
 
 function getScaleFloatOffset(point: number, oldScale: number) {
@@ -74,14 +73,10 @@ function commitInputs() {
 	) {
 		const x =
 			tree.scrollX.bigint +
-			BigInt(
-				Math.trunc(pointer.centerX / tree.scale + tree.scrollX.float),
-			);
+			toBigInt(pointer.centerX / tree.scale + tree.scrollX.float);
 		const y =
 			tree.scrollY.bigint +
-			BigInt(
-				Math.trunc(pointer.centerY / tree.scale + tree.scrollY.float),
-			);
+			toBigInt(pointer.centerY / tree.scale + tree.scrollY.float);
 
 		if (pointer.wasSelecting) {
 			selection.setSecondPosition(x, y);
@@ -98,17 +93,9 @@ function commitInputs() {
 	} else if (pointer.hasClicked) {
 		const currentPoint = new Point(
 			tree.scrollX.bigint +
-				BigInt(
-					Math.trunc(
-						pointer.centerX / tree.scale + tree.scrollX.float,
-					),
-				),
+				toBigInt(pointer.centerX / tree.scale + tree.scrollX.float),
 			tree.scrollY.bigint +
-				BigInt(
-					Math.trunc(
-						pointer.centerY / tree.scale + tree.scrollY.float,
-					),
-				),
+				toBigInt(pointer.centerY / tree.scale + tree.scrollY.float),
 		);
 
 		switch (mode.mode) {
@@ -213,8 +200,8 @@ function onFrame(ms: DOMHighResTimeStamp) {
 
 	const display = new AxisAlignedBoundingBox(
 		new Point(tree.scrollX.bigint, tree.scrollY.bigint),
-		BigInt(Math.ceil(width / realScale) + 1),
-		BigInt(Math.ceil(height / realScale) + 1),
+		asBigInt(Math.ceil(width / realScale) + 1),
+		asBigInt(Math.ceil(height / realScale) + 1),
 	);
 
 	const progress: WalkStep[] = [
@@ -254,8 +241,8 @@ function onFrame(ms: DOMHighResTimeStamp) {
 			continue;
 		}
 
-		const i = Number(node.bounds.topLeft.x - tree.scrollX.bigint);
-		const j = Number(node.bounds.topLeft.y - tree.scrollY.bigint);
+		const i = asNumber(node.bounds.topLeft.x - tree.scrollX.bigint);
+		const j = asNumber(node.bounds.topLeft.y - tree.scrollY.bigint);
 
 		if (node.type === tileType.branch) {
 			progress.push(new WalkStep(node[index]));
@@ -297,22 +284,18 @@ function onFrame(ms: DOMHighResTimeStamp) {
 				: new AxisAlignedBoundingBox(
 						new Point(
 							tree.scrollX.bigint +
-								BigInt(
-									Math.trunc(
-										pointer.centerX / tree.scale +
-											tree.scrollX.float,
-									),
+								toBigInt(
+									pointer.centerX / tree.scale +
+										tree.scrollX.float,
 								),
 							tree.scrollY.bigint +
-								BigInt(
-									Math.trunc(
-										pointer.centerY / tree.scale +
-											tree.scrollY.float,
-									),
+								toBigInt(
+									pointer.centerY / tree.scale +
+										tree.scrollY.float,
 								),
 						),
-						BigInt(selection.clipboard?.realWidth ?? 0),
-						BigInt(selection.clipboard?.realHeight ?? 0),
+						selection.clipboard?.realWidth ?? 0n,
+						selection.clipboard?.realHeight ?? 0n,
 				  );
 		const x = convertAxisToDisplayCoordinate(
 			box.topLeft.x,
@@ -383,7 +366,7 @@ function convertAxisToDisplayCoordinate(
 	max: number,
 ) {
 	return clampDisplayCoordinate(
-		Number(axisValue - scrollAxis) * realScale - offset,
+		asNumber(axisValue - scrollAxis) * realScale - offset,
 		max,
 	);
 }
@@ -400,7 +383,7 @@ function convertSizeToDisplayCoordinate(
 ) {
 	return (
 		clampDisplayCoordinate(
-			Number(axisValue + sizeValue - scrollAxis) * realScale - offset,
+			asNumber(axisValue + sizeValue - scrollAxis) * realScale - offset,
 			max,
 		) - axisDisplay
 	);
@@ -437,23 +420,23 @@ function drawGrid(
 		canvas.context.lineWidth = majorGridStrokeWidth * dip;
 		canvas.context.beginPath();
 
-		for (let dx = 1; dx <= display.width; dx++) {
-			if (
-				(tree.scrollX.bigint + BigInt(dx)) % grid.majorGridLength ===
-				0n
-			) {
-				canvas.context.moveTo(dx * realScale - offsetX, 0);
-				canvas.context.lineTo(dx * realScale - offsetX, height);
+		for (let dx = 1n; dx <= display.width; dx++) {
+			if ((tree.scrollX.bigint + dx) % grid.majorGridLength === 0n) {
+				canvas.context.moveTo(asNumber(dx) * realScale - offsetX, 0);
+				canvas.context.lineTo(
+					asNumber(dx) * realScale - offsetX,
+					height,
+				);
 			}
 		}
 
-		for (let dy = 1; dy <= display.height; dy++) {
-			if (
-				(tree.scrollY.bigint + BigInt(dy)) % grid.majorGridLength ===
-				0n
-			) {
-				canvas.context.moveTo(0, dy * realScale - offsetY);
-				canvas.context.lineTo(width, dy * realScale - offsetY);
+		for (let dy = 1n; dy <= display.height; dy++) {
+			if ((tree.scrollY.bigint + dy) % grid.majorGridLength === 0n) {
+				canvas.context.moveTo(0, asNumber(dy) * realScale - offsetY);
+				canvas.context.lineTo(
+					width,
+					asNumber(dy) * realScale - offsetY,
+				);
 			}
 		}
 
