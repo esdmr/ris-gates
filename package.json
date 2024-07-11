@@ -47,5 +47,8 @@
 	},
 	"optionalDependencies": {
 		"@internal/eval-wasm": "link:eval-wasm/pkg"
+	},
+	"dependencies": {
+		"ast-types": "^0.14.2"
 	}
 }

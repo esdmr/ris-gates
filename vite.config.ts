@@ -2,6 +2,7 @@ import process from 'node:process';
 import {defineConfig, type PluginOption} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';
+import {namedTypes} from 'ast-types';
 
 function ensureTrailingSlash(url: string) {
 	return url.endsWith('/') ? url : url + '/';
@@ -69,82 +70,66 @@ export default defineConfig(({mode}) => ({
 
 				simple(ast, {
 					/* eslint-disable @typescript-eslint/naming-convention */
-					Literal(n: acorn.Node) {
+					Literal(n: acorn.Node & namedTypes.Literal) {
 						if ('bigint' in n) {
-							// Cast safety: acorn.Node is insufficiently typed.
-							s.update(n.start, n.end, n.bigint as string);
+							s.update(n.start, n.end, String(n.bigint));
 						}
 					},
-					Identifier(n: acorn.Node) {
-						// Cast safety: acorn.Node is insufficiently typed.
-						if ((n as any).name === 'BigInt') {
+					Identifier(n: acorn.Node & namedTypes.Identifier) {
+						if (n.name === 'BigInt') {
 							s.update(n.start, n.end, 'Number');
 						}
 					},
-					BinaryExpression(n: acorn.Node) {
-						// Cast safety: acorn.Node is insufficiently typed.
+					BinaryExpression(
+						n: acorn.Node & namedTypes.BinaryExpression,
+					) {
 						if (
-							((n as any).operator === '==' ||
-								(n as any).operator === '===') &&
-							(n as any).left.type === 'UnaryExpression' &&
-							(n as any).left.operator === 'typeof' &&
-							(n as any).right.type === 'Literal' &&
-							(n as any).right.value === 'bigint'
+							(n.operator === '==' || n.operator === '===') &&
+							namedTypes.UnaryExpression.check(n.left) &&
+							n.left.operator === 'typeof' &&
+							namedTypes.Literal.check(n.right) &&
+							n.right.value === 'bigint'
 						) {
 							s.update(n.start, n.end, 'false');
 						}
 					},
-					CallExpression(n: acorn.Node) {
-						// Cast safety: acorn.Node is insufficiently typed.
+					CallExpression(n: acorn.Node & namedTypes.CallExpression) {
+						if (!namedTypes.Identifier.check(n.callee)) return;
+
+						const callee = n.callee as acorn.Node &
+							namedTypes.Identifier;
+
 						if (
-							(n as any).callee.type === 'Identifier' &&
-							((n as any).callee.name === 'asNumber' ||
-								(n as any).callee.name === 'asBigInt') &&
-							(n as any).arguments.length === 1
+							(n.callee.name === 'asNumber' ||
+								n.callee.name === 'asBigInt') &&
+							n.arguments.length === 1
 						) {
-							s.update(
-								((n as any).callee as acorn.Node).start,
-								((n as any).callee as acorn.Node).end,
-								'',
-							);
+							s.update(callee.start, callee.end, '');
 						} else if (
-							(n as any).callee.type === 'Identifier' &&
-							(n as any).callee.name === 'parseBigInt' &&
-							(n as any).arguments.length === 1
+							n.callee.name === 'parseBigInt' &&
+							n.arguments.length === 1
 						) {
 							s.update(
-								((n as any).callee as acorn.Node).start,
-								((n as any).callee as acorn.Node).end,
+								callee.start,
+								callee.end,
 								'Number.parseInt',
 							);
-							s.appendLeft(n.end - 1, ',10');
+							s.appendLeft(n.end - 1, ', 10');
 						} else if (
-							(n as any).callee.type === 'Identifier' &&
-							(n as any).callee.name === 'toBigInt' &&
-							(n as any).arguments.length === 1
+							n.callee.name === 'toBigInt' &&
+							n.arguments.length === 1
 						) {
-							s.update(
-								((n as any).callee as acorn.Node).start,
-								((n as any).callee as acorn.Node).end,
-								'Math.trunc',
-							);
+							s.update(callee.start, callee.end, 'Math.trunc');
 						} else if (
-							(n as any).callee.type === 'Identifier' &&
 							[
 								'absBigInt',
 								'maxBigInt',
 								'minBigInt',
 								'signBigInt',
-							].includes((n as any).callee.name as string)
+							].includes(n.callee.name)
 						) {
-							s.appendRight(
-								((n as any).callee as acorn.Node).start,
-								'Math.',
-							);
-							s.remove(
-								((n as any).callee as acorn.Node).end - 6,
-								((n as any).callee as acorn.Node).end,
-							);
+							s.appendRight(callee.start, 'Math.');
+							s.remove(callee.end - 6, callee.end);
 						}
 					},
 					/* eslint-enable @typescript-eslint/naming-convention */
