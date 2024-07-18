@@ -21,6 +21,7 @@ import {
 	generateMultiplexer,
 } from './lib/generator.js';
 import {asBigInt, asNumber, parseBigInt} from './lib/bigint.js';
+import type {Schematic} from './lib/schematic.js';
 
 const {
 	values: {input, label, rate, strict, generate},
@@ -56,7 +57,7 @@ if (generate) {
 		/^(\w{3})(\d+)(?:x(\d+))?$/i.exec(generate) ?? [];
 	const input = parseBigInt(input_);
 	const output = parseBigInt(output_);
-	let schematic;
+	let schematic: Schematic;
 
 	switch (type) {
 		case 'mux': {
