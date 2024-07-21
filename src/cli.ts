@@ -17,6 +17,7 @@ import {QuadTree} from './lib/tree.js';
 import {maybeCompress, maybeDecompress} from './lib/compress.js';
 import {
 	generateDecoder,
+	generateDemultiplexer,
 	generateEncoder,
 	generateMemory,
 	generateMultiplexer,
@@ -62,12 +63,12 @@ if (generate) {
 
 	switch (type) {
 		case 'mux': {
-			schematic = generateMultiplexer(input, output || 1n);
+			schematic = generateMultiplexer(input || output);
 			break;
 		}
 
 		case 'dem': {
-			schematic = generateMultiplexer(output || 1n, input);
+			schematic = generateDemultiplexer(output || input);
 			break;
 		}
 

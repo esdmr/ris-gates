@@ -700,11 +700,12 @@ export function drawEncoderBridge(output: bigint) {
 	return context;
 }
 
-export function generateMultiplexer(input: bigint, output: bigint) {
-	assert(minBigInt(input, output) === 1n);
-	const p = maxBigInt(input, output);
-	const q = asBigInt(Math.ceil(Math.log2(asNumber(p))));
-
+function generateMultiplexerLike(
+	p: bigint,
+	q: bigint,
+	dataIn: GenerationContext,
+	dataOut: GenerationContext,
+) {
 	const grid = drawGrid(
 		// eslint-disable-next-line @internal/no-object-literals
 		Array.from({length: asNumber(p)}, (_, index) =>
@@ -714,16 +715,6 @@ export function generateMultiplexer(input: bigint, output: bigint) {
 				.split('')
 				.map((i) => i === '1'),
 		),
-	);
-
-	const dataIn = drawIoBridge(
-		p,
-		input > output ? tileType.io : tileType.disjoinN,
-	);
-
-	const dataOut = drawIoBridge(
-		p,
-		input > output ? tileType.conjoinN : tileType.io,
 	);
 
 	const selector = GenerationContext.repeatSchematicFor(
@@ -744,41 +735,32 @@ export function generateMultiplexer(input: bigint, output: bigint) {
 	);
 }
 
+export function generateMultiplexer(input: bigint) {
+	return generateMultiplexerLike(
+		input,
+		asBigInt(Math.ceil(Math.log2(asNumber(input)))),
+		drawIoBridge(input, tileType.io),
+		drawIoBridge(input, tileType.conjoinN),
+	);
+}
+
+export function generateDemultiplexer(output: bigint) {
+	return generateMultiplexerLike(
+		output,
+		asBigInt(Math.ceil(Math.log2(asNumber(output)))),
+		drawIoBridge(output, tileType.disjoinN),
+		drawIoBridge(output, tileType.io),
+	);
+}
+
 export function generateDecoder(input: bigint, output: bigint) {
 	assert(output <= 2n ** input);
-	const p = output;
-	const q = input;
 
-	const grid = drawGrid(
-		// eslint-disable-next-line @internal/no-object-literals
-		Array.from({length: asNumber(p)}, (_, index) =>
-			index
-				.toString(2)
-				.padStart(asNumber(q), '0')
-				.split('')
-				.map((i) => i === '1'),
-		),
-	);
-
-	const dataIn = drawIoBridge(p, tileType.negate);
-
-	const dataOut = drawIoBridge(p, tileType.io);
-
-	const selector = GenerationContext.repeatSchematicFor(
-		gridVerticalDoubleInput,
-		q,
-		1n,
-	);
-
-	return GenerationContext.verticalJoin(
-		GenerationContext.pad(
-			selector,
-			0n,
-			dataOut.realWidth + 1n,
-			0n,
-			dataIn.realWidth,
-		),
-		GenerationContext.horizontalJoin(dataIn, grid, dataOut),
+	return generateMultiplexerLike(
+		output,
+		input,
+		drawIoBridge(output, tileType.negate),
+		drawIoBridge(output, tileType.io),
 	);
 }
 
