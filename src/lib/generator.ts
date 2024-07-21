@@ -298,6 +298,17 @@ const gridNegate = new GenerationContext(1n, 2n, [
 	tileType.negate,
 ]);
 
+const gridVerticalSingleInput = new GenerationContext(2n, 3n, [
+	tileType.empty,
+	tileType.io,
+
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+]);
+
 const gridVerticalDoubleInput = new GenerationContext(4n, 3n, [
 	tileType.empty,
 	tileType.empty,
@@ -314,6 +325,283 @@ const gridVerticalDoubleInput = new GenerationContext(4n, 3n, [
 	tileType.empty,
 	tileType.negate,
 ]);
+
+const memoryDataInput = new GenerationContext(8n, 3n, [
+	tileType.empty,
+	tileType.io,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.negate,
+]);
+
+const memoryDecoderFalse = new GenerationContext(4n, 8n, [
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.conjoinN,
+	tileType.disjoinN,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.conjoinS,
+	tileType.disjoinN,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+]);
+
+const memoryDecoderTrue = new GenerationContext(4n, 8n, [
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinN,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinS,
+	tileType.conjoinS,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+]);
+
+const memoryDecoderControl = new GenerationContext(7n, 8n, [
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinN,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinS,
+	tileType.disjoinN,
+	tileType.disjoinE,
+	tileType.disjoinN,
+	tileType.empty,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+]);
+
+const memoryDecoderNegate = new GenerationContext(1n, 8n, [
+	tileType.empty,
+	tileType.negate,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.negate,
+]);
+
+const memoryCell = new GenerationContext(8n, 8n, [
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.conjoinE,
+	tileType.disjoinW,
+	tileType.disjoinW,
+	tileType.disjoinW,
+	tileType.negate,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinE,
+	tileType.disjoinW,
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.conjoinS,
+	tileType.negate,
+	tileType.conjoinW,
+	tileType.conjoinW,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.conjoinE,
+	tileType.conjoinN,
+	tileType.empty,
+	tileType.negate,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.conjoinN,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinE,
+	tileType.conjoinN,
+	tileType.empty,
+	tileType.conjoinN,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.disjoinW,
+	tileType.conjoinE,
+	tileType.disjoinW,
+	tileType.conjoinE,
+	tileType.negate,
+]);
+
+const memoryOutput = GenerationContext.pad(
+	new GenerationContext(1n, 4n, [
+		tileType.conjoinS,
+		tileType.negate,
+		tileType.conjoinS,
+		tileType.io,
+	]),
+	0n,
+	0n,
+	0n,
+	7n,
+);
 
 function drawGrid(activation: boolean[][]) {
 	const activationMapped = activation.map((row, index, {length}) => {
@@ -548,5 +836,58 @@ export function generateEncoder(input: bigint, output: bigint) {
 			dataIn.realWidth,
 		),
 		GenerationContext.horizontalJoin(dataIn, grid, dataOut),
+	);
+}
+
+export function generateMemory(address: bigint, data: bigint) {
+	const p = 2n ** address;
+	const rows = [];
+
+	for (let i = 0n; i < p; i++) {
+		const row = [];
+
+		row.push(memoryDecoderNegate);
+
+		for (let j = 0n; j < address; j++) {
+			// eslint-disable-next-line no-bitwise
+			row.push(i & (1n << j) ? memoryDecoderTrue : memoryDecoderFalse);
+		}
+
+		row.push(
+			memoryDecoderControl,
+			memoryDecoderNegate,
+			GenerationContext.repeatSchematicFor(memoryCell, data, 1n),
+		);
+
+		rows.push(GenerationContext.horizontalJoin(...row));
+	}
+
+	return GenerationContext.verticalJoin(
+		GenerationContext.horizontalJoin(
+			new GenerationContext(1n, 3n),
+			GenerationContext.repeatSchematicFor(
+				gridVerticalDoubleInput,
+				address,
+				1n,
+			),
+			GenerationContext.repeatSchematicFor(
+				gridVerticalSingleInput,
+				3n,
+				1n,
+			),
+			new GenerationContext(2n, 3n),
+			GenerationContext.repeatSchematicFor(memoryDataInput, data, 1n),
+		),
+		...rows,
+		GenerationContext.pad(
+			GenerationContext.repeatSchematicFor(memoryOutput, data, 1n),
+			0n,
+			0n,
+			0n,
+			1n +
+				gridVerticalDoubleInput.realWidth * address +
+				gridVerticalSingleInput.realWidth * 3n +
+				2n,
+		),
 	);
 }

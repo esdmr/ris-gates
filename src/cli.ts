@@ -18,6 +18,7 @@ import {maybeCompress, maybeDecompress} from './lib/compress.js';
 import {
 	generateDecoder,
 	generateEncoder,
+	generateMemory,
 	generateMultiplexer,
 } from './lib/generator.js';
 import {asBigInt, asNumber, parseBigInt} from './lib/bigint.js';
@@ -80,6 +81,11 @@ if (generate) {
 				input,
 				output || asBigInt(Math.ceil(Math.log2(asNumber(input)))),
 			);
+			break;
+		}
+
+		case 'mem': {
+			schematic = generateMemory(input, output || 8n);
 			break;
 		}
 
