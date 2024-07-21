@@ -1,6 +1,6 @@
 import {AxisAlignedBoundingBox} from './aabb.js';
-import {nonNullable, assert} from './assert.js';
-import {asBigInt, asNumber, maxBigInt, minBigInt, toBigInt} from './bigint.js';
+import {assert, nonNullable} from './assert.js';
+import {asBigInt, asNumber, toBigInt} from './bigint.js';
 import {Point} from './point.js';
 import {Schematic} from './schematic.js';
 import * as tileType from './tile-type.js';
