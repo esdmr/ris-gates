@@ -15,13 +15,15 @@ export default defineConfig(({mode}) => ({
 	cacheDir: 'node_modules/.cache/vite',
 	build: {
 		target: ['firefox103', 'chrome104'],
-		outDir: 'build',
-		rollupOptions: {
-			input: [
-				'index.html',
-				process.env.RISG_CLI ? 'src/cli.ts' : '',
-			].filter(Boolean),
-		},
+		outDir: process.env.RISG_CLI ? 'build/cli' : 'build',
+		rollupOptions: process.env.RISG_CLI
+			? {
+					input: {cli: 'src/cli.ts'},
+					output: {entryFileNames: 'index.js'},
+			  }
+			: {
+					input: ['index.html'],
+			  },
 		modulePreload: {
 			polyfill: false,
 		},
