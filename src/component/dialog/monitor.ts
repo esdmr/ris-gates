@@ -40,14 +40,15 @@ export function setup() {
 			child.remove();
 		}
 
-		const {context} = eval_;
-		if (!(context instanceof SequencerContext)) return;
+		if (!(eval_.context instanceof SequencerContext)) return;
 
-		for (const tile of context.monitoredTiles) {
+		for (const tile of eval_.context.monitoredTiles) {
 			// Cast safety: monitoredTiles is a subset of TilesMap.ioTiles.
 			// tileNames also contains a mapping for every item in TilesMap.ioTiles.`
-			// eslint-disable-next-line @internal/no-object-literals
-			headerRow.append(create('th', {}, context.tileNames.get(tile)!));
+			headerRow.append(
+				// eslint-disable-next-line @internal/no-object-literals
+				create('th', {}, eval_.context.tileNames.get(tile)!),
+			);
 		}
 	});
 
