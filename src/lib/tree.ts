@@ -1,6 +1,6 @@
 import {QuadTreeBoundingBox, AxisAlignedBoundingBox} from './aabb.js';
 import {assert, assertArray, assertObject} from './assert.js';
-import {roundedSqrt} from './bigint.js';
+import {asNumber, roundedSqrt} from './bigint.js';
 import {QuadTreeNode} from './node.js';
 import {Point} from './point.js';
 import {Schematic} from './schematic.js';
@@ -98,7 +98,7 @@ export class QuadTree {
 	getSchematic(display: AxisAlignedBoundingBox): Schematic {
 		// eslint-disable-next-line @internal/no-object-literals
 		const tiles = Array.from<tileType.QuadTreeTileType>({
-			length: Number(display.width * display.height),
+			length: asNumber(display.width * display.height),
 		}).fill(tileType.empty);
 
 		const progress: WalkStep[] = [
@@ -131,10 +131,10 @@ export class QuadTree {
 				continue;
 			}
 
-			const i = Number(node.bounds.topLeft.x - display.topLeft.x);
-			const j = Number(node.bounds.topLeft.y - display.topLeft.y);
+			const i = node.bounds.topLeft.x - display.topLeft.x;
+			const j = node.bounds.topLeft.y - display.topLeft.y;
 
-			tiles[i + j * Number(display.width)] = node.type;
+			tiles[asNumber(i + j * display.width)] = node.type;
 
 			progress.pop();
 
@@ -145,24 +145,20 @@ export class QuadTree {
 			}
 		}
 
-		return new Schematic(
-			Number(display.width),
-			Number(display.height),
-			tiles,
-		);
+		return new Schematic(display.width, display.height, tiles);
 	}
 
 	putSchematic(schematic: Schematic, topLeft: Point) {
 		const display = new AxisAlignedBoundingBox(
 			topLeft,
-			BigInt(schematic.realWidth),
-			BigInt(schematic.realHeight),
+			schematic.realWidth,
+			schematic.realHeight,
 		);
 
 		const root = this.getContainingNode(display, searchMode.make);
 
-		for (let y = 0; y < schematic.height; y++) {
-			for (let x = 0; x < schematic.width; x++) {
+		for (let y = 0n; y < schematic.height; y++) {
+			for (let x = 0n; x < schematic.width; x++) {
 				// Cast safety: Point is always inside the display, and root
 				// contains the display.
 				root.getTileData(

@@ -5,7 +5,7 @@ import * as tileType from '../lib/tile-type.js';
 import {QuadTree} from '../lib/tree.js';
 import * as dialogSequence from './dialog/sequence.js';
 
-const defaultTree = new Schematic(5, 5, [
+const defaultTree = new Schematic(5n, 5n, [
 	tileType.empty,
 	tileType.empty,
 	tileType.io,

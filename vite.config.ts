@@ -2,6 +2,7 @@ import process from 'node:process';
 import {defineConfig, type PluginOption} from 'vite';
 import MagicString from 'magic-string';
 import {simple} from 'acorn-walk';
+import {namedTypes} from 'ast-types';
 
 function ensureTrailingSlash(url: string) {
 	return url.endsWith('/') ? url : url + '/';
@@ -14,18 +15,24 @@ export default defineConfig(({mode}) => ({
 	cacheDir: 'node_modules/.cache/vite',
 	build: {
 		target: ['firefox103', 'chrome104'],
-		outDir: 'build',
-		rollupOptions: {
-			input: [
-				'index.html',
-				process.env.RISG_CLI ? 'src/cli.ts' : '',
-			].filter(Boolean),
-		},
+		outDir: process.env.RISG_CLI ? 'build/cli' : 'build',
+		rollupOptions: process.env.RISG_CLI
+			? {
+					input: {cli: 'src/cli.ts'},
+					output: {entryFileNames: 'index.js'},
+			  }
+			: {
+					input: ['index.html'],
+			  },
 		modulePreload: {
 			polyfill: false,
 		},
 		sourcemap: mode !== 'production',
 		minify: mode === 'production',
+	},
+	define: {
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		RISG_BIGINT: JSON.stringify(process.env.RISG_BIGINT ?? ''),
 	},
 	plugins: [
 		Boolean(process.env.RISG_CLI) && {
@@ -65,29 +72,66 @@ export default defineConfig(({mode}) => ({
 
 				simple(ast, {
 					/* eslint-disable @typescript-eslint/naming-convention */
-					Literal(n: acorn.Node) {
+					Literal(n: acorn.Node & namedTypes.Literal) {
 						if ('bigint' in n) {
-							// Cast safety: acorn.Node is insufficiently typed.
-							s.update(n.start, n.end, n.bigint as string);
+							s.update(n.start, n.end, String(n.bigint));
 						}
 					},
-					Identifier(n: acorn.Node) {
-						// Cast safety: acorn.Node is insufficiently typed.
-						if ((n as any).name === 'BigInt') {
+					Identifier(n: acorn.Node & namedTypes.Identifier) {
+						if (n.name === 'BigInt') {
 							s.update(n.start, n.end, 'Number');
 						}
 					},
-					BinaryExpression(n: acorn.Node) {
-						// Cast safety: acorn.Node is insufficiently typed.
+					BinaryExpression(
+						n: acorn.Node & namedTypes.BinaryExpression,
+					) {
 						if (
-							((n as any).operator === '==' ||
-								(n as any).operator === '===') &&
-							(n as any).left.type === 'UnaryExpression' &&
-							(n as any).left.operator === 'typeof' &&
-							(n as any).right.type === 'Literal' &&
-							(n as any).right.value === 'bigint'
+							(n.operator === '==' || n.operator === '===') &&
+							namedTypes.UnaryExpression.check(n.left) &&
+							n.left.operator === 'typeof' &&
+							namedTypes.Literal.check(n.right) &&
+							n.right.value === 'bigint'
 						) {
 							s.update(n.start, n.end, 'false');
+						}
+					},
+					CallExpression(n: acorn.Node & namedTypes.CallExpression) {
+						if (!namedTypes.Identifier.check(n.callee)) return;
+
+						const callee = n.callee as acorn.Node &
+							namedTypes.Identifier;
+
+						if (
+							(n.callee.name === 'asNumber' ||
+								n.callee.name === 'asBigInt') &&
+							n.arguments.length === 1
+						) {
+							s.update(callee.start, callee.end, '');
+						} else if (
+							n.callee.name === 'parseBigInt' &&
+							n.arguments.length === 1
+						) {
+							s.update(
+								callee.start,
+								callee.end,
+								'Number.parseInt',
+							);
+							s.appendLeft(n.end - 1, ', 10');
+						} else if (
+							n.callee.name === 'toBigInt' &&
+							n.arguments.length === 1
+						) {
+							s.update(callee.start, callee.end, 'Math.trunc');
+						} else if (
+							[
+								'absBigInt',
+								'maxBigInt',
+								'minBigInt',
+								'signBigInt',
+							].includes(n.callee.name)
+						) {
+							s.appendRight(callee.start, 'Math.');
+							s.remove(callee.end - 6, callee.end);
 						}
 					},
 					/* eslint-enable @typescript-eslint/naming-convention */

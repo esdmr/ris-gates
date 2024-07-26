@@ -10,6 +10,7 @@ import * as theme from '../theme.js';
 import * as tree from '../tree.js';
 import * as selection from '../selection.js';
 import {Timeout} from '../../lib/timer.js';
+import {asNumber} from '../../lib/bigint.js';
 
 const dialogScreenshot = query('#dialog-screenshot', HTMLDialogElement);
 const screenshotForm = query('form', HTMLFormElement, dialogScreenshot);
@@ -32,8 +33,8 @@ function setupScreenshotOverrides() {
 	tree.setScale(inputScale.valueAsNumber);
 	useDip = inputDip.checked;
 	document.body.classList.toggle('dark', inputDark.checked);
-	canvas.canvas.width = Number(inputWidth.value);
-	canvas.canvas.height = Number(inputHeight.value);
+	canvas.canvas.width = inputWidth.valueAsNumber;
+	canvas.canvas.height = inputHeight.valueAsNumber;
 	theme.updateStylesFromCss();
 }
 
@@ -123,8 +124,8 @@ export function open(target?: 'selection') {
 		const box = selection.getBox();
 		inputX.value = String(box.topLeft.x);
 		inputY.value = String(box.topLeft.y);
-		inputWidth.value = String(realScale * Number(box.width));
-		inputHeight.value = String(realScale * Number(box.height));
+		inputWidth.value = String(realScale * asNumber(box.width));
+		inputHeight.value = String(realScale * asNumber(box.height));
 	} else {
 		inputX.value = tree.scrollX.toString();
 		inputY.value = tree.scrollY.toString();

@@ -8,6 +8,7 @@ import * as selection from '../selection.js';
 import * as storage from '../storage.js';
 import {Schematic} from '../../lib/schematic.js';
 import {maybeCompress, maybeDecompress} from '../../lib/compress.js';
+import {toBigInt} from '../../lib/bigint.js';
 import * as dialogBrowse from './browse.js';
 import * as dialogLoad from './load.js';
 import * as dialogSave from './save.js';
@@ -57,7 +58,7 @@ export function setup() {
 	});
 
 	inputMajorGrid.addEventListener('input', () => {
-		grid.setMajorGridLength(BigInt(inputMajorGrid.valueAsNumber || 0n));
+		grid.setMajorGridLength(toBigInt(inputMajorGrid.valueAsNumber || 0));
 	});
 
 	inputEvalRate.addEventListener('input', () => {

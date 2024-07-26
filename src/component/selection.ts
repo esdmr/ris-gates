@@ -59,10 +59,7 @@ export function copy() {
 
 export function remove() {
 	const {width, height} = getBox();
-	tree.tree.putSchematic(
-		new Schematic(Number(width), Number(height), []),
-		getBox().topLeft,
-	);
+	tree.tree.putSchematic(new Schematic(width, height, []), getBox().topLeft);
 }
 
 export function cut() {
@@ -76,7 +73,7 @@ export function paste(point: Point) {
 	tree.tree.putSchematic(clipboard, point);
 	firstX = point.x;
 	firstY = point.y;
-	secondX = firstX + BigInt(clipboard.realWidth) - 1n;
-	secondY = firstY + BigInt(clipboard.realHeight) - 1n;
+	secondX = firstX + clipboard.realWidth - 1n;
+	secondY = firstY + clipboard.realHeight - 1n;
 	cachedBox = undefined;
 }

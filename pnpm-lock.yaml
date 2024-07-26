@@ -18,6 +18,10 @@ packageExtensionsChecksum: 119843541e5de0faa8c89f50fa62a06d
 importers:
 
   .:
+    dependencies:
+      ast-types:
+        specifier: ^0.14.2
+        version: 0.14.2
     optionalDependencies:
       '@internal/eval-wasm':
         specifier: link:eval-wasm/pkg
@@ -693,6 +697,13 @@ packages:
     resolution: {integrity: sha512-tLkvA81vQG/XqE2mjDkGQHoOINtMHtysSnemrmoGe6PydDPMRbVugqyk4A6V/WDWEfm3l+0d8anA9r8cv/5Jaw==}
     engines: {node: '>=12'}
     dev: true
+
+  /ast-types@0.14.2:
+    resolution: {integrity: sha512-O0yuUDnZeQDL+ncNGlJ78BiO4jnYI3bvMsD5prT0/nsgijG/LpNBIr63gTjVTNsiGkgQhiyCShTgxt8oXOrklA==}
+    engines: {node: '>=4'}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
 
   /available-typed-arrays@1.0.5:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}
@@ -2903,7 +2914,6 @@ packages:
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-    dev: true
 
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}

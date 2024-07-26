@@ -17,9 +17,13 @@ import {QuadTree} from './lib/tree.js';
 import {maybeCompress, maybeDecompress} from './lib/compress.js';
 import {
 	generateDecoder,
+	generateDemultiplexer,
 	generateEncoder,
+	generateMemory,
 	generateMultiplexer,
 } from './lib/generator.js';
+import {asBigInt, asNumber, parseBigInt} from './lib/bigint.js';
+import type {Schematic} from './lib/schematic.js';
 
 const {
 	values: {input, label, rate, strict, generate},
@@ -51,33 +55,38 @@ const {
 });
 
 if (generate) {
-	const [, type, input_, output_ = '0'] =
+	const [, type, input_ = '0', output_ = '0'] =
 		/^(\w{3})(\d+)(?:x(\d+))?$/i.exec(generate) ?? [];
-	const input = Number(input_);
-	const output = Number(output_);
-	let schematic;
+	const input = parseBigInt(input_);
+	const output = parseBigInt(output_);
+	let schematic: Schematic;
 
 	switch (type) {
 		case 'mux': {
-			schematic = generateMultiplexer(input, output || 1);
+			schematic = generateMultiplexer(input || output);
 			break;
 		}
 
 		case 'dem': {
-			schematic = generateMultiplexer(output || 1, input);
+			schematic = generateDemultiplexer(output || input);
 			break;
 		}
 
 		case 'dec': {
-			schematic = generateDecoder(input, output || 2 ** input);
+			schematic = generateDecoder(input, output || 2n ** input);
 			break;
 		}
 
 		case 'enc': {
 			schematic = generateEncoder(
 				input,
-				output || Math.ceil(Math.log2(input)),
+				output || asBigInt(Math.ceil(Math.log2(asNumber(input)))),
 			);
+			break;
+		}
+
+		case 'mem': {
+			schematic = generateMemory(input, output || 8n);
 			break;
 		}
 

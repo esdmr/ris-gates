@@ -1,3 +1,4 @@
+import {parseBigInt} from '../lib/bigint.js';
 import * as storage from './storage.js';
 
 const configMinorGrid = 'minor-grid';
@@ -28,6 +29,8 @@ export function setup() {
 		Boolean(storage.getString(configMinorGrid, storage.configPrefix)),
 	);
 	setMajorGridLength(
-		BigInt(storage.getString(configMajorGrid, storage.configPrefix, 0n)),
+		parseBigInt(
+			storage.getString(configMajorGrid, storage.configPrefix, '0'),
+		),
 	);
 }

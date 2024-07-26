@@ -32,7 +32,7 @@ export function open(errors: readonly SequencerError[]) {
 					class: 'error',
 				},
 				create('span', {class: 'message'}, i.rawMessage),
-				create('span', {class: 'lineno'}, String(i.line.index + 1)),
+				create('span', {class: 'lineno'}, String(i.line.index + 1n)),
 				create('pre', {class: 'line'}, String(i.line.content)),
 			),
 		),
