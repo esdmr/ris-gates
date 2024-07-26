@@ -439,6 +439,48 @@ const memoryDecoderTrue = new GenerationContext(4n, 8n, [
 	tileType.negate,
 ]);
 
+const memoryDecoderControlRw = new GenerationContext(4n, 8n, [
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+
+	tileType.empty,
+	tileType.disjoinN,
+	tileType.conjoinN,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.empty,
+	tileType.conjoinS,
+
+	tileType.empty,
+	tileType.conjoinS,
+	tileType.conjoinS,
+	tileType.disjoinN,
+
+	tileType.conjoinE,
+	tileType.negate,
+	tileType.conjoinE,
+	tileType.negate,
+]);
+
 const memoryDecoderControl = new GenerationContext(7n, 8n, [
 	tileType.empty,
 	tileType.conjoinS,
@@ -836,6 +878,7 @@ export function generateMemory(address: bigint, data: bigint) {
 		}
 
 		row.push(
+			memoryDecoderControlRw,
 			memoryDecoderControl,
 			memoryDecoderNegate,
 			GenerationContext.repeatSchematicFor(memoryCell, data, 1n),
@@ -849,7 +892,7 @@ export function generateMemory(address: bigint, data: bigint) {
 			new GenerationContext(1n, 3n),
 			GenerationContext.repeatSchematicFor(
 				gridVerticalDoubleInput,
-				address,
+				address + 1n,
 				1n,
 			),
 			GenerationContext.repeatSchematicFor(
@@ -867,7 +910,7 @@ export function generateMemory(address: bigint, data: bigint) {
 			0n,
 			0n,
 			1n +
-				gridVerticalDoubleInput.realWidth * address +
+				gridVerticalDoubleInput.realWidth * (address + 1n) +
 				gridVerticalSingleInput.realWidth * 3n +
 				2n,
 		),
