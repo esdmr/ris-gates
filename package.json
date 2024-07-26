@@ -42,7 +42,9 @@
 			"normalize-package-data>semver": "^5.7.2",
 			"semver@>=6.0.0 <6.3.1": "^6.3.1",
 			"eslint-plugin-import>semver": "^6.3.1",
-			"word-wrap@<1.2.4": "^1.2.4"
+			"word-wrap@<1.2.4": "^1.2.4",
+			"braces@<3.0.3": "3.0.3",
+			"axios@>=0.8.1 <0.28.0": "0.28.0"
 		}
 	},
 	"optionalDependencies": {
