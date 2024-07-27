@@ -1,5 +1,6 @@
 import {assert} from './assert.js';
 import {JsEvaluator} from './eval-js.js';
+import {optimize} from './eval-opt.js';
 // eslint-disable-next-line @internal/import-preference
 import type * as EvalWasm from './eval-wasm.js';
 import {mapGet} from './map-and-set.js';
@@ -85,13 +86,15 @@ export class NegateVertex {
 }
 
 export class EvalGraph {
-	readonly horizontalVertices = new Map<QuadTreeNode, number>();
-	readonly verticalVertices = new Map<QuadTreeNode, number>();
-	readonly positiveEdges = new Map<number, Set<number>>();
-	readonly negativeEdges = new Map<number, Set<number>>();
+	horizontalVertices = new Map<QuadTreeNode, number>();
+	verticalVertices = new Map<QuadTreeNode, number>();
+	positiveEdges = new Map<number, Set<number>>();
+	negativeEdges = new Map<number, Set<number>>();
 	readonly inputTiles = new Set<QuadTreeNode>();
-	readonly activeVertices = new Set<number>();
-	verticesCount = 0;
+	// Vertex 0 is always false and vertex 1 is always true.
+	activeVertices = new Set([1]);
+	inputVertices = new Set<number>();
+	verticesCount = 2;
 	protected declare _toDot?: () => string;
 
 	static {
@@ -153,6 +156,7 @@ export class EvalGraph {
 				!this.negativeEdges.has(vertex)
 			) {
 				this.inputTiles.add(tile);
+				this.inputVertices.add(vertex);
 			}
 		}
 
@@ -394,14 +398,26 @@ export class EvalContext {
 		);
 	}
 
+	isUnidirectional(tile: QuadTreeNode) {
+		return (
+			this._graph.horizontalVertices.get(tile) ===
+			this._graph.verticalVertices.get(tile)
+		);
+	}
+
 	input(tile: QuadTreeNode, value: boolean) {
 		const vertex = this._graph.horizontalVertices.get(tile);
 		if (vertex === undefined) return;
 		this._evaluator.input(vertex, value);
 	}
 
-	output(tile: QuadTreeNode) {
+	outputHorizontal(tile: QuadTreeNode) {
 		const vertex = this._graph.horizontalVertices.get(tile);
+		return vertex !== undefined && this._evaluator.output(vertex);
+	}
+
+	outputVertical(tile: QuadTreeNode) {
+		const vertex = this._graph.verticalVertices.get(tile);
 		return vertex !== undefined && this._evaluator.output(vertex);
 	}
 
@@ -416,16 +432,18 @@ export class EvalContext {
 		this.tickCount++;
 		if (import.meta.env.DEV) console.group('Next Tick:', this.tickCount);
 
-		const anythingUpdated = this._evaluator.tickForward();
+		try {
+			const anythingUpdated = this._evaluator.tickForward();
 
-		if (import.meta.env.DEV) console.groupEnd();
+			if (!anythingUpdated && this._undoStack.size > 0) {
+				this._undoStack.updateLast(unchanged);
+			}
 
-		if (!anythingUpdated && this._undoStack.size > 0) {
-			this._undoStack.updateLast(unchanged);
+			evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
+			return anythingUpdated;
+		} finally {
+			if (import.meta.env.DEV) console.groupEnd();
 		}
-
-		evalEvents.dispatchEvent(new EvalStepEvent(this, !anythingUpdated));
-		return anythingUpdated;
 	}
 
 	tickBackward() {
@@ -474,7 +492,31 @@ import('./eval-wasm.js').then(
 	},
 );
 
-export function getEvaluator(graph: EvalGraph, useWasm = false): Evaluator {
+export function getEvaluator(tree: QuadTree, useWasm = false): Evaluator {
+	const graph = new EvalGraph(new TilesMap(tree));
+
+	if (import.meta.env.DEV) {
+		console.group('Optimization');
+		console.log(
+			graph.verticesCount,
+			graph.positiveEdges.size,
+			graph.negativeEdges.size,
+		);
+	}
+
+	try {
+		optimize(graph);
+	} finally {
+		if (import.meta.env.DEV) {
+			console.log(
+				graph.verticesCount,
+				graph.positiveEdges.size,
+				graph.negativeEdges.size,
+			);
+			console.groupEnd();
+		}
+	}
+
 	try {
 		if (evalWasm && useWasm) {
 			evalWasm.setupWasmEvaluator(graph);

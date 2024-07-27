@@ -1,12 +1,6 @@
 import {assert} from '../lib/assert.js';
 import {queryAll} from '../lib/dom.js';
-import {
-	EvalContext,
-	EvalGraph,
-	TilesMap,
-	evalEvents,
-	getEvaluator,
-} from '../lib/eval.js';
+import {EvalContext, evalEvents, getEvaluator} from '../lib/eval.js';
 import * as mode from './mode.js';
 import * as storage from './storage.js';
 import * as tree from './tree.js';
@@ -83,7 +77,7 @@ export function getEvalContext() {
 	if (!context) {
 		setEvalContext(
 			new EvalContext(
-				getEvaluator(new EvalGraph(new TilesMap(tree.tree)), useWasm),
+				getEvaluator(tree.tree, useWasm),
 				evaluationUndoCount,
 			),
 		);

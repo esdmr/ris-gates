@@ -195,7 +195,7 @@ export class SequencerContext extends EvalContext {
 		const observation: boolean[] = [];
 
 		for (const tile of this.monitoredTiles) {
-			observation.push(this.output(tile));
+			observation.push(this.outputHorizontal(tile));
 		}
 
 		return observation;
@@ -238,7 +238,7 @@ export class SequencerContext extends EvalContext {
 					this._tiles.get(args[1])!,
 				)!;
 				const src = this._graph.map.getTile(this._tiles.get(args[2])!)!;
-				this.input(dest, this.output(src));
+				this.input(dest, this.outputHorizontal(src));
 				break;
 			}
 
@@ -261,8 +261,8 @@ export class SequencerContext extends EvalContext {
 					new SequencerAssertion(
 						this,
 						args[1]!,
-						this.output(actual),
-						this.output(expected),
+						this.outputHorizontal(actual),
+						this.outputHorizontal(expected),
 						args[2]!,
 					),
 				);
@@ -277,7 +277,7 @@ export class SequencerContext extends EvalContext {
 					new SequencerAssertion(
 						this,
 						args[1]!,
-						this.output(actual),
+						this.outputHorizontal(actual),
 						args[2]!,
 					),
 				);
